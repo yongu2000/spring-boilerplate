@@ -4,6 +4,7 @@ import com.boilerplate.boilerplate.domain.user.dto.JoinRequest;
 import com.boilerplate.boilerplate.domain.user.dto.JoinResponse;
 import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
+import com.boilerplate.boilerplate.domain.user.exception.UserError;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,6 @@ public class JoinService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    private static final String USER_ALREADY_EXIST = "이미 존재하는 유저입니다";
 
     public JoinResponse join(JoinRequest request) {
         validateUsernameExistence(request.getUsername());
@@ -38,7 +37,7 @@ public class JoinService {
     private void validateUsernameExistence(String username) {
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isPresent()) {
-            throw new IllegalArgumentException(USER_ALREADY_EXIST);
+            throw new IllegalArgumentException(UserError.ALREADY_EXIST.getMessage());
         }
     }
 }
