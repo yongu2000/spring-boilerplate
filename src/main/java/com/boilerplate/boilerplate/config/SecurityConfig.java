@@ -1,17 +1,24 @@
 package com.boilerplate.boilerplate.config;
 
+import com.boilerplate.boilerplate.config.jwt.JwtLoginFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final AuthenticationManager authenticationManager;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -34,6 +41,9 @@ public class SecurityConfig {
                 .requestMatchers("/login", "/join", "/", "/api/login", "/api/join").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
+
+        http.addFilterAt(new JwtLoginFilter(authenticationManager),
+            UsernamePasswordAuthenticationFilter.class);
 
         //세션 설정
         http

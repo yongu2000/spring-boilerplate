@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UserError {
 
-    ALREADY_EXIST("이미 존재하는 유저입니다");
-
+    ALREADY_EXIST("이미 존재하는 유저입니다"),
+    NO_SUCH_USER("존재하지 않는 유저입니다");
+    
     private final String message;
 }
