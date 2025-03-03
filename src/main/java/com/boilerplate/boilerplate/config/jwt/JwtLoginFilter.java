@@ -1,7 +1,6 @@
 package com.boilerplate.boilerplate.config.jwt;
 
-import com.boilerplate.boilerplate.config.jwt.entity.RefreshToken;
-import com.boilerplate.boilerplate.config.jwt.repository.RefreshTokenRepository;
+import com.boilerplate.boilerplate.config.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
 import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.dto.LoginRequest;
@@ -14,7 +13,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,7 +26,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenService refreshTokenService;
 
     private static final String LOGIN_URL = "/api/login";
 
@@ -41,11 +39,11 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     private static final String REFRESH_TOKEN_NAME = "REFRESH_TOKEN";
 
     public JwtLoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
-        RefreshTokenRepository refreshTokenRepository) {
+        RefreshTokenService refreshTokenService) {
         super(authenticationManager);
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-        this.refreshTokenRepository = refreshTokenRepository;
+        this.refreshTokenService = refreshTokenService;
         setFilterProcessesUrl(LOGIN_URL);
     }
 
@@ -86,16 +84,11 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String accessToken = jwtUtil.generateToken(user, ACCESS_TOKEN_EXPIRATION_DURATION);
         String refreshToken = jwtUtil.generateToken(user, REFRESH_TOKEN_EXPIRATION_DURATION);
-        saveRefreshToken(user, refreshToken);
+        refreshTokenService.save(user, refreshToken);
 
         response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + accessToken);
         CookieUtil.addCookie(response, REFRESH_TOKEN_NAME, refreshToken,
             (int) REFRESH_TOKEN_EXPIRATION_DURATION.toSeconds());
-    }
-
-    private void saveRefreshToken(User user, String refreshToken) {
-        LocalDateTime expirationTime = LocalDateTime.now().plusDays(14);
-        refreshTokenRepository.save(new RefreshToken(user.getId(), refreshToken, expirationTime));
     }
 
     //로그인 실패시 실행하는 메소드

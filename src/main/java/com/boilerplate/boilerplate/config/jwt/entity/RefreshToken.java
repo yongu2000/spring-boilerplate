@@ -21,7 +21,7 @@ public class RefreshToken {
     @Column(name = "refresh_token_id", updatable = false)
     private Long id;
 
-    @Column(name = "user_id", nullable = false, unique = true)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @Column(name = "refresh_token", nullable = false)
@@ -36,8 +36,8 @@ public class RefreshToken {
         this.expiration = expiration;
     }
 
-    public RefreshToken update(String newRefreshToken) {
+    public void update(String newRefreshToken, LocalDateTime expiration) {
         this.refreshToken = newRefreshToken;
-        return this;
+        this.expiration = expiration;
     }
 }

@@ -6,6 +6,7 @@ import com.boilerplate.boilerplate.config.jwt.service.JwtTokenService;
 import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,15 +22,20 @@ public class JwtTokenApiController {
 
     private static final String HEADER_AUTHORIZATION = "Authorization";
     private static final String TOKEN_PREFIX = "Bearer ";
+    private static final String REFRESH_TOKEN_NAME = "REFRESH_TOKEN";
+
+    private static final Duration REFRESH_TOKEN_EXPIRATION_DURATION = Duration.ofDays(14);
+
 
     @PostMapping("/api/token/json")
     public ResponseEntity<ReissueAccessTokenResponse> reissueAccessTokenAtJson(
         @RequestBody ReissueAccessTokenRequest request) {
 
         String newAccessToken = jwtTokenService.createNewAccessToken(request.getRefreshToken());
+        String newRefreshToken = jwtTokenService.createNewRefreshToken(request.getRefreshToken());
 
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(new ReissueAccessTokenResponse(newAccessToken));
+            .body(new ReissueAccessTokenResponse(newAccessToken, newRefreshToken));
     }
 
     @PostMapping("/api/token/header")
@@ -38,8 +44,12 @@ public class JwtTokenApiController {
 
         String refreshToken = jwtTokenService.getRefreshTokenFromCookie(
             CookieUtil.getCookiesFromRequest(request));
-        String newAccessToken = jwtTokenService.createNewAccessToken(refreshToken);
 
+        String newAccessToken = jwtTokenService.createNewAccessToken(refreshToken);
+        String newRefreshToken = jwtTokenService.createNewRefreshToken(refreshToken);
+
+        CookieUtil.addCookie(response, REFRESH_TOKEN_NAME, newRefreshToken,
+            (int) REFRESH_TOKEN_EXPIRATION_DURATION.toSeconds());
         response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + newAccessToken);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
