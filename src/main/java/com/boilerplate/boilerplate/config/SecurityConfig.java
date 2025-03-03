@@ -1,5 +1,6 @@
 package com.boilerplate.boilerplate.config;
 
+import com.boilerplate.boilerplate.config.jwt.JwtAuthenticationFilter;
 import com.boilerplate.boilerplate.config.jwt.JwtLoginFilter;
 import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,8 @@ public class SecurityConfig {
                 .requestMatchers("/login", "/join", "/", "/api/login", "/api/join").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
+        
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtUtil), JwtLoginFilter.class);
 
         http
             .addFilterAt(

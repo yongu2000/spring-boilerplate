@@ -10,4 +10,13 @@ public enum Role {
     ADMIN("ROLE_ADMIN");
 
     private final String role;
+
+    public static Role of(String string) {
+        for (Role value : Role.values()) {
+            if (value.getRole().equals(string)) {
+                return value;
+            }
+        }
+        return null;
+    }
 }

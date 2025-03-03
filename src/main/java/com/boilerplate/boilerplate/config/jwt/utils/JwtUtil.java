@@ -1,6 +1,7 @@
 package com.boilerplate.boilerplate.config.jwt.utils;
 
 import com.boilerplate.boilerplate.config.jwt.JwtProperties;
+import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import io.jsonwebtoken.Jwts;
 import java.nio.charset.StandardCharsets;
@@ -56,10 +57,11 @@ public class JwtUtil {
             .get("username", String.class);
     }
 
-    public String getRole(String token) {
+    public Role getRole(String token) {
 
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-            .get("role", String.class);
+        return Role.of(
+            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
+                .get("role", String.class));
     }
 
 
