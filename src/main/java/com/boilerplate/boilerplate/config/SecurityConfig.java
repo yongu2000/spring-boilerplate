@@ -2,6 +2,7 @@ package com.boilerplate.boilerplate.config;
 
 import com.boilerplate.boilerplate.config.jwt.JwtAuthenticationFilter;
 import com.boilerplate.boilerplate.config.jwt.JwtLoginFilter;
+import com.boilerplate.boilerplate.config.jwt.repository.RefreshTokenRepository;
 import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
 
     @Bean
@@ -48,15 +50,17 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
             .authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/login", "/join", "/", "/api/login", "/api/join").permitAll()
+                .requestMatchers("/login", "/join", "/", "/api/login", "/api/join", "/api/token/**")
+                .permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
-        
+
         http.addFilterBefore(new JwtAuthenticationFilter(jwtUtil), JwtLoginFilter.class);
 
         http
             .addFilterAt(
-                new JwtLoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),
+                new JwtLoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
+                    refreshTokenRepository),
                 UsernamePasswordAuthenticationFilter.class);
 
         //세션 설정

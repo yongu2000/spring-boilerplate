@@ -1,5 +1,8 @@
 package com.boilerplate.boilerplate.config.jwt;
 
+import com.boilerplate.boilerplate.config.jwt.entity.RefreshToken;
+import com.boilerplate.boilerplate.config.jwt.repository.RefreshTokenRepository;
+import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
 import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.dto.LoginRequest;
 import com.boilerplate.boilerplate.domain.user.entity.User;
@@ -11,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,16 +28,24 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     private static final String LOGIN_URL = "/api/login";
-    private static final Duration EXPIRATION_DURATION = Duration.ofMinutes(10);
+
+    private static final Duration ACCESS_TOKEN_EXPIRATION_DURATION = Duration.ofMinutes(10);
+    private static final Duration REFRESH_TOKEN_EXPIRATION_DURATION = Duration.ofDays(14);
+
     private static final String HEADER_AUTHORIZATION = "Authorization";
     private static final String TOKEN_PREFIX = "Bearer ";
 
-    public JwtLoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    private static final String REFRESH_TOKEN_NAME = "REFRESH_TOKEN";
+
+    public JwtLoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
+        RefreshTokenRepository refreshTokenRepository) {
         super(authenticationManager);
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.refreshTokenRepository = refreshTokenRepository;
         setFilterProcessesUrl(LOGIN_URL);
     }
 
@@ -50,8 +62,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         UsernamePasswordAuthenticationToken authToken = UsernamePasswordAuthenticationToken.unauthenticated(
             username, password);
-        log.info("username = {}", username);
-        log.info("password = {}", password);
+
         return authenticationManager.authenticate(authToken);
     }
 
@@ -72,8 +83,19 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request,
         HttpServletResponse response, FilterChain chain, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
-        String accessToken = jwtUtil.generateToken(user, EXPIRATION_DURATION);
+
+        String accessToken = jwtUtil.generateToken(user, ACCESS_TOKEN_EXPIRATION_DURATION);
+        String refreshToken = jwtUtil.generateToken(user, REFRESH_TOKEN_EXPIRATION_DURATION);
+        saveRefreshToken(user, refreshToken);
+
         response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + accessToken);
+        CookieUtil.addCookie(response, REFRESH_TOKEN_NAME, refreshToken,
+            (int) REFRESH_TOKEN_EXPIRATION_DURATION.toSeconds());
+    }
+
+    private void saveRefreshToken(User user, String refreshToken) {
+        LocalDateTime expirationTime = LocalDateTime.now().plusDays(14);
+        refreshTokenRepository.save(new RefreshToken(user.getId(), refreshToken, expirationTime));
     }
 
     //로그인 실패시 실행하는 메소드

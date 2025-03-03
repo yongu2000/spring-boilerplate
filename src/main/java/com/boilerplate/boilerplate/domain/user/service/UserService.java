@@ -1,0 +1,20 @@
+package com.boilerplate.boilerplate.domain.user.service;
+
+import com.boilerplate.boilerplate.domain.user.entity.User;
+import com.boilerplate.boilerplate.domain.user.exception.UserError;
+import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@RequiredArgsConstructor
+@Service
+public class UserService {
+
+    private final UserRepository userRepository;
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(
+            UserError.NO_SUCH_USER.getMessage()));
+    }
+
+}

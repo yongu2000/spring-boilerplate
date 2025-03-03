@@ -33,6 +33,7 @@ public class JwtUtil {
         Date now = new Date();
         return Jwts.builder()
             .header().type("JWT").and()
+            .claim("id", user.getId())
             .claim("username", user.getUsername())
             .claim("role", user.getRole())
             .issuer(jwtProperties.getIssuer())
@@ -49,6 +50,12 @@ public class JwtUtil {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public Long getUserId(String token) {
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
+            .get("id", Long.class);
     }
 
     public String getUsername(String token) {
