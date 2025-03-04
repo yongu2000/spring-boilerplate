@@ -7,6 +7,7 @@ import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.exception.UserError;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ class UserServiceTest {
         Long testUserId = 1L;
 
         assertThatThrownBy(() -> userService.findById(testUserId))
-            .isInstanceOf(IllegalArgumentException.class).hasMessage(
+            .isInstanceOf(EntityNotFoundException.class).hasMessage(
                 UserError.NO_SUCH_USER.getMessage());
     }
 }

@@ -5,6 +5,7 @@ import com.boilerplate.boilerplate.config.jwt.entity.RefreshToken;
 import com.boilerplate.boilerplate.config.jwt.exception.TokenError;
 import com.boilerplate.boilerplate.config.jwt.repository.RefreshTokenRepository;
 import com.boilerplate.boilerplate.domain.user.entity.User;
+import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class RefreshTokenService {
 
     public RefreshToken findByRefreshToken(String refreshToken) {
         return refreshTokenRepository.findByRefreshToken(refreshToken)
-            .orElseThrow(() -> new IllegalArgumentException(
+            .orElseThrow(() -> new EntityNotFoundException(
                 TokenError.REFRESH_TOKEN_NOT_EXIST.getMessage()));
     }
 

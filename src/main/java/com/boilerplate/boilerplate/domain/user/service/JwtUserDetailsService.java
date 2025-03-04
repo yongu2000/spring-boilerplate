@@ -2,6 +2,7 @@ package com.boilerplate.boilerplate.domain.user.service;
 
 import com.boilerplate.boilerplate.domain.user.exception.UserError;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,7 +20,7 @@ public class JwtUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
-            .orElseThrow(() -> new IllegalArgumentException(
+            .orElseThrow(() -> new EntityNotFoundException(
                 UserError.NO_SUCH_USER.getMessage()));
     }
 }

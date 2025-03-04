@@ -16,7 +16,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     public User findById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(
+        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(
             UserError.NO_SUCH_USER.getMessage()));
     }
 
