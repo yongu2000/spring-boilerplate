@@ -1,6 +1,7 @@
 package com.boilerplate.boilerplate.config.jwt.filters;
 
 import com.boilerplate.boilerplate.config.jwt.JwtProperties;
+import com.boilerplate.boilerplate.config.jwt.exception.AuthenticationError;
 import com.boilerplate.boilerplate.config.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
 import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
@@ -90,7 +91,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request,
         HttpServletResponse response, AuthenticationException failed) {
-        log.info("failed");
+        throw new IllegalStateException(AuthenticationError.LOGIN_FAILURE.getMessage());
     }
 
 }

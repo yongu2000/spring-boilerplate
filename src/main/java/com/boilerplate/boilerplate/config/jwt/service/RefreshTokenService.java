@@ -1,6 +1,7 @@
 package com.boilerplate.boilerplate.config.jwt.service;
 
 import com.boilerplate.boilerplate.config.jwt.entity.RefreshToken;
+import com.boilerplate.boilerplate.config.jwt.exception.TokenError;
 import com.boilerplate.boilerplate.config.jwt.repository.RefreshTokenRepository;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import java.time.LocalDateTime;
@@ -15,7 +16,8 @@ public class RefreshTokenService {
 
     public RefreshToken findByRefreshToken(String refreshToken) {
         return refreshTokenRepository.findByRefreshToken(refreshToken)
-            .orElseThrow(() -> new IllegalArgumentException("No Such RefreshToken"));
+            .orElseThrow(() -> new IllegalArgumentException(
+                TokenError.REFRESH_TOKEN_NOT_EXIST.getMessage()));
     }
 
     public void deleteByRefreshToken(String refreshToken) {
