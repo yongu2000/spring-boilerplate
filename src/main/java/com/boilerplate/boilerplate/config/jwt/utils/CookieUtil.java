@@ -14,8 +14,16 @@ public class CookieUtil {
         response.addCookie(cookie);
     }
 
-    public static Cookie[] getCookiesFromRequest(HttpServletRequest request) {
-        return request.getCookies();
+    public static void deleteCookie(HttpServletRequest request, HttpServletResponse response,
+        String name) {
+        for (Cookie cookie : request.getCookies()) {
+            if (name.equals(cookie.getName())) {
+                cookie.setValue("");
+                cookie.setPath("/");
+                cookie.setMaxAge(0);
+                response.addCookie(cookie);
+            }
+        }
     }
 
     public static String getCookieByName(Cookie[] cookies, String name) {

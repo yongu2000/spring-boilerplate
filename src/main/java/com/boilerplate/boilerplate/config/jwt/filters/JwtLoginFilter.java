@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.config.jwt;
+package com.boilerplate.boilerplate.config.jwt.filters;
 
 import com.boilerplate.boilerplate.config.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;

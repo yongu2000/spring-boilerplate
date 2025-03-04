@@ -18,6 +18,10 @@ public class RefreshTokenService {
             .orElseThrow(() -> new IllegalArgumentException("No Such RefreshToken"));
     }
 
+    public void deleteByRefreshToken(String refreshToken) {
+        refreshTokenRepository.deleteByRefreshToken(refreshToken);
+    }
+
     public void save(User user, String refreshToken) {
         LocalDateTime expirationTime = LocalDateTime.now().plusDays(14);
         refreshTokenRepository.save(new RefreshToken(user.getId(), refreshToken, expirationTime));

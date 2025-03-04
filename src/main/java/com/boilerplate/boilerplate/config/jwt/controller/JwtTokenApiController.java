@@ -42,8 +42,7 @@ public class JwtTokenApiController {
     public ResponseEntity<?> reissueAccessTokenAtHeader(HttpServletRequest request,
         HttpServletResponse response) {
 
-        String refreshToken = jwtTokenService.getRefreshTokenFromCookie(
-            CookieUtil.getCookiesFromRequest(request));
+        String refreshToken = jwtTokenService.getRefreshTokenFromCookie(request.getCookies());
 
         String newAccessToken = jwtTokenService.createNewAccessToken(refreshToken);
         String newRefreshToken = jwtTokenService.createNewRefreshToken(refreshToken);

@@ -1,7 +1,8 @@
 package com.boilerplate.boilerplate.config;
 
-import com.boilerplate.boilerplate.config.jwt.JwtAuthenticationFilter;
-import com.boilerplate.boilerplate.config.jwt.JwtLoginFilter;
+import com.boilerplate.boilerplate.config.jwt.filters.JwtAuthenticationFilter;
+import com.boilerplate.boilerplate.config.jwt.filters.JwtLoginFilter;
+import com.boilerplate.boilerplate.config.jwt.filters.JwtLogoutFilter;
 import com.boilerplate.boilerplate.config.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -36,16 +38,15 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         //csrf disable
-        http
-            .csrf(AbstractHttpConfigurer::disable);
+        http.csrf(AbstractHttpConfigurer::disable);
 
         //From 로그인 방식 disable
-        http
-            .formLogin(AbstractHttpConfigurer::disable);
+        http.formLogin(AbstractHttpConfigurer::disable);
 
         //http basic 인증 방식 disable
-        http
-            .httpBasic(AbstractHttpConfigurer::disable);
+        http.httpBasic(AbstractHttpConfigurer::disable);
+
+        http.logout(AbstractHttpConfigurer::disable);
 
         //경로별 인가 작업
         http
@@ -54,6 +55,9 @@ public class SecurityConfig {
                 .permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
+
+        http
+            .addFilterBefore(new JwtLogoutFilter(jwtUtil, refreshTokenService), LogoutFilter.class);
 
         http.addFilterBefore(new JwtAuthenticationFilter(jwtUtil), JwtLoginFilter.class);
 

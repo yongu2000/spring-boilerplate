@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.config.jwt;
+package com.boilerplate.boilerplate.config.jwt.filters;
 
 import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.entity.User;
