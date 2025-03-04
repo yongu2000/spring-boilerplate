@@ -1,11 +1,12 @@
 package com.boilerplate.boilerplate.config.jwt.utils;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.boilerplate.boilerplate.config.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
 import java.time.Duration;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,30 @@ class JwtUtilTest {
     void generateToken_success() {
         String testUsername = "testUsername";
         String testPassword = "testPassword";
+        Role testRole = Role.USER;
+        User testUser = User.builder()
+            .username(testUsername)
+            .password(testPassword)
+            .role(testRole)
+            .build();
+        userRepository.save(testUser);
+
+        String token = jwtUtil.generateToken(testUser, Duration.ofMinutes(10));
+
+        Long id = jwtUtil.getUserId(token);
+        String username = jwtUtil.getUsername(token);
+        Role role = jwtUtil.getRole(token);
+
+        assertThat(id).isEqualTo(testUser.getId());
+        assertThat(username).isEqualTo(testUsername);
+        assertThat(role).isEqualTo(testRole);
+    }
+
+    @Test
+    @DisplayName("만료되지 않은 토큰 유효성 검사 통과")
+    void generateToken_not_expired_success() {
+        String testUsername = "testUsername";
+        String testPassword = "testPassword";
         User testUser = User.builder()
             .username(testUsername)
             .password(testPassword)
@@ -39,10 +64,10 @@ class JwtUtilTest {
             .build();
         userRepository.save(testUser);
 
-        String token = jwtUtil.generateToken(testUser, Duration.ofMinutes(10));
+        String token = jwtUtil.generateToken(testUser, Duration.ofDays(10));
 
-        String username = jwtUtil.getUsername(token);
-        Assertions.assertThat(username).isEqualTo(testUsername);
+        boolean result = jwtUtil.isValidToken(token);
+        assertThat(result).isEqualTo(true);
     }
 
     @Test
@@ -60,7 +85,7 @@ class JwtUtilTest {
         String token = jwtUtil.generateToken(testUser, Duration.ofDays(-10));
 
         boolean result = jwtUtil.isValidToken(token);
-        Assertions.assertThat(result).isEqualTo(false);
+        assertThat(result).isEqualTo(false);
     }
 
 }
