@@ -3,8 +3,8 @@ package com.boilerplate.boilerplate.config;
 import com.boilerplate.boilerplate.config.jwt.filters.JwtAuthenticationFilter;
 import com.boilerplate.boilerplate.config.jwt.filters.JwtLoginFilter;
 import com.boilerplate.boilerplate.config.jwt.filters.JwtLogoutFilter;
+import com.boilerplate.boilerplate.config.jwt.service.JwtTokenService;
 import com.boilerplate.boilerplate.config.jwt.service.RefreshTokenService;
-import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,8 +25,8 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final JwtTokenService jwtTokenService;
     private final RefreshTokenService refreshTokenService;
-    private final JwtUtil jwtUtil;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
@@ -57,13 +57,15 @@ public class SecurityConfig {
                 .anyRequest().authenticated());
 
         http
-            .addFilterBefore(new JwtLogoutFilter(jwtUtil, refreshTokenService), LogoutFilter.class);
+            .addFilterBefore(new JwtLogoutFilter(jwtTokenService, refreshTokenService),
+                LogoutFilter.class);
 
-        http.addFilterBefore(new JwtAuthenticationFilter(jwtUtil), JwtLoginFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenService), JwtLoginFilter.class);
 
         http
             .addFilterAt(
-                new JwtLoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
+                new JwtLoginFilter(authenticationManager(authenticationConfiguration),
+                    jwtTokenService,
                     refreshTokenService),
                 UsernamePasswordAuthenticationFilter.class);
 

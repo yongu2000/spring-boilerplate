@@ -2,9 +2,9 @@ package com.boilerplate.boilerplate.config.jwt.filters;
 
 import com.boilerplate.boilerplate.config.jwt.JwtProperties;
 import com.boilerplate.boilerplate.config.jwt.exception.AuthenticationError;
+import com.boilerplate.boilerplate.config.jwt.service.JwtTokenService;
 import com.boilerplate.boilerplate.config.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
-import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.dto.LoginRequest;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,16 +26,17 @@ import org.springframework.util.StreamUtils;
 public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
+    private final JwtTokenService jwtTokenService;
     private final RefreshTokenService refreshTokenService;
 
     private static final String LOGIN_URL = "/api/login";
 
-    public JwtLoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
+    public JwtLoginFilter(AuthenticationManager authenticationManager,
+        JwtTokenService jwtTokenService,
         RefreshTokenService refreshTokenService) {
         super(authenticationManager);
         this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
+        this.jwtTokenService = jwtTokenService;
         this.refreshTokenService = refreshTokenService;
         setFilterProcessesUrl(LOGIN_URL);
     }
@@ -75,11 +76,8 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         HttpServletResponse response, FilterChain chain, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
 
-        String accessToken = jwtUtil.generateToken(user,
-            JwtProperties.ACCESS_TOKEN_EXPIRATION_DURATION);
-        String refreshToken = jwtUtil.generateToken(user,
-            JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION);
-        refreshTokenService.save(user, refreshToken);
+        String accessToken = jwtTokenService.createAccessToken(user);
+        String refreshToken = jwtTokenService.createRefreshToken(user);
 
         response.addHeader(JwtProperties.HEADER_AUTHORIZATION,
             JwtProperties.ACCESS_TOKEN_PREFIX + accessToken);

@@ -1,5 +1,6 @@
 package com.boilerplate.boilerplate.config.jwt.service;
 
+import com.boilerplate.boilerplate.config.jwt.JwtProperties;
 import com.boilerplate.boilerplate.config.jwt.entity.RefreshToken;
 import com.boilerplate.boilerplate.config.jwt.exception.TokenError;
 import com.boilerplate.boilerplate.config.jwt.repository.RefreshTokenRepository;
@@ -27,12 +28,14 @@ public class RefreshTokenService {
     }
 
     public void save(User user, String refreshToken) {
-        LocalDateTime expirationTime = LocalDateTime.now().plusDays(14);
+        LocalDateTime expirationTime = LocalDateTime.now()
+            .plus(JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION);
         refreshTokenRepository.save(new RefreshToken(user.getId(), refreshToken, expirationTime));
     }
 
     public void update(RefreshToken oldRefreshToken, String newRefreshToken) {
-        LocalDateTime expirationTime = LocalDateTime.now().plusDays(14);
+        LocalDateTime expirationTime = LocalDateTime.now()
+            .plus(JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION);
         oldRefreshToken.update(newRefreshToken, expirationTime);
         refreshTokenRepository.save(oldRefreshToken);
     }

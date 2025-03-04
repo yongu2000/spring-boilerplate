@@ -25,6 +25,26 @@ public class JwtTokenService {
         return CookieUtil.getCookieByName(cookies, JwtProperties.REFRESH_TOKEN_NAME);
     }
 
+    public boolean isValidToken(String token) {
+        return jwtUtil.isValidToken(token);
+    }
+
+    public User getUserFromToken(String token) {
+        String username = jwtUtil.getUsername(token);
+        return userService.findByUsername(username);  // 사용자를 찾는 로직
+    }
+
+    public String createAccessToken(User user) {
+        return jwtUtil.generateToken(user, JwtProperties.ACCESS_TOKEN_EXPIRATION_DURATION);
+    }
+
+    public String createRefreshToken(User user) {
+        String refreshToken = jwtUtil.generateToken(user,
+            JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION);
+        refreshTokenService.save(user, refreshToken);
+        return refreshToken;
+    }
+
     public String createNewAccessToken(String refreshToken) {
         if (!jwtUtil.isValidToken(refreshToken)) {
             throw new IllegalArgumentException(TokenError.INVALID_TOKEN.getMessage());
@@ -45,4 +65,5 @@ public class JwtTokenService {
         refreshTokenService.update(oldRefreshToken, newRefreshToken);
         return newRefreshToken;
     }
+
 }

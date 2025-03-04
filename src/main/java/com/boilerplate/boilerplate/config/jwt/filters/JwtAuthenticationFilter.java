@@ -1,7 +1,7 @@
 package com.boilerplate.boilerplate.config.jwt.filters;
 
 import com.boilerplate.boilerplate.config.jwt.JwtProperties;
-import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
+import com.boilerplate.boilerplate.config.jwt.service.JwtTokenService;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;
+    private final JwtTokenService jwtTokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -25,12 +25,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authorizationHeader = request.getHeader(JwtProperties.HEADER_AUTHORIZATION);
         String accessToken = getAccessToken(authorizationHeader);
-        if (jwtUtil.isValidToken(accessToken)) {
-            User user = User.builder()
-                .username(jwtUtil.getUsername(accessToken))
-                .password("")
-                .role(jwtUtil.getRole(accessToken))
-                .build();
+        if (accessToken != null && jwtTokenService.isValidToken(accessToken)) {
+            User user = jwtTokenService.getUserFromToken(accessToken);
             Authentication authToken = new UsernamePasswordAuthenticationToken(user,
                 null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authToken);

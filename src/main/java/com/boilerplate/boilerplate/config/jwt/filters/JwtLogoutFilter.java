@@ -1,9 +1,9 @@
 package com.boilerplate.boilerplate.config.jwt.filters;
 
 import com.boilerplate.boilerplate.config.jwt.JwtProperties;
+import com.boilerplate.boilerplate.config.jwt.service.JwtTokenService;
 import com.boilerplate.boilerplate.config.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
-import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -17,7 +17,7 @@ import org.springframework.web.filter.GenericFilterBean;
 @RequiredArgsConstructor
 public class JwtLogoutFilter extends GenericFilterBean {
 
-    private final JwtUtil jwtUtil;
+    private final JwtTokenService jwtTokenService;
     private final RefreshTokenService refreshTokenService;
 
     private static final String LOGOUT_URL = "^/api/logout$";
@@ -55,7 +55,7 @@ public class JwtLogoutFilter extends GenericFilterBean {
             return;
         }
 
-        if (!jwtUtil.isValidToken(refreshToken)) {
+        if (!jwtTokenService.isValidToken(refreshToken)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
