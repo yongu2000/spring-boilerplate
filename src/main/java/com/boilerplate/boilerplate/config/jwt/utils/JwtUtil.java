@@ -17,6 +17,11 @@ public class JwtUtil {
     private final JwtProperties jwtProperties;
     private final SecretKey secretKey;
 
+    private static final String HEADER_JWT = "JWT";
+    private static final String CLAIM_ID = "id";
+    private static final String CLAIM_USERNAME = "username";
+    private static final String CLAIM_Role = "role";
+
     private JwtUtil(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
         this.secretKey = new SecretKeySpec(
@@ -32,10 +37,10 @@ public class JwtUtil {
     private String createJwt(Date expiration, User user) {
         Date now = new Date();
         return Jwts.builder()
-            .header().type("JWT").and()
-            .claim("id", user.getId())
-            .claim("username", user.getUsername())
-            .claim("role", user.getRole())
+            .header().type(HEADER_JWT).and()
+            .claim(CLAIM_ID, user.getId())
+            .claim(CLAIM_USERNAME, user.getUsername())
+            .claim(CLAIM_Role, user.getRole())
             .issuer(jwtProperties.getIssuer())
             .issuedAt(now)
             .expiration(expiration)
@@ -55,20 +60,20 @@ public class JwtUtil {
     public Long getUserId(String token) {
 
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-            .get("id", Long.class);
+            .get(CLAIM_ID, Long.class);
     }
 
     public String getUsername(String token) {
 
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-            .get("username", String.class);
+            .get(CLAIM_USERNAME, String.class);
     }
 
     public Role getRole(String token) {
 
         return Role.of(
             Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-                .get("role", String.class));
+                .get(CLAIM_Role, String.class));
     }
 
 

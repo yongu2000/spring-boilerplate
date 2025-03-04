@@ -1,12 +1,12 @@
 package com.boilerplate.boilerplate.config.jwt.service;
 
+import com.boilerplate.boilerplate.config.jwt.JwtProperties;
 import com.boilerplate.boilerplate.config.jwt.entity.RefreshToken;
 import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
 import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import jakarta.servlet.http.Cookie;
-import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +18,8 @@ public class JwtTokenService {
     private final RefreshTokenService refreshTokenService;
     private final UserService userService;
 
-    private static final Duration ACCESS_TOKEN_EXPIRATION_DURATION = Duration.ofMinutes(10);
-    private static final Duration REFRESH_TOKEN_EXPIRATION_DURATION = Duration.ofDays(14);
-
-    private static final String REFRESH_TOKEN_NAME = "REFRESH_TOKEN";
-
     public String getRefreshTokenFromCookie(Cookie[] cookies) {
-        return CookieUtil.getCookieByName(cookies, REFRESH_TOKEN_NAME);
+        return CookieUtil.getCookieByName(cookies, JwtProperties.REFRESH_TOKEN_NAME);
     }
 
     public String createNewAccessToken(String refreshToken) {
@@ -33,7 +28,7 @@ public class JwtTokenService {
         }
         Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
         User user = userService.findById(userId);
-        return jwtUtil.generateToken(user, ACCESS_TOKEN_EXPIRATION_DURATION);
+        return jwtUtil.generateToken(user, JwtProperties.ACCESS_TOKEN_EXPIRATION_DURATION);
     }
 
     public String createNewRefreshToken(String refreshToken) {
@@ -42,7 +37,8 @@ public class JwtTokenService {
         }
         RefreshToken oldRefreshToken = refreshTokenService.findByRefreshToken(refreshToken);
         User user = userService.findById(oldRefreshToken.getUserId());
-        String newRefreshToken = jwtUtil.generateToken(user, REFRESH_TOKEN_EXPIRATION_DURATION);
+        String newRefreshToken = jwtUtil.generateToken(user,
+            JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION);
         refreshTokenService.update(oldRefreshToken, newRefreshToken);
         return newRefreshToken;
     }

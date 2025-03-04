@@ -1,5 +1,6 @@
 package com.boilerplate.boilerplate.config.jwt.filters;
 
+import com.boilerplate.boilerplate.config.jwt.JwtProperties;
 import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import jakarta.servlet.FilterChain;
@@ -17,14 +18,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private static final String HEADER_AUTHORIZATION = "Authorization";
-    private static final String TOKEN_PREFIX = "Bearer ";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
 
-        String authorizationHeader = request.getHeader(HEADER_AUTHORIZATION);
+        String authorizationHeader = request.getHeader(JwtProperties.HEADER_AUTHORIZATION);
         String accessToken = getAccessToken(authorizationHeader);
         if (jwtUtil.isValidToken(accessToken)) {
             User user = User.builder()
@@ -40,8 +39,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String getAccessToken(String authorizationHeader) {
-        if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
-            return authorizationHeader.substring(TOKEN_PREFIX.length());
+        if (authorizationHeader != null && authorizationHeader.startsWith(
+            JwtProperties.ACCESS_TOKEN_PREFIX)) {
+            return authorizationHeader.substring(JwtProperties.ACCESS_TOKEN_PREFIX.length());
         }
         return null;
     }

@@ -1,12 +1,12 @@
 package com.boilerplate.boilerplate.config.jwt.controller;
 
+import com.boilerplate.boilerplate.config.jwt.JwtProperties;
 import com.boilerplate.boilerplate.config.jwt.dto.ReissueAccessTokenRequest;
 import com.boilerplate.boilerplate.config.jwt.dto.ReissueAccessTokenResponse;
 import com.boilerplate.boilerplate.config.jwt.service.JwtTokenService;
 import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class JwtTokenApiController {
 
     private final JwtTokenService jwtTokenService;
-
-    private static final String HEADER_AUTHORIZATION = "Authorization";
-    private static final String TOKEN_PREFIX = "Bearer ";
-    private static final String REFRESH_TOKEN_NAME = "REFRESH_TOKEN";
-
-    private static final Duration REFRESH_TOKEN_EXPIRATION_DURATION = Duration.ofDays(14);
-
 
     @PostMapping("/api/token/json")
     public ResponseEntity<ReissueAccessTokenResponse> reissueAccessTokenAtJson(
@@ -47,9 +40,10 @@ public class JwtTokenApiController {
         String newAccessToken = jwtTokenService.createNewAccessToken(refreshToken);
         String newRefreshToken = jwtTokenService.createNewRefreshToken(refreshToken);
 
-        CookieUtil.addCookie(response, REFRESH_TOKEN_NAME, newRefreshToken,
-            (int) REFRESH_TOKEN_EXPIRATION_DURATION.toSeconds());
-        response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + newAccessToken);
+        CookieUtil.addCookie(response, JwtProperties.REFRESH_TOKEN_NAME, newRefreshToken,
+            (int) JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION.toSeconds());
+        response.addHeader(JwtProperties.HEADER_AUTHORIZATION,
+            JwtProperties.ACCESS_TOKEN_PREFIX + newAccessToken);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

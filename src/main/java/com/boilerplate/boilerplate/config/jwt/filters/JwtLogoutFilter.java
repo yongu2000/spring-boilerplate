@@ -1,5 +1,6 @@
 package com.boilerplate.boilerplate.config.jwt.filters;
 
+import com.boilerplate.boilerplate.config.jwt.JwtProperties;
 import com.boilerplate.boilerplate.config.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
 import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
@@ -19,7 +20,9 @@ public class JwtLogoutFilter extends GenericFilterBean {
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
 
-    private static final String REFRESH_TOKEN_NAME = "REFRESH_TOKEN";
+    private static final String LOGOUT_URL = "^/api/logout$";
+    private static final String METHOD_POST = "POST";
+
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
@@ -32,19 +35,20 @@ public class JwtLogoutFilter extends GenericFilterBean {
         FilterChain filterChain) throws IOException, ServletException {
 
         String requestUri = request.getRequestURI();
-        if (!requestUri.matches("^/api/logout$")) {
+        if (!requestUri.matches(LOGOUT_URL)) {
 
             filterChain.doFilter(request, response);
             return;
         }
         String requestMethod = request.getMethod();
-        if (!requestMethod.equals("POST")) {
+        if (!requestMethod.equals(METHOD_POST)) {
 
             filterChain.doFilter(request, response);
             return;
         }
 
-        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), REFRESH_TOKEN_NAME);
+        String refreshToken = CookieUtil.getCookieByName(request.getCookies(),
+            JwtProperties.REFRESH_TOKEN_NAME);
 
         if (refreshToken == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -65,7 +69,7 @@ public class JwtLogoutFilter extends GenericFilterBean {
 
         refreshTokenService.deleteByRefreshToken(refreshToken);
 
-        CookieUtil.deleteCookie(request, response, REFRESH_TOKEN_NAME);
+        CookieUtil.deleteCookie(request, response, JwtProperties.REFRESH_TOKEN_NAME);
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

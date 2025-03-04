@@ -1,5 +1,6 @@
 package com.boilerplate.boilerplate.config.jwt.filters;
 
+import com.boilerplate.boilerplate.config.jwt.JwtProperties;
 import com.boilerplate.boilerplate.config.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
 import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
@@ -12,7 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,14 +29,6 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     private final RefreshTokenService refreshTokenService;
 
     private static final String LOGIN_URL = "/api/login";
-
-    private static final Duration ACCESS_TOKEN_EXPIRATION_DURATION = Duration.ofMinutes(10);
-    private static final Duration REFRESH_TOKEN_EXPIRATION_DURATION = Duration.ofDays(14);
-
-    private static final String HEADER_AUTHORIZATION = "Authorization";
-    private static final String TOKEN_PREFIX = "Bearer ";
-
-    private static final String REFRESH_TOKEN_NAME = "REFRESH_TOKEN";
 
     public JwtLoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
         RefreshTokenService refreshTokenService) {
@@ -82,13 +74,16 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         HttpServletResponse response, FilterChain chain, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
 
-        String accessToken = jwtUtil.generateToken(user, ACCESS_TOKEN_EXPIRATION_DURATION);
-        String refreshToken = jwtUtil.generateToken(user, REFRESH_TOKEN_EXPIRATION_DURATION);
+        String accessToken = jwtUtil.generateToken(user,
+            JwtProperties.ACCESS_TOKEN_EXPIRATION_DURATION);
+        String refreshToken = jwtUtil.generateToken(user,
+            JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION);
         refreshTokenService.save(user, refreshToken);
 
-        response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + accessToken);
-        CookieUtil.addCookie(response, REFRESH_TOKEN_NAME, refreshToken,
-            (int) REFRESH_TOKEN_EXPIRATION_DURATION.toSeconds());
+        response.addHeader(JwtProperties.HEADER_AUTHORIZATION,
+            JwtProperties.ACCESS_TOKEN_PREFIX + accessToken);
+        CookieUtil.addCookie(response, JwtProperties.REFRESH_TOKEN_NAME, refreshToken,
+            (int) JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION.toSeconds());
     }
 
     //로그인 실패시 실행하는 메소드
