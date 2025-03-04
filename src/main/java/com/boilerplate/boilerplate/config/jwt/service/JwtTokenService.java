@@ -10,9 +10,11 @@ import com.boilerplate.boilerplate.domain.user.service.UserService;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class JwtTokenService {
 
     private final JwtUtil jwtUtil;
