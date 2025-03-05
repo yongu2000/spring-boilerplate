@@ -19,7 +19,9 @@ public class JwtUtil {
 
     private static final String HEADER_JWT = "JWT";
     private static final String CLAIM_ID = "id";
+    private static final String CLAIM_EMAIL = "email";
     private static final String CLAIM_USERNAME = "username";
+    private static final String CLAIM_NAME = "name";
     private static final String CLAIM_Role = "role";
 
     private JwtUtil(JwtProperties jwtProperties) {
@@ -39,7 +41,9 @@ public class JwtUtil {
         return Jwts.builder()
             .header().type(HEADER_JWT).and()
             .claim(CLAIM_ID, user.getId())
+            .claim(CLAIM_EMAIL, user.getEmail())
             .claim(CLAIM_USERNAME, user.getUsername())
+            .claim(CLAIM_NAME, user.getName())
             .claim(CLAIM_Role, user.getRole())
             .issuer(jwtProperties.getIssuer())
             .issuedAt(now)
@@ -63,10 +67,20 @@ public class JwtUtil {
             .get(CLAIM_ID, Long.class);
     }
 
+    public String getEmail(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
+            .get(CLAIM_EMAIL, String.class);
+    }
+
     public String getUsername(String token) {
 
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
             .get(CLAIM_USERNAME, String.class);
+    }
+
+    public String getName(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
+            .get(CLAIM_NAME, String.class);
     }
 
     public Role getRole(String token) {
