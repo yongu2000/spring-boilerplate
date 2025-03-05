@@ -24,7 +24,7 @@ public class RefreshToken {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "refresh_token", nullable = false)
+    @Column(name = "refresh_token", nullable = false, length = 2048)
     private String refreshToken;
 
     private LocalDateTime expiration;
