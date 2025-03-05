@@ -6,6 +6,7 @@ import com.boilerplate.boilerplate.config.jwt.filters.JwtLogoutFilter;
 import com.boilerplate.boilerplate.config.jwt.service.JwtTokenService;
 import com.boilerplate.boilerplate.config.jwt.service.RefreshTokenService;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -61,8 +62,7 @@ public class SecurityConfig {
                     configuration.setMaxAge(3600L);
 
                     // 백엔드에서 프론트로 보낼 데이터들
-                    configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
-                    configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+                    configuration.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie", "x-reissue-token"));
 
                     return configuration;
                 }
