@@ -22,7 +22,7 @@ public class JwtUtil {
     private static final String CLAIM_EMAIL = "email";
     private static final String CLAIM_USERNAME = "username";
     private static final String CLAIM_NAME = "name";
-    private static final String CLAIM_Role = "role";
+    private static final String CLAIM_ROLE = "role";
 
     private JwtUtil(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
@@ -44,7 +44,7 @@ public class JwtUtil {
             .claim(CLAIM_EMAIL, user.getEmail())
             .claim(CLAIM_USERNAME, user.getUsername())
             .claim(CLAIM_NAME, user.getName())
-            .claim(CLAIM_Role, user.getRole())
+            .claim(CLAIM_ROLE, user.getRole())
             .issuer(jwtProperties.getIssuer())
             .issuedAt(now)
             .expiration(expiration)
@@ -87,7 +87,7 @@ public class JwtUtil {
 
         return Role.of(
             Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-                .get(CLAIM_Role, String.class));
+                .get(CLAIM_ROLE, String.class));
     }
 
 

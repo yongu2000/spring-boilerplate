@@ -8,13 +8,20 @@ import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.exception.UserError;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
+@DisplayName("회원 서비스 UserService")
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @SpringBootTest
+@Transactional
 class UserServiceTest {
 
     @Autowired
@@ -22,37 +29,46 @@ class UserServiceTest {
     @Autowired
     private UserService userService;
 
+    private User user;
+
     @BeforeEach
-    void before() {
+    void setUp() {
+        user = User.builder()
+            .email("testEmail")
+            .username("testUser")
+            .password("password")
+            .name("testName")
+            .role(Role.USER)
+            .build();
+        userRepository.save(user);
+    }
+
+    @AfterEach
+    void cleanUp() {
         userRepository.deleteAll();
     }
 
     @Test
-    @DisplayName("유저 검색에 성공")
-    void findUser_success() {
-        String testUsername = "testUsername";
-        String testPassword = "testPassword";
-        Role testRole = Role.USER;
+    void 유저_조회_성공() {
+        // Given
+        Long userId = user.getId();
 
-        User testUser = User.builder()
-            .username(testUsername)
-            .password(testPassword)
-            .role(testRole)
-            .build();
-        userRepository.save(testUser);
+        // When
+        User testUser = userService.findById(userId);
 
-        Long testUserId = testUser.getId();
-        User user = userService.findById(testUserId);
-
-        assertThat(user.getUsername()).isEqualTo(testUsername);
-        assertThat(user.getId()).isEqualTo(testUserId);
+        // Then
+        assertThat(testUser.getId()).isEqualTo(user.getId());
+        assertThat(testUser.getUsername()).isEqualTo(user.getUsername());
+        assertThat(testUser.getName()).isEqualTo(user.getName());
+        assertThat(testUser.getRole()).isEqualTo(user.getRole());
     }
 
     @Test
-    @DisplayName("유저 검색에 실패: 유저가 존재하지 않음")
-    void findUser_failure_no_user() {
-        Long testUserId = 1L;
+    void 유저_조회_실패_유저없음() {
+        // Given
+        Long testUserId = 99L;
 
+        // When & Then
         assertThatThrownBy(() -> userService.findById(testUserId))
             .isInstanceOf(EntityNotFoundException.class).hasMessage(
                 UserError.NO_SUCH_USER.getMessage());

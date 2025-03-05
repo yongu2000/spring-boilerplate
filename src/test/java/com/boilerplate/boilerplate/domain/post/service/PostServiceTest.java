@@ -13,12 +13,17 @@ import com.boilerplate.boilerplate.domain.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
+@DisplayName("게시글 서비스 PostService")
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @Transactional
 class PostServiceTest {
 
@@ -38,8 +43,10 @@ class PostServiceTest {
     @BeforeEach
     void setUp() {
         user = User.builder()
-            .username("testuser")
+            .email("testEmail")
+            .username("testUser")
             .password("password")
+            .name("testName")
             .role(Role.USER)
             .build();
         post = Post.builder()
@@ -52,15 +59,15 @@ class PostServiceTest {
     }
 
     @Test
-    void createPost_성공() {
-        // given
+    void 게시글_생성_성공() {
+        // Given
         Long userId = user.getId();
         System.out.println(userId);
 
-        // when
+        // When
         Post createdPost = postService.create(userId, post.getTitle(), post.getContent());
 
-        // then
+        // Then
         assertThat(createdPost).isNotNull();
         assertThat(createdPost.getTitle()).isEqualTo("Test Title");
         assertThat(createdPost.getContent()).isEqualTo("Test Content");
@@ -68,69 +75,69 @@ class PostServiceTest {
     }
 
     @Test
-    void updatePost_성공() {
-        // given
+    void 게시글_수정_성공() {
+        // Given
         Long postId = post.getId();
 
-        // when
+        // When
         Post updatedPost = postService.update(postId, "Updated Title", "Updated Content");
 
-        // then
+        // Then
         assertThat(updatedPost.getTitle()).isEqualTo("Updated Title");
         assertThat(updatedPost.getContent()).isEqualTo("Updated Content");
     }
 
     @Test
-    void updatePost_실패_존재하지않는_게시글() {
-        // given
+    void 게시글_수정_실패_게시글_없음() {
+        // Given
         Long postId = 99L;
 
-        // when & then
+        // When & Then
         assertThatThrownBy(() -> postService.update(postId, "New Title", "New Content"))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessage(PostError.POST_NOT_EXIST.getMessage());
     }
 
     @Test
-    void deletePost_성공() {
-        // given
+    void 게시글_삭제_성공() {
+        // Given
         Long postId = post.getId();
 
-        // when
+        // When
         postService.delete(postId);
 
-        // then
+        // Then
         assertThat(postService.getAllPosts()).isEmpty();
     }
 
     @Test
-    void deletePost_실패_존재하지않는_게시글() {
-        // given
+    void 게시글_삭제_실패_게시글_없음() {
+        // Given
         Long postId = 99L;
 
-        // when & then
+        // When & Then
         assertThatThrownBy(() -> postService.delete(postId))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessage(PostError.POST_NOT_EXIST.getMessage());
     }
 
     @Test
-    void getAllPosts_성공() {
-        // when
+    void 전체_글_조회_성공() {
+        // When
         List<Post> result = postService.getAllPosts();
 
-        // then
+        // Then
         assertThat(result).isNotEmpty();
         assertThat(result.size()).isEqualTo(1);
         assertThat(result.getFirst()).isEqualTo(post);
     }
 
     @Test
-    void getPostsByUserId_성공() {
-        // when
+    void 유저별_게시글_조회_성공() {
+        // When
         List<Post> result = postService.getPostsByUserId(user.getId());
 
-        // then
+        // Then
         assertThat(result).isNotEmpty();
         assertThat(result.size()).isEqualTo(1);
         assertThat(result.getFirst()).isEqualTo(post);

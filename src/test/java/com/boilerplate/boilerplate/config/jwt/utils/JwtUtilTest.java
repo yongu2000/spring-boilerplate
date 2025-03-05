@@ -7,6 +7,7 @@ import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
 import java.time.Duration;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -33,63 +34,58 @@ class JwtUtilTest {
 
     @BeforeEach
     void setUp() {
-        user = new User("testEmail", "testUser", "password", "testName", Role.USER);
+        user = User.builder()
+            .email("testEmail")
+            .username("testUser")
+            .password("password")
+            .name("testName")
+            .role(Role.USER)
+            .build();
         userRepository.save(user);
+    }
 
+    @AfterEach
+    void cleanUp() {
+        userRepository.deleteAll();
     }
 
     @Test
-    @DisplayName("토큰 정상 발급")
-    void generateToken_success() {
-        //Given
+    void 토큰_발급_성공() {
+        // Given
         String token = jwtUtil.generateToken(user, Duration.ofMinutes(10));
 
-        //When
+        // When
         Long id = jwtUtil.getUserId(token);
         String email = jwtUtil.getEmail(token);
         String username = jwtUtil.getUsername(token);
         String name = jwtUtil.getName(token);
         Role role = jwtUtil.getRole(token);
 
-        //Then
+        // Then
         assertThat(id).isEqualTo(user.getId());
+        assertThat(email).isEqualTo(user.getEmail());
         assertThat(username).isEqualTo(user.getUsername());
-        assertThat(role).isEqualTo(user.getRole());
+        assertThat(name).isEqualTo(user.getName());
+        assertThat(role).isEqualTo(Role.of(user.getRole()));
     }
 
     @Test
-    @DisplayName("만료되지 않은 토큰 유효성 검사 통과")
-    void generateToken_not_expired_success() {
-        String testUsername = "testUsername";
-        String testPassword = "testPassword";
-        User testUser = User.builder()
-            .username(testUsername)
-            .password(testPassword)
-            .role(Role.USER)
-            .build();
-        userRepository.save(testUser);
-
-        String token = jwtUtil.generateToken(testUser, Duration.ofDays(10));
-
+    void 토큰_유효성_검사_성공() {
+        // Given
+        String token = jwtUtil.generateToken(user, Duration.ofDays(10));
+        // When
         boolean result = jwtUtil.isValidToken(token);
+        // Then
         assertThat(result).isEqualTo(true);
     }
 
     @Test
-    @DisplayName("만료된 토큰 유효성 검증 실패")
-    void generateToken_expired_failure() {
-        String testUsername = "testUsername";
-        String testPassword = "testPassword";
-        User testUser = User.builder()
-            .username(testUsername)
-            .password(testPassword)
-            .role(Role.USER)
-            .build();
-        userRepository.save(testUser);
-
-        String token = jwtUtil.generateToken(testUser, Duration.ofDays(-10));
-
+    void 만료토큰_유효성_검사_성공() {
+        // Given
+        String token = jwtUtil.generateToken(user, Duration.ofDays(-10));
+        // When
         boolean result = jwtUtil.isValidToken(token);
+        // Then
         assertThat(result).isEqualTo(false);
     }
 
