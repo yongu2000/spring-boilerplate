@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import com.boilerplate.boilerplate.domain.post.entity.Post;
+import com.boilerplate.boilerplate.domain.post.exception.PostError;
 import com.boilerplate.boilerplate.domain.post.repository.PostRepository;
 import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
@@ -87,7 +88,7 @@ class PostServiceTest {
         // when & then
         assertThatThrownBy(() -> postService.update(postId, "New Title", "New Content"))
             .isInstanceOf(EntityNotFoundException.class)
-            .hasMessage("Post not found with ID: " + postId);
+            .hasMessage(PostError.POST_NOT_EXIST.getMessage());
     }
 
     @Test
@@ -110,7 +111,7 @@ class PostServiceTest {
         // when & then
         assertThatThrownBy(() -> postService.delete(postId))
             .isInstanceOf(EntityNotFoundException.class)
-            .hasMessage("Post not found with ID: " + postId);
+            .hasMessage(PostError.POST_NOT_EXIST.getMessage());
     }
 
     @Test

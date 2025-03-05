@@ -1,6 +1,7 @@
 package com.boilerplate.boilerplate.domain.post.service;
 
 import com.boilerplate.boilerplate.domain.post.entity.Post;
+import com.boilerplate.boilerplate.domain.post.exception.PostError;
 import com.boilerplate.boilerplate.domain.post.repository.PostRepository;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
@@ -32,7 +33,7 @@ public class PostService {
 
     public Post update(Long postId, String newTitle, String newContent) {
         Post post = postRepository.findById(postId)
-            .orElseThrow(() -> new EntityNotFoundException("Post not found with ID: " + postId));
+            .orElseThrow(() -> new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage()));
 
         post.update(newTitle, newContent);
 
@@ -41,7 +42,7 @@ public class PostService {
 
     public void delete(Long postId) {
         if (!postRepository.existsById(postId)) {
-            throw new EntityNotFoundException("Post not found with ID: " + postId);
+            throw new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage());
         }
         postRepository.deleteById(postId);
     }
