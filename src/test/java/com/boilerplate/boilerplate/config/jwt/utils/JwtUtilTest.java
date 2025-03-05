@@ -3,6 +3,7 @@ package com.boilerplate.boilerplate.config.jwt.utils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.boilerplate.boilerplate.config.jwt.JwtProperties;
+import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
@@ -31,6 +32,7 @@ class JwtUtilTest {
     private UserRepository userRepository;
 
     private User user;
+    private JwtUserDetails userDetails;
 
     @BeforeEach
     void setUp() {
@@ -42,6 +44,7 @@ class JwtUtilTest {
             .role(Role.USER)
             .build();
         userRepository.save(user);
+        userDetails = new JwtUserDetails(user);
     }
 
     @AfterEach
@@ -52,7 +55,7 @@ class JwtUtilTest {
     @Test
     void 토큰_발급_성공() {
         // Given
-        String token = jwtUtil.generateToken(user, Duration.ofMinutes(10));
+        String token = jwtUtil.generateToken(userDetails, Duration.ofMinutes(10));
 
         // When
         Long id = jwtUtil.getUserId(token);
@@ -72,7 +75,7 @@ class JwtUtilTest {
     @Test
     void 토큰_유효성_검사_성공() {
         // Given
-        String token = jwtUtil.generateToken(user, Duration.ofDays(10));
+        String token = jwtUtil.generateToken(userDetails, Duration.ofDays(10));
         // When
         boolean result = jwtUtil.isValidToken(token);
         // Then
@@ -82,7 +85,7 @@ class JwtUtilTest {
     @Test
     void 만료토큰_유효성_검사_성공() {
         // Given
-        String token = jwtUtil.generateToken(user, Duration.ofDays(-10));
+        String token = jwtUtil.generateToken(userDetails, Duration.ofDays(-10));
         // When
         boolean result = jwtUtil.isValidToken(token);
         // Then

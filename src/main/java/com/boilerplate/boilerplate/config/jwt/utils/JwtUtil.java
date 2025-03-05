@@ -1,8 +1,8 @@
 package com.boilerplate.boilerplate.config.jwt.utils;
 
 import com.boilerplate.boilerplate.config.jwt.JwtProperties;
+import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.user.entity.Role;
-import com.boilerplate.boilerplate.domain.user.entity.User;
 import io.jsonwebtoken.Jwts;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -31,20 +31,20 @@ public class JwtUtil {
             Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public String generateToken(User user, Duration expiredAt) {
+    public String generateToken(JwtUserDetails userDetails, Duration expiredAt) {
         Date now = new Date();
-        return createJwt(new Date(now.getTime() + expiredAt.toMillis()), user);
+        return createJwt(new Date(now.getTime() + expiredAt.toMillis()), userDetails);
     }
 
-    private String createJwt(Date expiration, User user) {
+    private String createJwt(Date expiration, JwtUserDetails userDetails) {
         Date now = new Date();
         return Jwts.builder()
             .header().type(HEADER_JWT).and()
-            .claim(CLAIM_ID, user.getId())
-            .claim(CLAIM_EMAIL, user.getEmail())
-            .claim(CLAIM_USERNAME, user.getUsername())
-            .claim(CLAIM_NAME, user.getName())
-            .claim(CLAIM_ROLE, user.getRole())
+            .claim(CLAIM_ID, userDetails.getId())
+            .claim(CLAIM_EMAIL, userDetails.getEmail())
+            .claim(CLAIM_USERNAME, userDetails.getUsername())
+            .claim(CLAIM_NAME, userDetails.getName())
+            .claim(CLAIM_ROLE, userDetails.getRole())
             .issuer(jwtProperties.getIssuer())
             .issuedAt(now)
             .expiration(expiration)

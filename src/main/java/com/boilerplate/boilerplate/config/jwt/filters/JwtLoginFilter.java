@@ -1,12 +1,12 @@
 package com.boilerplate.boilerplate.config.jwt.filters;
 
 import com.boilerplate.boilerplate.config.jwt.JwtProperties;
+import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
 import com.boilerplate.boilerplate.config.jwt.exception.AuthenticationError;
 import com.boilerplate.boilerplate.config.jwt.service.JwtTokenService;
 import com.boilerplate.boilerplate.config.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
 import com.boilerplate.boilerplate.domain.user.dto.LoginRequest;
-import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletInputStream;
@@ -74,10 +74,10 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request,
         HttpServletResponse response, FilterChain chain, Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        JwtUserDetails userDetails = (JwtUserDetails) authentication.getPrincipal();
 
-        String accessToken = jwtTokenService.createAccessToken(user);
-        String refreshToken = jwtTokenService.createRefreshToken(user);
+        String accessToken = jwtTokenService.createAccessToken(userDetails);
+        String refreshToken = jwtTokenService.createRefreshToken(userDetails);
 
         response.addHeader(JwtProperties.HEADER_AUTHORIZATION,
             JwtProperties.ACCESS_TOKEN_PREFIX + accessToken);

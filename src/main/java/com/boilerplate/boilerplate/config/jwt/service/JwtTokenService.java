@@ -1,11 +1,11 @@
 package com.boilerplate.boilerplate.config.jwt.service;
 
 import com.boilerplate.boilerplate.config.jwt.JwtProperties;
+import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
 import com.boilerplate.boilerplate.config.jwt.entity.RefreshToken;
 import com.boilerplate.boilerplate.config.jwt.exception.TokenError;
 import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
 import com.boilerplate.boilerplate.config.jwt.utils.JwtUtil;
-import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
@@ -29,19 +29,19 @@ public class JwtTokenService {
         return jwtUtil.isValidToken(token);
     }
 
-    public User getUserFromToken(String token) {
+    public JwtUserDetails getUserDetailsFromToken(String token) {
         String username = jwtUtil.getUsername(token);
-        return userService.findByUsername(username);  // 사용자를 찾는 로직
+        return new JwtUserDetails(userService.findByUsername(username));  // 사용자를 찾는 로직
     }
 
-    public String createAccessToken(User user) {
-        return jwtUtil.generateToken(user, JwtProperties.ACCESS_TOKEN_EXPIRATION_DURATION);
+    public String createAccessToken(JwtUserDetails userDetails) {
+        return jwtUtil.generateToken(userDetails, JwtProperties.ACCESS_TOKEN_EXPIRATION_DURATION);
     }
 
-    public String createRefreshToken(User user) {
-        String refreshToken = jwtUtil.generateToken(user,
+    public String createRefreshToken(JwtUserDetails userDetails) {
+        String refreshToken = jwtUtil.generateToken(userDetails,
             JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION);
-        refreshTokenService.save(user, refreshToken);
+        refreshTokenService.save(userDetails, refreshToken);
         return refreshToken;
     }
 
@@ -50,8 +50,8 @@ public class JwtTokenService {
             throw new IllegalArgumentException(TokenError.INVALID_TOKEN.getMessage());
         }
         Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
-        User user = userService.findById(userId);
-        return jwtUtil.generateToken(user, JwtProperties.ACCESS_TOKEN_EXPIRATION_DURATION);
+        JwtUserDetails userDetails = new JwtUserDetails(userService.findById(userId));
+        return jwtUtil.generateToken(userDetails, JwtProperties.ACCESS_TOKEN_EXPIRATION_DURATION);
     }
 
     public String createNewRefreshToken(String refreshToken) {
@@ -59,8 +59,8 @@ public class JwtTokenService {
             throw new IllegalArgumentException(TokenError.INVALID_TOKEN.getMessage());
         }
         RefreshToken oldRefreshToken = refreshTokenService.findByRefreshToken(refreshToken);
-        User user = userService.findById(oldRefreshToken.getUserId());
-        String newRefreshToken = jwtUtil.generateToken(user,
+        JwtUserDetails userDetails = new JwtUserDetails(userService.findById(oldRefreshToken.getUserId()));
+        String newRefreshToken = jwtUtil.generateToken(userDetails,
             JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION);
         refreshTokenService.update(oldRefreshToken, newRefreshToken);
         return newRefreshToken;
