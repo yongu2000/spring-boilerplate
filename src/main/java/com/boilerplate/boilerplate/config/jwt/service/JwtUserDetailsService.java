@@ -1,5 +1,6 @@
-package com.boilerplate.boilerplate.domain.user.service;
+package com.boilerplate.boilerplate.config.jwt.service;
 
+import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.user.exception.UserError;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,8 +20,8 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
+        return new JwtUserDetails(userRepository.findByUsername(username)
             .orElseThrow(() -> new EntityNotFoundException(
-                UserError.NO_SUCH_USER.getMessage()));
+                UserError.NO_SUCH_USER.getMessage())));
     }
 }

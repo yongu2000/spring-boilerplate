@@ -1,8 +1,8 @@
 package com.boilerplate.boilerplate.config.jwt.filters;
 
 import com.boilerplate.boilerplate.config.jwt.JwtProperties;
+import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
 import com.boilerplate.boilerplate.config.jwt.service.JwtTokenService;
-import com.boilerplate.boilerplate.domain.user.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,9 +26,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authorizationHeader = request.getHeader(JwtProperties.HEADER_AUTHORIZATION);
         String accessToken = getAccessToken(authorizationHeader);
         if (accessToken != null && jwtTokenService.isValidToken(accessToken)) {
-            User user = jwtTokenService.getUserFromToken(accessToken);
-            Authentication authToken = new UsernamePasswordAuthenticationToken(user,
-                null, user.getAuthorities());
+            JwtUserDetails userDetails = new JwtUserDetails(jwtTokenService.getUserFromToken(accessToken));
+            Authentication authToken = new UsernamePasswordAuthenticationToken(userDetails,
+                null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authToken);
         }
         filterChain.doFilter(request, response);
