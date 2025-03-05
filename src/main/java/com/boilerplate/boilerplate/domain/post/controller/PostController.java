@@ -1,10 +1,10 @@
 package com.boilerplate.boilerplate.domain.post.controller;
 
+import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.post.dto.CreatePostRequest;
 import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
 import com.boilerplate.boilerplate.domain.post.dto.UpdatePostRequest;
 import com.boilerplate.boilerplate.domain.post.service.PostService;
-import com.boilerplate.boilerplate.domain.user.entity.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +27,13 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<PostResponse> createPost(
-        @AuthenticationPrincipal User user,
+        @AuthenticationPrincipal JwtUserDetails userDetails,
         @RequestBody CreatePostRequest request
     ) {
         return ResponseEntity.ok(
             PostResponse.from(
                 postService.create(
-                    user.getId(),
+                    userDetails.getId(),
                     request.getTitle(),
                     request.getContent()
                 )
@@ -74,10 +74,10 @@ public class PostController {
 
     @GetMapping("/my")
     public ResponseEntity<List<PostResponse>> getMyPosts(
-        @AuthenticationPrincipal User user
+        @AuthenticationPrincipal JwtUserDetails userDetails
     ) {
         return ResponseEntity.ok(
-            postService.getPostsByUserId(user.getId()).stream()
+            postService.getPostsByUserId(userDetails.getId()).stream()
                 .map(PostResponse::from)
                 .toList()
         );
