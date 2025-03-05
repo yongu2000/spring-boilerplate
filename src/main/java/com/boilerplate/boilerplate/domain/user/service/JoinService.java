@@ -23,8 +23,10 @@ public class JoinService {
     public JoinResponse join(JoinRequest request) {
         validateUsernameExistence(request.getUsername());
         User newUser = User.builder()
+            .email(request.getEmail())
             .username(request.getUsername())
             .password(bCryptPasswordEncoder.encode(request.getPassword()))
+            .name(request.getName())
             .role(Role.USER)
             .build();
         userRepository.save(newUser);

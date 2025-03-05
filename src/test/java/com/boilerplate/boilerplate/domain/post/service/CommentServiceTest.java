@@ -52,7 +52,7 @@ class CommentServiceTest {
 
     @BeforeEach
     void setUp() {
-        mockUser = new User("testUser", "password", Role.USER);
+        mockUser = new User("testEmail", "testUser", "password", "testName", Role.USER);
         mockPost = new Post("Test Title", "Test Content", 0, mockUser);
         mockComment = new Comment("Test Comment", mockPost, mockUser, null);
     }

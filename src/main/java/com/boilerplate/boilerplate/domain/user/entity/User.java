@@ -32,11 +32,15 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", updatable = false)
     private Long id;
-
-    @Column(name = "username", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
+    private String email;
+    @Column(nullable = false, unique = true)
     private String username;
+    @Column(nullable = false)
     private String name;
+    @Column(nullable = false)
     private String password;
+    @Column(nullable = false)
     private String role;
 
     @OneToMany(mappedBy = "user")
@@ -50,9 +54,11 @@ public class User implements UserDetails {
     private LocalDateTime createdAt;
 
     @Builder
-    public User(String username, String password, Role role) {
+    public User(String email, String username, String password, String name, Role role) {
+        this.email = email;
         this.username = username;
         this.password = password;
+        this.name = name;
         this.role = role.getRole();
     }
 
