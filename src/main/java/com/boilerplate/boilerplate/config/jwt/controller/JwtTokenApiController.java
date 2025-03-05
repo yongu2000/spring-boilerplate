@@ -12,15 +12,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/api/token")
 @RequiredArgsConstructor
 public class JwtTokenApiController {
 
     private final JwtTokenService jwtTokenService;
 
-    @PostMapping("/api/token/json")
+    @PostMapping("/json")
     public ResponseEntity<ReissueAccessTokenResponse> reissueAccessTokenAtJson(
         @RequestBody ReissueAccessTokenRequest request) {
 
@@ -31,7 +33,7 @@ public class JwtTokenApiController {
             .body(new ReissueAccessTokenResponse(newAccessToken, newRefreshToken));
     }
 
-    @PostMapping("/api/token/header")
+    @PostMapping("/header")
     public ResponseEntity<?> reissueAccessTokenAtHeader(HttpServletRequest request,
         HttpServletResponse response) {
 

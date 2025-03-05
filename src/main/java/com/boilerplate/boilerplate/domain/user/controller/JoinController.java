@@ -8,15 +8,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/api/join")
 @RequiredArgsConstructor
 public class JoinController {
 
     private final JoinService joinService;
 
-    @PostMapping("/api/join")
+    @PostMapping
     public ResponseEntity<?> join(@RequestBody JoinRequest request) {
         JoinResponse response = joinService.join(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
