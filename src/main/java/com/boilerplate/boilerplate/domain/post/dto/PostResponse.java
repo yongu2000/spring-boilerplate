@@ -3,6 +3,8 @@ package com.boilerplate.boilerplate.domain.post.dto;
 import com.boilerplate.boilerplate.domain.post.entity.Post;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,6 +17,7 @@ public class PostResponse {
     private String content;
     private int likes;
     private UserInfo user;
+    private List<CommentResponse> comments; // 이 필드가 있는지 확인
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -42,6 +45,9 @@ public class PostResponse {
             .content(post.getContent())
             .likes(post.getLikes())
             .user(UserInfo.from(post.getUser()))
+            .comments(post.getComments().stream()
+                .map(CommentResponse::from)
+                .collect(Collectors.toList())) // comments 매핑 확인
             .createdAt(post.getCreatedAt())
             .modifiedAt(post.getModifiedAt())
             .build();

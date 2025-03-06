@@ -47,16 +47,19 @@ public class PostService {
         postRepository.deleteById(postId);
     }
 
+    @Transactional(readOnly = true)
     public List<Post> getAllPosts() {
-        return postRepository.findAll();
+        return postRepository.findAllWithComments();
     }
 
+    @Transactional(readOnly = true)
     public List<Post> getPostsByUserId(Long userId) {
-        return postRepository.findByUserId(userId);
+        return postRepository.findByUserIdWithComments(userId);
     }
 
+    @Transactional(readOnly = true)
     public Post getPostById(Long postId) {
-        return postRepository.findById(postId)
+        return postRepository.findByIdWithComments(postId)
             .orElseThrow(() -> new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage()));
     }
 }

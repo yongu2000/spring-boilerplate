@@ -4,12 +4,10 @@ import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.post.dto.CommentRequest;
 import com.boilerplate.boilerplate.domain.post.dto.CommentResponse;
 import com.boilerplate.boilerplate.domain.post.service.CommentService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -64,8 +62,4 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping
-    public ResponseEntity<List<CommentResponse>> getComments(@PathVariable Long postId) {
-        return ResponseEntity.ok(commentService.getCommentsByPost(postId));
-    }
 }

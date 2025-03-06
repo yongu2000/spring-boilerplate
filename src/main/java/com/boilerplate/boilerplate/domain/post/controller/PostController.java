@@ -7,6 +7,7 @@ import com.boilerplate.boilerplate.domain.post.dto.UpdatePostRequest;
 import com.boilerplate.boilerplate.domain.post.service.PostService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
+@Slf4j
 public class PostController {
 
     private final PostService postService;
@@ -65,6 +67,7 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<List<PostResponse>> getAllPosts() {
+        log.info("모든 글 조회");
         return ResponseEntity.ok(
             postService.getAllPosts().stream()
                 .map(PostResponse::from)
@@ -85,6 +88,7 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostResponse> getPost(@PathVariable Long postId) {
+        log.info("글 단건 조회: {}", postId);
         return ResponseEntity.ok(
             PostResponse.from(
                 postService.getPostById(postId)

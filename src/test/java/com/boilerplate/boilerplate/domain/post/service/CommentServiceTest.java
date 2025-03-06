@@ -18,7 +18,6 @@ import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -159,17 +158,4 @@ class CommentServiceTest {
         assertThat(exception.getMessage()).contains(PostError.COMMENT_NOT_EXIST.getMessage());
     }
 
-    @Test
-    void 특정_게시글의_댓글_조회() {
-        // Given
-        Long postId = 1L;
-        when(commentRepository.findByPostId(postId)).thenReturn(List.of(mockComment));
-
-        // When
-        List<CommentResponse> comments = commentService.getCommentsByPost(postId);
-
-        // Then
-        assertThat(comments).isNotEmpty();
-        assertThat(comments.getFirst().getContent()).isEqualTo("Test Comment");
-    }
 }
