@@ -14,6 +14,9 @@
 
 - [ ] 📷 **사진 업로드 최적화**
 - [x] 📜 **로깅 시스템 구축**
+- [ ] 📜 **API 문서 자동화 (Swagger / Spring REST Docs)**
+- [ ] 📊 **모니터링 서버 구축 (Prometheus, Grafana)**
+- [ ] 🏛 **Master-Slave DB 구조**
 
 ### 📦 배포
 
@@ -21,6 +24,7 @@
 - [ ] 🛠 **테스트 자동화**
 - [ ] 🔒 **HTTPS 설정**
 - [ ] ⚖ **로드 밸런싱 구성**
+- [ ] 🚀 **무중단 배포 (Blue-Green Deployment)**
 
 ---
 
