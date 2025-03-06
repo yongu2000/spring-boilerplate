@@ -23,7 +23,7 @@ public class CommentResponse {
 
     @Getter
     @Builder
-    public static class UserInfo {
+    private static class UserInfo {
 
         private Long id;
         private String username;
