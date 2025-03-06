@@ -5,10 +5,12 @@ import com.boilerplate.boilerplate.domain.user.entity.User;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 @Builder
 public class PostResponse {
 

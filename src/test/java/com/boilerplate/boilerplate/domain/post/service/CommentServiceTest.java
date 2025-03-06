@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -56,106 +57,142 @@ class CommentServiceTest {
         mockUser = new User("testEmail", "testUser", "password", "testName", Role.USER);
         ReflectionTestUtils.setField(mockUser, "id", 1L);
         mockPost = new Post("Test Title", "Test Content", 0, mockUser);
+        ReflectionTestUtils.setField(mockPost, "id", 1L);
         mockComment = new Comment("Test Comment", mockPost, mockUser, null);
+        ReflectionTestUtils.setField(mockComment, "id", 1L);
     }
 
-    @Test
-    void 댓글_작성_성공() {
-        // Given
-        Long userId = 1L;
-        Long postId = 1L;
-        String content = "New Comment";
-        when(userService.findById(userId)).thenReturn(mockUser);
-        when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
-        when(commentRepository.save(any(Comment.class))).thenReturn(mockComment);
+    @Nested
+    class 댓글_작성 {
 
-        // When
-        CommentResponse comment = commentService.create(userId, postId, content, null);
+        @Test
+        void 댓글_작성_성공() {
+            // Given
+            Long userId = 1L;
+            Long postId = 1L;
+            String content = "New Comment";
+            when(userService.findById(userId)).thenReturn(mockUser);
+            when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
+            when(commentRepository.save(any(Comment.class))).thenReturn(mockComment);
 
-        // Then
-        assertThat(comment).isNotNull();
-        assertThat(comment.getContent()).isEqualTo("Test Comment");
-        verify(commentRepository, times(1)).save(any(Comment.class));
+            // When
+            CommentResponse comment = commentService.create(userId, postId, content, null);
+
+            // Then
+            assertThat(comment).isNotNull();
+            assertThat(comment.getContent()).isEqualTo("Test Comment");
+            verify(commentRepository, times(1)).save(any(Comment.class));
+        }
+
+        @Test
+        void 대댓글_작성_성공() {
+            // Given
+            Long userId = 1L;
+            Long postId = 1L;
+            Long parentCommentId = 1L;
+            String content = "Reply Comment";
+
+            when(userService.findById(userId)).thenReturn(mockUser);
+            when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
+            when(commentRepository.findByIdWithUser(parentCommentId)).thenReturn(Optional.of(mockComment));
+            when(commentRepository.save(any(Comment.class))).thenReturn(mockComment);
+
+            // When
+            CommentResponse response = commentService.create(userId, postId, content, parentCommentId);
+
+            // Then
+            assertThat(response).isNotNull();
+            verify(commentRepository).save(any(Comment.class));
+        }
+
+        @Test
+        void 댓글_작성_실패_게시글없음() {
+            // Given
+            Long userId = 1L;
+            Long postId = 999L;
+            when(userService.findById(userId)).thenReturn(mockUser);
+            when(postRepository.findById(postId)).thenReturn(Optional.empty());
+
+            // When & Then
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> commentService.create(userId, postId, "Test Comment", null));
+            assertThat(exception.getMessage()).contains(PostError.POST_NOT_EXIST.getMessage());
+        }
     }
 
-    @Test
-    void 댓글_작성_실패_게시글없음() {
-        // Given
-        Long userId = 1L;
-        Long postId = 999L;
-        when(userService.findById(userId)).thenReturn(mockUser);
-        when(postRepository.findById(postId)).thenReturn(Optional.empty());
+    @Nested
+    class 댓글_수정 {
 
-        // When & Then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-            () -> commentService.create(userId, postId, "Comment Content", null));
-        assertThat(exception.getMessage()).contains(PostError.POST_NOT_EXIST.getMessage());
+        @Test
+        void 댓글_수정_성공() {
+            // Given
+            Long userId = 1L;
+            Long commentId = 1L;
+            String updatedContent = "Updated Comment";
+            when(commentRepository.findByIdWithUser(commentId)).thenReturn(Optional.of(mockComment));
+
+            // When
+            CommentResponse updatedComment = commentService.update(userId, commentId, updatedContent);
+
+            // Then
+            assertThat(updatedComment.getContent()).isEqualTo(updatedContent);
+            verify(commentRepository).findByIdWithUser(commentId);
+        }
+
+        @Test
+        void 댓글_수정_실패_댓글없음() {
+            // Given
+            Long commentId = 999L;
+            when(commentRepository.findByIdWithUser(commentId)).thenReturn(Optional.empty());
+
+            // When & Then
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> commentService.update(mockUser.getId(), commentId, "Updated Comment"));
+            assertThat(exception.getMessage()).contains(PostError.COMMENT_NOT_EXIST.getMessage());
+        }
+
+        @Test
+        void 댓글_수정_실패_권한없음() {
+            // Given
+            Long commentId = 1L;
+            Long otherUserId = 999L; // 다른 유저 ID
+            when(commentRepository.findByIdWithUser(commentId)).thenReturn(Optional.of(mockComment));
+
+            // When & Then
+            IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> commentService.update(otherUserId, commentId, "Updated Comment"));
+            assertThat(exception.getMessage()).contains(PostError.COMMENT_NO_AUTH.getMessage());
+        }
     }
 
-    @Test
-    void 댓글_수정_성공() {
-        // Given
-        Long commentId = 1L;
-        String updatedContent = "Updated Comment";
-        when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
+    @Nested
+    class 댓글_삭제 {
 
-        // When
-        CommentResponse updatedComment = commentService.update(mockUser.getId(), commentId, updatedContent);
+        @Test
+        void 댓글_삭제_성공() {
+            // Given
+            Long commentId = 1L;
+            when(commentRepository.findByIdWithUser(commentId)).thenReturn(Optional.of(mockComment));
+            doNothing().when(commentRepository).deleteById(commentId);
 
-        // Then
-        assertThat(updatedComment.getContent()).isEqualTo(updatedContent);
-    }
+            // When
+            commentService.delete(mockUser.getId(), commentId);
 
-    @Test
-    void 댓글_수정_실패_댓글없음() {
-        // Given
-        Long commentId = 999L;
-        when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
+            // Then
+            verify(commentRepository, times(1)).deleteById(commentId);
+        }
 
-        // When & Then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-            () -> commentService.update(mockUser.getId(), commentId, "Updated Comment"));
-        assertThat(exception.getMessage()).contains(PostError.COMMENT_NOT_EXIST.getMessage());
-    }
+        @Test
+        void 댓글_삭제_실패_댓글없음() {
+            // Given
+            Long commentId = 999L;
+            when(commentRepository.findByIdWithUser(commentId)).thenReturn(Optional.empty());
 
-    @Test
-    void 댓글_수정_실패_권한없음() {
-        // Given
-        Long commentId = 1L;
-        Long otherUserId = 999L; // 다른 유저 ID
-        when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
-
-        // When & Then
-        IllegalStateException exception = assertThrows(IllegalStateException.class,
-            () -> commentService.update(otherUserId, commentId, "Updated Comment"));
-        assertThat(exception.getMessage()).contains(PostError.COMMENT_NO_AUTH.getMessage());
-    }
-
-
-    @Test
-    void 댓글_삭제_성공() {
-        // Given
-        Long commentId = 1L;
-        when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
-        doNothing().when(commentRepository).deleteById(commentId);
-
-        // When
-        commentService.delete(mockUser.getId(), commentId);
-
-        // Then
-        verify(commentRepository, times(1)).deleteById(commentId);
-    }
-
-    @Test
-    void 댓글_삭제_실패_댓글없음() {
-        // Given
-        Long commentId = 999L;
-        when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
-
-        // When & Then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-            () -> commentService.delete(mockUser.getId(), commentId));
-        assertThat(exception.getMessage()).contains(PostError.COMMENT_NOT_EXIST.getMessage());
+            // When & Then
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> commentService.delete(mockUser.getId(), commentId));
+            assertThat(exception.getMessage()).contains(PostError.COMMENT_NOT_EXIST.getMessage());
+        }
     }
 
 }

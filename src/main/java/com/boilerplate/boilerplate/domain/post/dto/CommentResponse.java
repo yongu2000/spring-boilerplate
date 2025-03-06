@@ -4,10 +4,12 @@ import com.boilerplate.boilerplate.domain.post.entity.Comment;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 @Builder
 public class CommentResponse {
 

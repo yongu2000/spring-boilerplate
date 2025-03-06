@@ -40,11 +40,7 @@ class JoinServiceTest {
     @Test
     void 회원가입_성공() {
         // Given
-        JoinRequest request = new JoinRequest();
-        request.setEmail(email);
-        request.setUsername(username);
-        request.setPassword(password);
-        request.setName(name);
+        JoinRequest request = new JoinRequest(email, username, password, name);
 
         // When
         JoinResponse response = joinService.join(request);
@@ -56,12 +52,7 @@ class JoinServiceTest {
     @Test
     void 회원가입_실패_중복_username() {
         // Given
-        JoinRequest request = new JoinRequest();
-        request.setEmail(email);
-        request.setUsername(username);
-        request.setPassword(password);
-        request.setName(name);
-        
+        JoinRequest request = new JoinRequest(email, username, password, name);
         JoinResponse first_response = joinService.join(request);
 
         // When & Then
