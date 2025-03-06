@@ -1,5 +1,6 @@
 package com.boilerplate.boilerplate.domain.post.service;
 
+import com.boilerplate.boilerplate.domain.post.dto.CommentResponse;
 import com.boilerplate.boilerplate.domain.post.entity.Comment;
 import com.boilerplate.boilerplate.domain.post.entity.Post;
 import com.boilerplate.boilerplate.domain.post.exception.PostError;
@@ -22,7 +23,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final UserService userService;
 
-    public Comment create(Long userId, Long postId, String content, Long parentCommentId) {
+    public CommentResponse create(Long userId, Long postId, String content, Long parentCommentId) {
         User user = userService.findById(userId);
         Post post = postRepository.findById(postId)
             .orElseThrow(() -> new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage() + postId));
@@ -35,26 +36,32 @@ public class CommentService {
         }
 
         Comment comment = new Comment(content, post, user, parentComment);
-        return commentRepository.save(comment);
+        return CommentResponse.from(commentRepository.save(comment));
     }
 
-    public Comment update(Long commentId, String newContent) {
+    public CommentResponse update(Long userId, Long commentId, String newContent) {
         Comment comment = commentRepository.findById(commentId)
             .orElseThrow(() -> new EntityNotFoundException(PostError.COMMENT_NOT_EXIST.getMessage() + commentId));
-
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new IllegalStateException(PostError.COMMENT_NO_AUTH.getMessage());
+        }
         comment.updateContent(newContent);
-        return comment;
+        return CommentResponse.from(comment);
     }
 
-    public void delete(Long commentId) {
-        if (!commentRepository.existsById(commentId)) {
-            throw new EntityNotFoundException(PostError.COMMENT_NOT_EXIST.getMessage() + commentId);
+    public void delete(Long userId, Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+            .orElseThrow(() -> new EntityNotFoundException(PostError.COMMENT_NOT_EXIST.getMessage() + commentId));
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new IllegalStateException(PostError.COMMENT_NO_AUTH.getMessage());
         }
         commentRepository.deleteById(commentId);
     }
 
-    // 특정 게시글의 모든 댓글 가져오기
-    public List<Comment> getCommentsByPost(Long postId) {
-        return commentRepository.findByPostId(postId);
+    public List<CommentResponse> getCommentsByPost(Long postId) {
+        return commentRepository.findByPostId(postId).stream()
+            .filter(comment -> comment.getParentComment() == null)  // 최상위 댓글만 가져오기
+            .map(CommentResponse::from)
+            .toList();
     }
 }

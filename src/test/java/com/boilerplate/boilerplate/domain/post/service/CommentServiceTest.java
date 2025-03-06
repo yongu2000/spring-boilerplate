@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.boilerplate.boilerplate.domain.post.dto.CommentResponse;
 import com.boilerplate.boilerplate.domain.post.entity.Comment;
 import com.boilerplate.boilerplate.domain.post.entity.Post;
 import com.boilerplate.boilerplate.domain.post.exception.PostError;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("댓글 서비스 CommentService")
@@ -53,6 +55,7 @@ class CommentServiceTest {
     @BeforeEach
     void setUp() {
         mockUser = new User("testEmail", "testUser", "password", "testName", Role.USER);
+        ReflectionTestUtils.setField(mockUser, "id", 1L);
         mockPost = new Post("Test Title", "Test Content", 0, mockUser);
         mockComment = new Comment("Test Comment", mockPost, mockUser, null);
     }
@@ -68,7 +71,7 @@ class CommentServiceTest {
         when(commentRepository.save(any(Comment.class))).thenReturn(mockComment);
 
         // When
-        Comment comment = commentService.create(userId, postId, content, null);
+        CommentResponse comment = commentService.create(userId, postId, content, null);
 
         // Then
         assertThat(comment).isNotNull();
@@ -98,7 +101,7 @@ class CommentServiceTest {
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
 
         // When
-        Comment updatedComment = commentService.update(commentId, updatedContent);
+        CommentResponse updatedComment = commentService.update(mockUser.getId(), commentId, updatedContent);
 
         // Then
         assertThat(updatedComment.getContent()).isEqualTo(updatedContent);
@@ -112,19 +115,33 @@ class CommentServiceTest {
 
         // When & Then
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-            () -> commentService.update(commentId, "Updated Comment"));
+            () -> commentService.update(mockUser.getId(), commentId, "Updated Comment"));
         assertThat(exception.getMessage()).contains(PostError.COMMENT_NOT_EXIST.getMessage());
     }
+
+    @Test
+    void 댓글_수정_실패_권한없음() {
+        // Given
+        Long commentId = 1L;
+        Long otherUserId = 999L; // 다른 유저 ID
+        when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
+
+        // When & Then
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+            () -> commentService.update(otherUserId, commentId, "Updated Comment"));
+        assertThat(exception.getMessage()).contains(PostError.COMMENT_NO_AUTH.getMessage());
+    }
+
 
     @Test
     void 댓글_삭제_성공() {
         // Given
         Long commentId = 1L;
-        when(commentRepository.existsById(commentId)).thenReturn(true);
+        when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
         doNothing().when(commentRepository).deleteById(commentId);
 
         // When
-        commentService.delete(commentId);
+        commentService.delete(mockUser.getId(), commentId);
 
         // Then
         verify(commentRepository, times(1)).deleteById(commentId);
@@ -134,11 +151,11 @@ class CommentServiceTest {
     void 댓글_삭제_실패_댓글없음() {
         // Given
         Long commentId = 999L;
-        when(commentRepository.existsById(commentId)).thenReturn(false);
+        when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
 
         // When & Then
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-            () -> commentService.delete(commentId));
+            () -> commentService.delete(mockUser.getId(), commentId));
         assertThat(exception.getMessage()).contains(PostError.COMMENT_NOT_EXIST.getMessage());
     }
 
@@ -149,7 +166,7 @@ class CommentServiceTest {
         when(commentRepository.findByPostId(postId)).thenReturn(List.of(mockComment));
 
         // When
-        List<Comment> comments = commentService.getCommentsByPost(postId);
+        List<CommentResponse> comments = commentService.getCommentsByPost(postId);
 
         // Then
         assertThat(comments).isNotEmpty();
