@@ -4,6 +4,7 @@ import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.post.dto.CommentRequest;
 import com.boilerplate.boilerplate.domain.post.dto.CommentResponse;
 import com.boilerplate.boilerplate.domain.post.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,7 +27,7 @@ public class CommentController {
     public ResponseEntity<CommentResponse> createComment(
         @AuthenticationPrincipal JwtUserDetails userDetails,
         @PathVariable Long postId,
-        @RequestBody CommentRequest request
+        @Valid @RequestBody CommentRequest request
     ) {
         return ResponseEntity.ok(
             commentService.create(
@@ -42,7 +43,7 @@ public class CommentController {
     public ResponseEntity<CommentResponse> updateComment(
         @AuthenticationPrincipal JwtUserDetails userPrincipal,
         @PathVariable Long commentId,
-        @RequestBody CommentRequest request
+        @Valid @RequestBody CommentRequest request
     ) {
         return ResponseEntity.ok(
             commentService.update(

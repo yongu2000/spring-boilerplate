@@ -5,6 +5,7 @@ import com.boilerplate.boilerplate.domain.post.dto.CreatePostRequest;
 import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
 import com.boilerplate.boilerplate.domain.post.dto.UpdatePostRequest;
 import com.boilerplate.boilerplate.domain.post.service.PostService;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class PostController {
     @PostMapping
     public ResponseEntity<PostResponse> createPost(
         @AuthenticationPrincipal JwtUserDetails userDetails,
-        @RequestBody CreatePostRequest request
+        @Valid @RequestBody CreatePostRequest request
     ) {
         return ResponseEntity.ok(
             PostResponse.from(
@@ -44,7 +45,7 @@ public class PostController {
     @PutMapping("/{postId}")
     public ResponseEntity<PostResponse> updatePost(
         @PathVariable Long postId,
-        @RequestBody UpdatePostRequest request
+        @Valid @RequestBody UpdatePostRequest request
     ) {
         return ResponseEntity.ok(
             PostResponse.from(
