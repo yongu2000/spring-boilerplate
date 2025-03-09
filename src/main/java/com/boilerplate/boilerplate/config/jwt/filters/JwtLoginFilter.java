@@ -4,7 +4,6 @@ import com.boilerplate.boilerplate.config.jwt.JwtProperties;
 import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
 import com.boilerplate.boilerplate.config.jwt.exception.AuthenticationError;
 import com.boilerplate.boilerplate.config.jwt.service.JwtTokenService;
-import com.boilerplate.boilerplate.config.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
 import com.boilerplate.boilerplate.domain.user.dto.LoginRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,17 +26,14 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenService jwtTokenService;
-    private final RefreshTokenService refreshTokenService;
 
     private static final String LOGIN_URL = "/api/login";
 
     public JwtLoginFilter(AuthenticationManager authenticationManager,
-        JwtTokenService jwtTokenService,
-        RefreshTokenService refreshTokenService) {
+        JwtTokenService jwtTokenService) {
         super(authenticationManager);
         this.authenticationManager = authenticationManager;
         this.jwtTokenService = jwtTokenService;
-        this.refreshTokenService = refreshTokenService;
         setFilterProcessesUrl(LOGIN_URL);
     }
 
