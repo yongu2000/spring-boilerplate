@@ -3,11 +3,10 @@ package com.boilerplate.boilerplate.domain.post.controller;
 import com.boilerplate.boilerplate.domain.post.dto.CommentRequest;
 import com.boilerplate.boilerplate.domain.post.dto.CommentResponse;
 import com.boilerplate.boilerplate.domain.post.service.CommentService;
-import com.boilerplate.boilerplate.global.auth.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.global.utils.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,13 +24,12 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<CommentResponse> createComment(
-        @AuthenticationPrincipal JwtUserDetails userDetails,
         @PathVariable Long postId,
         @Valid @RequestBody CommentRequest request
     ) {
         return ResponseEntity.ok(
             commentService.create(
-                userDetails.getId(),
+                SecurityUtil.getCurrentUserId(),
                 postId,
                 request.getContent(),
                 request.getParentCommentId()
@@ -41,13 +39,12 @@ public class CommentController {
 
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
-        @AuthenticationPrincipal JwtUserDetails userPrincipal,
         @PathVariable Long commentId,
         @Valid @RequestBody CommentRequest request
     ) {
         return ResponseEntity.ok(
             commentService.update(
-                userPrincipal.getId(),
+                SecurityUtil.getCurrentUserId(),
                 commentId,
                 request.getContent()
             )
@@ -56,10 +53,9 @@ public class CommentController {
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(
-        @AuthenticationPrincipal JwtUserDetails userPrincipal,
         @PathVariable Long commentId
     ) {
-        commentService.delete(userPrincipal.getId(), commentId);
+        commentService.delete(SecurityUtil.getCurrentUserId(), commentId);
         return ResponseEntity.ok().build();
     }
 

@@ -5,14 +5,13 @@ import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
 import com.boilerplate.boilerplate.domain.post.dto.PostSummaryResponse;
 import com.boilerplate.boilerplate.domain.post.dto.UpdatePostRequest;
 import com.boilerplate.boilerplate.domain.post.service.PostService;
-import com.boilerplate.boilerplate.global.auth.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.global.dto.CursorResponse;
+import com.boilerplate.boilerplate.global.utils.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,12 +31,11 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<PostResponse> createPost(
-        @AuthenticationPrincipal JwtUserDetails userDetails,
         @Valid @RequestBody CreatePostRequest request
     ) {
         return ResponseEntity.ok(
             postService.create(
-                userDetails.getId(),
+                SecurityUtil.getCurrentUserId(),
                 request.getTitle(),
                 request.getContent()
             )
@@ -46,13 +44,12 @@ public class PostController {
 
     @PutMapping("/{postId}")
     public ResponseEntity<PostResponse> updatePost(
-        @AuthenticationPrincipal JwtUserDetails userDetails,
         @PathVariable Long postId,
         @Valid @RequestBody UpdatePostRequest request
     ) {
         return ResponseEntity.ok(
             postService.update(
-                userDetails.getId(),
+                SecurityUtil.getCurrentUserId(),
                 postId,
                 request.getTitle(),
                 request.getContent()
@@ -61,9 +58,8 @@ public class PostController {
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<Void> deletePost(@AuthenticationPrincipal JwtUserDetails userDetails,
-        @PathVariable Long postId) {
-        postService.delete(userDetails.getId(), postId);
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+        postService.delete(SecurityUtil.getCurrentUserId(), postId);
         return ResponseEntity.ok().build();
     }
 
