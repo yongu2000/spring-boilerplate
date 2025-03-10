@@ -85,11 +85,10 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
             .authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/", "/api/login", "/api/join", "/api/token/**", "/api/posts")
+                .requestMatchers("/", "/api/login", "/api/join", "/api/token/**", "/api/posts/list", "/api/posts/grid")
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/posts/{code:^[0-9]*$}")
                 .permitAll()
-                .requestMatchers("/api/posts/my").authenticated()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
 

@@ -23,7 +23,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         "ORDER BY p.id DESC",
         countQuery = "SELECT COUNT(p) FROM Post p"
     )
-    Page<Post> findAllPostSummaries(Pageable pageable);
+    Page<Post> findAllPostSummariesByPage(Pageable pageable);
+
+    @Query("SELECT p FROM Post p " +
+        "LEFT JOIN FETCH p.user " +
+        "WHERE (:cursor IS NULL OR p.id < :cursor) " +
+        "ORDER BY p.id DESC " +
+        "LIMIT :limit")
+    List<Post> findAllPostsByCursor(@Param("cursor") Long cursor, @Param("limit") int limit);
 
 
     @Query("SELECT DISTINCT p FROM Post p " +

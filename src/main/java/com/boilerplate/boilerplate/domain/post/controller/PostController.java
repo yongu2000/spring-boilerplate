@@ -1,6 +1,7 @@
 package com.boilerplate.boilerplate.domain.post.controller;
 
 import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.global.dto.CursorResponse;
 import com.boilerplate.boilerplate.domain.post.dto.CreatePostRequest;
 import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
 import com.boilerplate.boilerplate.domain.post.dto.PostSummaryResponse;
@@ -64,13 +65,24 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping
-    public ResponseEntity<Page<PostSummaryResponse>> getAllPosts(
+
+    @GetMapping("/list")
+    public ResponseEntity<Page<PostSummaryResponse>> getAllPostsByPage(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(
-            postService.getAllPosts(PageRequest.of(page, size))
+            postService.getAllPostsByPage(PageRequest.of(page, size))
+        );
+    }
+
+    @GetMapping("/grid")
+    public ResponseEntity<CursorResponse<PostSummaryResponse>> getAllPostsByCursor(
+        @RequestParam(required = false) Long cursor,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(
+            postService.getAllPostsByCursor(cursor, size)
         );
     }
 
