@@ -8,7 +8,6 @@ import com.boilerplate.boilerplate.domain.post.dto.PostSummaryResponse;
 import com.boilerplate.boilerplate.domain.post.dto.UpdatePostRequest;
 import com.boilerplate.boilerplate.domain.post.service.PostService;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,11 +46,13 @@ public class PostController {
 
     @PutMapping("/{postId}")
     public ResponseEntity<PostResponse> updatePost(
+        @AuthenticationPrincipal JwtUserDetails userDetails,
         @PathVariable Long postId,
         @Valid @RequestBody UpdatePostRequest request
     ) {
         return ResponseEntity.ok(
             postService.update(
+                userDetails.getId(),
                 postId,
                 request.getTitle(),
                 request.getContent()
@@ -60,8 +61,9 @@ public class PostController {
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
-        postService.delete(postId);
+    public ResponseEntity<Void> deletePost(@AuthenticationPrincipal JwtUserDetails userDetails,
+        @PathVariable Long postId) {
+        postService.delete(userDetails.getId(), postId);
         return ResponseEntity.ok().build();
     }
 
@@ -83,15 +85,6 @@ public class PostController {
     ) {
         return ResponseEntity.ok(
             postService.getAllPostsByCursor(cursor, size)
-        );
-    }
-
-    @GetMapping("/my")
-    public ResponseEntity<List<PostResponse>> getMyPosts(
-        @AuthenticationPrincipal JwtUserDetails userDetails
-    ) {
-        return ResponseEntity.ok(
-            postService.getPostsByUserId(userDetails.getId())
         );
     }
 

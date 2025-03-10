@@ -10,6 +10,7 @@ import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,22 +40,18 @@ public class CommentService {
         return CommentResponse.from(commentRepository.save(comment));
     }
 
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     public CommentResponse update(Long userId, Long commentId, String newContent) {
         Comment comment = commentRepository.findByIdWithUser(commentId)
             .orElseThrow(() -> new EntityNotFoundException(PostError.COMMENT_NOT_EXIST.getMessage() + commentId));
-        if (!comment.getUser().getId().equals(userId)) {
-            throw new IllegalStateException(PostError.COMMENT_NO_AUTH.getMessage());
-        }
         comment.updateContent(newContent);
         return CommentResponse.from(comment);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     public void delete(Long userId, Long commentId) {
         Comment comment = commentRepository.findByIdWithUser(commentId)
             .orElseThrow(() -> new EntityNotFoundException(PostError.COMMENT_NOT_EXIST.getMessage() + commentId));
-        if (!comment.getUser().getId().equals(userId)) {
-            throw new IllegalStateException(PostError.COMMENT_NO_AUTH.getMessage());
-        }
         Post post = comment.getPost();
         post.decreaseCommentCounts();
         commentRepository.deleteById(commentId);

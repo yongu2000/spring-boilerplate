@@ -49,7 +49,7 @@ public class Post {
     @Builder.Default
     private Long likes = 0L;
 
-    @Column(name = "comment_counts")
+    @Column(nullable = false, name = "comment_counts")
     @ColumnDefault(value = "0")
     @Builder.Default
     private Long commentCounts = 0L;

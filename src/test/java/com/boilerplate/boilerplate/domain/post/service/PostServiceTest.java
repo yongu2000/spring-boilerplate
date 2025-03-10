@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
+import com.boilerplate.boilerplate.domain.post.dto.PostSummaryResponse;
 import com.boilerplate.boilerplate.domain.post.entity.Post;
 import com.boilerplate.boilerplate.domain.post.exception.PostError;
 import com.boilerplate.boilerplate.domain.post.repository.PostRepository;
@@ -18,11 +19,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 @DisplayName("게시글 서비스 PostService")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @Transactional
@@ -81,7 +85,7 @@ class PostServiceTest {
         Long postId = post.getId();
 
         // When
-        PostResponse updatedPost = postService.update(postId, "Updated Title", "Updated Content");
+        PostResponse updatedPost = postService.update(user.getId(), postId, "Updated Title", "Updated Content");
 
         // Then
         assertThat(updatedPost.getTitle()).isEqualTo("Updated Title");
@@ -94,7 +98,7 @@ class PostServiceTest {
         Long postId = 99L;
 
         // When & Then
-        assertThatThrownBy(() -> postService.update(postId, "New Title", "New Content"))
+        assertThatThrownBy(() -> postService.update(user.getId(), postId, "New Title", "New Content"))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessage(PostError.POST_NOT_EXIST.getMessage());
     }
@@ -117,21 +121,21 @@ class PostServiceTest {
         Long postId = 99L;
 
         // When & Then
-        assertThatThrownBy(() -> postService.delete(postId))
+        assertThatThrownBy(() -> postService.delete(user.getId(), postId))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessage(PostError.POST_NOT_EXIST.getMessage());
     }
 
-//    @Test
-//    void 전체_글_조회_성공() {
-//        // When
-//        List<PostResponse> result = postService.getAllPosts();
-//
-//        // Then
-//        assertThat(result).isNotEmpty();
-//        assertThat(result.size()).isEqualTo(1);
-//        assertThat(result.getFirst().getId()).isEqualTo(post.getId());
-//    }
+    @Test
+    void 전체_글_조회_성공() {
+        // When
+        Page<PostSummaryResponse> result = postService.getAllPostsByPage(Pageable.ofSize(10));
+
+        // Then
+        assertThat(result).isNotEmpty();
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.getFirst().getId()).isEqualTo(post.getId());
+    }
 
     @Test
     void 유저별_게시글_조회_성공() {

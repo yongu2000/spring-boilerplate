@@ -14,6 +14,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +39,8 @@ public class PostService {
         return PostResponse.from(postRepository.save(post));
     }
 
-    public PostResponse update(Long postId, String newTitle, String newContent) {
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
+    public PostResponse update(Long userId, Long postId, String newTitle, String newContent) {
         Post post = postRepository.findById(postId)
             .orElseThrow(() -> new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage()));
 
@@ -47,7 +49,8 @@ public class PostService {
         return PostResponse.from(post);
     }
 
-    public void delete(Long postId) {
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
+    public void delete(Long userId, Long postId) {
         if (!postRepository.existsById(postId)) {
             throw new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage());
         }
