@@ -10,10 +10,7 @@ import com.boilerplate.boilerplate.domain.post.repository.PostRepository;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -59,21 +56,8 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Page<PostSummaryResponse> getAllPostsByPage(Pageable pageable) {
-        Page<Post> posts = postRepository.findAllPostSummariesByPage(pageable);
-        List<Long> postIds = posts.stream().map(Post::getId).toList();
-
-        // 현재 조회 중인 게시글들에 대한 댓글 개수 조회
-        List<Object[]> commentCounts = commentRepository.findCommentCountsByPostIds(postIds);
-        Map<Long, Long> commentCountMap = commentCounts.stream()
-            .collect(Collectors.toMap(
-                obj -> (Long) obj[0],  // postId
-                obj -> (Long) obj[1]   // commentCount
-            ));
-
-        return posts.map(post -> {
-            long commentCount = commentCountMap.getOrDefault(post.getId(), 0L);
-            return PostSummaryResponse.from(post, commentCount);
-        });
+        return postRepository.findAllPostSummariesByPage(pageable)
+            .map(PostSummaryResponse::from);
     }
 
     @Transactional(readOnly = true)
@@ -87,24 +71,9 @@ public class PostService {
             posts = posts.subList(0, size);
         }
 
-        // 댓글 수 조회 및 매핑
-        List<Long> postIds = posts.stream().map(Post::getId).toList();
-        Map<Long, Long> commentCountMap = commentRepository.findCommentCountsByPostIds(postIds).stream()
-            .collect(Collectors.toMap(
-                obj -> (Long) obj[0],
-                obj -> (Long) obj[1],
-                (v1, v2) -> v1,
-                HashMap::new
-            ));
-
-        List<PostSummaryResponse> responses = posts.stream()
-            .map(post -> PostSummaryResponse.from(post, commentCountMap.getOrDefault(post.getId(), 0L)))
-            .collect(Collectors.toList());
-
         // 다음 커서는 마지막 게시글의 ID
         Long nextCursor = hasNext && !posts.isEmpty() ? posts.getLast().getId() : null;
-
-        return new CursorResponse<>(responses, nextCursor, hasNext);
+        return new CursorResponse<>(posts.stream().map(PostSummaryResponse::from).toList(), nextCursor, hasNext);
     }
 
     @Transactional(readOnly = true)

@@ -14,20 +14,20 @@ public class PostSummaryResponse {
     private Long id;
     private String title;
     private String content;
-    private int likes;
+    private Long likes;
+    private Long commentCounts;
     private PostUserResponse user;
-    private long commentCount;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public static PostSummaryResponse from(Post post, Long commentCount) {
+    public static PostSummaryResponse from(Post post) {
         return PostSummaryResponse.builder()
             .id(post.getId())
             .title(post.getTitle())
             .content(post.getContent())
             .likes(post.getLikes())
+            .commentCounts(post.getCommentCounts())
             .user(PostUserResponse.from(post.getUser()))
-            .commentCount(commentCount)
             .createdAt(post.getCreatedAt())
             .modifiedAt(post.getModifiedAt())
             .build();

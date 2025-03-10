@@ -16,7 +16,8 @@ public class PostResponse {
     private Long id;
     private String title;
     private String content;
-    private int likes;
+    private Long likes;
+    private Long commentCounts;
     private PostUserResponse user;
     private List<CommentResponse> comments; // 이 필드가 있는지 확인
     private LocalDateTime createdAt;
@@ -29,6 +30,7 @@ public class PostResponse {
             .title(post.getTitle())
             .content(post.getContent())
             .likes(post.getLikes())
+            .commentCounts(post.getCommentCounts())
             .user(PostUserResponse.from(post.getUser()))
             .comments(post.getComments().stream()
                 .map(CommentResponse::from)

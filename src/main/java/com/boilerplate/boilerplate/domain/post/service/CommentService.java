@@ -35,6 +35,7 @@ public class CommentService {
         }
 
         Comment comment = new Comment(content, post, user, parentComment);
+        post.increaseCommentCounts();
         return CommentResponse.from(commentRepository.save(comment));
     }
 
@@ -54,6 +55,8 @@ public class CommentService {
         if (!comment.getUser().getId().equals(userId)) {
             throw new IllegalStateException(PostError.COMMENT_NO_AUTH.getMessage());
         }
+        Post post = comment.getPost();
+        post.decreaseCommentCounts();
         commentRepository.deleteById(commentId);
     }
 }

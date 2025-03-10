@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+@Builder
+@AllArgsConstructor
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -43,12 +46,19 @@ public class Post {
 
     @Column(nullable = false)
     @ColumnDefault(value = "0")
-    private int likes;
+    @Builder.Default
+    private Long likes = 0L;
+
+    @Column(name = "comment_counts")
+    @ColumnDefault(value = "0")
+    @Builder.Default
+    private Long commentCounts = 0L;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
@@ -61,15 +71,24 @@ public class Post {
     private LocalDateTime modifiedAt;
 
     @Builder
-    public Post(String title, String content, int likes, User user) {
+    public Post(String title, String content, User user) {
         this.title = title;
         this.content = content;
-        this.likes = likes;
         this.user = user;
     }
 
     public void update(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public void increaseCommentCounts() {
+        commentCounts++;
+    }
+
+    public void decreaseCommentCounts() {
+        if (commentCounts > 0) {
+            commentCounts--;
+        }
     }
 }

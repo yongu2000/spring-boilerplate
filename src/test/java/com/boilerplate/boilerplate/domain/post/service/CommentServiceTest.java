@@ -56,7 +56,7 @@ class CommentServiceTest {
     void setUp() {
         mockUser = new User("testEmail", "testUser", "password", "testName", Role.USER);
         ReflectionTestUtils.setField(mockUser, "id", 1L);
-        mockPost = new Post("Test Title", "Test Content", 0, mockUser);
+        mockPost = new Post("Test Title", "Test Content", 1L, mockUser);
         ReflectionTestUtils.setField(mockPost, "id", 1L);
         mockComment = new Comment("Test Comment", mockPost, mockUser, null);
         ReflectionTestUtils.setField(mockComment, "id", 1L);

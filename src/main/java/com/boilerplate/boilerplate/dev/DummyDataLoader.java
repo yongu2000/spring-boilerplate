@@ -102,7 +102,8 @@ public class DummyDataLoader implements CommandLineRunner {
             Post post = Post.builder()
                 .title("게시글 제목 " + i)
                 .content("이것은 " + i + "번째 게시글의 내용입니다.")
-                .likes(random.nextInt(100)) // 0~99 사이 랜덤 좋아요
+                .likes(0L)
+                .commentCounts(5L)
                 .user(user)
                 .build();
 
