@@ -3,6 +3,7 @@ package com.boilerplate.boilerplate.domain.post.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
+import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
 import com.boilerplate.boilerplate.domain.post.entity.Post;
 import com.boilerplate.boilerplate.domain.post.exception.PostError;
 import com.boilerplate.boilerplate.domain.post.repository.PostRepository;
@@ -65,13 +66,13 @@ class PostServiceTest {
         System.out.println(userId);
 
         // When
-        Post createdPost = postService.create(userId, post.getTitle(), post.getContent());
+        PostResponse createdPost = postService.create(userId, post.getTitle(), post.getContent());
 
         // Then
         assertThat(createdPost).isNotNull();
         assertThat(createdPost.getTitle()).isEqualTo("Test Title");
         assertThat(createdPost.getContent()).isEqualTo("Test Content");
-        assertThat(createdPost.getUser()).isEqualTo(user);
+        assertThat(createdPost.getUser().getId()).isEqualTo(userId);
     }
 
     @Test
@@ -80,7 +81,7 @@ class PostServiceTest {
         Long postId = post.getId();
 
         // When
-        Post updatedPost = postService.update(postId, "Updated Title", "Updated Content");
+        PostResponse updatedPost = postService.update(postId, "Updated Title", "Updated Content");
 
         // Then
         assertThat(updatedPost.getTitle()).isEqualTo("Updated Title");
@@ -124,22 +125,22 @@ class PostServiceTest {
     @Test
     void 전체_글_조회_성공() {
         // When
-        List<Post> result = postService.getAllPosts();
+        List<PostResponse> result = postService.getAllPosts();
 
         // Then
         assertThat(result).isNotEmpty();
         assertThat(result.size()).isEqualTo(1);
-        assertThat(result.getFirst()).isEqualTo(post);
+        assertThat(result.getFirst().getId()).isEqualTo(post.getId());
     }
 
     @Test
     void 유저별_게시글_조회_성공() {
         // When
-        List<Post> result = postService.getPostsByUserId(user.getId());
+        List<PostResponse> result = postService.getPostsByUserId(user.getId());
 
         // Then
         assertThat(result).isNotEmpty();
         assertThat(result.size()).isEqualTo(1);
-        assertThat(result.getFirst()).isEqualTo(post);
+        assertThat(result.getFirst().getId()).isEqualTo(post.getId());
     }
 }

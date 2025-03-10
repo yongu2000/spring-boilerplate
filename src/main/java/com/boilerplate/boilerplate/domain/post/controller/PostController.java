@@ -32,12 +32,10 @@ public class PostController {
         @Valid @RequestBody CreatePostRequest request
     ) {
         return ResponseEntity.ok(
-            PostResponse.from(
-                postService.create(
-                    userDetails.getId(),
-                    request.getTitle(),
-                    request.getContent()
-                )
+            postService.create(
+                userDetails.getId(),
+                request.getTitle(),
+                request.getContent()
             )
         );
     }
@@ -48,12 +46,10 @@ public class PostController {
         @Valid @RequestBody UpdatePostRequest request
     ) {
         return ResponseEntity.ok(
-            PostResponse.from(
-                postService.update(
-                    postId,
-                    request.getTitle(),
-                    request.getContent()
-                )
+            postService.update(
+                postId,
+                request.getTitle(),
+                request.getContent()
             )
         );
     }
@@ -67,9 +63,7 @@ public class PostController {
     @GetMapping
     public ResponseEntity<List<PostResponse>> getAllPosts() {
         return ResponseEntity.ok(
-            postService.getAllPosts().stream()
-                .map(PostResponse::from)
-                .toList()
+            postService.getAllPosts()
         );
     }
 
@@ -78,18 +72,14 @@ public class PostController {
         @AuthenticationPrincipal JwtUserDetails userDetails
     ) {
         return ResponseEntity.ok(
-            postService.getPostsByUserId(userDetails.getId()).stream()
-                .map(PostResponse::from)
-                .toList()
+            postService.getPostsByUserId(userDetails.getId())
         );
     }
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostResponse> getPost(@PathVariable Long postId) {
         return ResponseEntity.ok(
-            PostResponse.from(
-                postService.getPostById(postId)
-            )
+            postService.getPostById(postId)
         );
     }
 }
