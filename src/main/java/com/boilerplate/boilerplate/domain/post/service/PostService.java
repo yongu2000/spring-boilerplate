@@ -1,6 +1,5 @@
 package com.boilerplate.boilerplate.domain.post.service;
 
-import com.boilerplate.boilerplate.domain.global.dto.CursorResponse;
 import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
 import com.boilerplate.boilerplate.domain.post.dto.PostSummaryResponse;
 import com.boilerplate.boilerplate.domain.post.entity.Post;
@@ -9,6 +8,7 @@ import com.boilerplate.boilerplate.domain.post.repository.CommentRepository;
 import com.boilerplate.boilerplate.domain.post.repository.PostRepository;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
+import com.boilerplate.boilerplate.global.dto.CursorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

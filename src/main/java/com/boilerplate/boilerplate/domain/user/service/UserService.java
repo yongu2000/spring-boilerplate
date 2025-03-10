@@ -1,10 +1,10 @@
 package com.boilerplate.boilerplate.domain.user.service;
 
-import com.boilerplate.boilerplate.domain.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.user.dto.UserResponse;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.exception.UserError;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
+import com.boilerplate.boilerplate.global.auth.jwt.entity.JwtUserDetails;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;

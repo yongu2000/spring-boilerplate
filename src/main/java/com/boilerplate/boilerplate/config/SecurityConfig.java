@@ -1,10 +1,10 @@
 package com.boilerplate.boilerplate.config;
 
-import com.boilerplate.boilerplate.domain.jwt.filters.JwtAuthenticationFilter;
-import com.boilerplate.boilerplate.domain.jwt.filters.JwtLoginFilter;
-import com.boilerplate.boilerplate.domain.jwt.filters.JwtLogoutFilter;
-import com.boilerplate.boilerplate.domain.jwt.service.JwtTokenService;
-import com.boilerplate.boilerplate.domain.jwt.service.RefreshTokenService;
+import com.boilerplate.boilerplate.global.auth.jwt.filters.JwtAuthenticationFilter;
+import com.boilerplate.boilerplate.global.auth.jwt.filters.JwtLoginFilter;
+import com.boilerplate.boilerplate.global.auth.jwt.filters.JwtLogoutFilter;
+import com.boilerplate.boilerplate.global.auth.jwt.service.JwtTokenService;
+import com.boilerplate.boilerplate.global.auth.jwt.service.RefreshTokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Collections;

@@ -1,9 +1,9 @@
 package com.boilerplate.boilerplate.domain.post.controller;
 
-import com.boilerplate.boilerplate.domain.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.post.dto.CommentRequest;
 import com.boilerplate.boilerplate.domain.post.dto.CommentResponse;
 import com.boilerplate.boilerplate.domain.post.service.CommentService;
+import com.boilerplate.boilerplate.global.auth.jwt.entity.JwtUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

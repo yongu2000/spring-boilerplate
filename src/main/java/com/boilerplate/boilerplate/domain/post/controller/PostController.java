@@ -1,12 +1,12 @@
 package com.boilerplate.boilerplate.domain.post.controller;
 
-import com.boilerplate.boilerplate.domain.global.dto.CursorResponse;
-import com.boilerplate.boilerplate.domain.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.post.dto.CreatePostRequest;
 import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
 import com.boilerplate.boilerplate.domain.post.dto.PostSummaryResponse;
 import com.boilerplate.boilerplate.domain.post.dto.UpdatePostRequest;
 import com.boilerplate.boilerplate.domain.post.service.PostService;
+import com.boilerplate.boilerplate.global.auth.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.global.dto.CursorResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
