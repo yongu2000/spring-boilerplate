@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.config.jwt.utils;
+package com.boilerplate.boilerplate.domain.jwt.utils;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

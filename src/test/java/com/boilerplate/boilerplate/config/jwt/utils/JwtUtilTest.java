@@ -2,8 +2,9 @@ package com.boilerplate.boilerplate.config.jwt.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.boilerplate.boilerplate.config.jwt.JwtProperties;
-import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.jwt.JwtProperties;
+import com.boilerplate.boilerplate.domain.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;

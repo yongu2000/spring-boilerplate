@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.exception;
+package com.boilerplate.boilerplate.domain.global.exception;
 
 import lombok.Getter;
 import lombok.Setter;

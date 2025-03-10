@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.config.jwt.entity;
+package com.boilerplate.boilerplate.domain.jwt.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

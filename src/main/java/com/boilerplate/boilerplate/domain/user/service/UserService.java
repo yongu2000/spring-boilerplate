@@ -1,6 +1,6 @@
 package com.boilerplate.boilerplate.domain.user.service;
 
-import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.user.dto.UserResponse;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.exception.UserError;

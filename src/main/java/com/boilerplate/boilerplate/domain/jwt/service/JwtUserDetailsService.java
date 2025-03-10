@@ -1,6 +1,6 @@
-package com.boilerplate.boilerplate.config.jwt.service;
+package com.boilerplate.boilerplate.domain.jwt.service;
 
-import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.user.exception.UserError;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;

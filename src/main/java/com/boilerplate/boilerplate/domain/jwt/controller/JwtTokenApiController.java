@@ -1,10 +1,10 @@
-package com.boilerplate.boilerplate.config.jwt.controller;
+package com.boilerplate.boilerplate.domain.jwt.controller;
 
-import com.boilerplate.boilerplate.config.jwt.JwtProperties;
-import com.boilerplate.boilerplate.config.jwt.dto.ReissueAccessTokenRequest;
-import com.boilerplate.boilerplate.config.jwt.dto.ReissueAccessTokenResponse;
-import com.boilerplate.boilerplate.config.jwt.service.JwtTokenService;
-import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
+import com.boilerplate.boilerplate.domain.jwt.JwtProperties;
+import com.boilerplate.boilerplate.domain.jwt.dto.ReissueAccessTokenRequest;
+import com.boilerplate.boilerplate.domain.jwt.dto.ReissueAccessTokenResponse;
+import com.boilerplate.boilerplate.domain.jwt.service.JwtTokenService;
+import com.boilerplate.boilerplate.domain.jwt.utils.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

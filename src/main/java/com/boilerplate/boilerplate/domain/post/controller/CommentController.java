@@ -1,6 +1,6 @@
 package com.boilerplate.boilerplate.domain.post.controller;
 
-import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.post.dto.CommentRequest;
 import com.boilerplate.boilerplate.domain.post.dto.CommentResponse;
 import com.boilerplate.boilerplate.domain.post.service.CommentService;

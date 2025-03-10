@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.config.jwt.dto;
+package com.boilerplate.boilerplate.domain.jwt.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

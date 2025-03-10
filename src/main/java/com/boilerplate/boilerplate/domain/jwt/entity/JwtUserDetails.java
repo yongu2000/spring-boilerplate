@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.config.jwt;
+package com.boilerplate.boilerplate.domain.jwt.entity;
 
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 package com.boilerplate.boilerplate.config;
 
-import com.boilerplate.boilerplate.config.interceptor.LoggingInterceptor;
+import com.boilerplate.boilerplate.domain.global.interceptor.LoggingInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

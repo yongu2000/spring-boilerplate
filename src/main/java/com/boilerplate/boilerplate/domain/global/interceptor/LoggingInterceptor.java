@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.config.interceptor;
+package com.boilerplate.boilerplate.domain.global.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

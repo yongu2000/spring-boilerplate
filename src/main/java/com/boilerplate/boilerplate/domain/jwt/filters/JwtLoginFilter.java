@@ -1,10 +1,10 @@
-package com.boilerplate.boilerplate.config.jwt.filters;
+package com.boilerplate.boilerplate.domain.jwt.filters;
 
-import com.boilerplate.boilerplate.config.jwt.JwtProperties;
-import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
-import com.boilerplate.boilerplate.config.jwt.exception.AuthenticationError;
-import com.boilerplate.boilerplate.config.jwt.service.JwtTokenService;
-import com.boilerplate.boilerplate.config.jwt.utils.CookieUtil;
+import com.boilerplate.boilerplate.domain.jwt.JwtProperties;
+import com.boilerplate.boilerplate.domain.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.jwt.exception.AuthenticationError;
+import com.boilerplate.boilerplate.domain.jwt.service.JwtTokenService;
+import com.boilerplate.boilerplate.domain.jwt.utils.CookieUtil;
 import com.boilerplate.boilerplate.domain.user.dto.LoginRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;

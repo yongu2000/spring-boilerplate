@@ -1,6 +1,6 @@
-package com.boilerplate.boilerplate.config.jwt.repository;
+package com.boilerplate.boilerplate.domain.jwt.repository;
 
-import com.boilerplate.boilerplate.config.jwt.entity.RefreshToken;
+import com.boilerplate.boilerplate.domain.jwt.entity.RefreshToken;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,7 +1,7 @@
 package com.boilerplate.boilerplate.domain.post.controller;
 
-import com.boilerplate.boilerplate.config.jwt.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.global.dto.CursorResponse;
+import com.boilerplate.boilerplate.domain.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.post.dto.CreatePostRequest;
 import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
 import com.boilerplate.boilerplate.domain.post.dto.PostSummaryResponse;

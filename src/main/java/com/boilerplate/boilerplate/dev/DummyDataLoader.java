@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.config;
+package com.boilerplate.boilerplate.dev;
 
 import com.boilerplate.boilerplate.domain.post.entity.Comment;
 import com.boilerplate.boilerplate.domain.post.entity.Post;
