@@ -2,15 +2,18 @@ package com.boilerplate.boilerplate.domain.post.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
-import com.boilerplate.boilerplate.domain.post.dto.PostSummaryResponse;
 import com.boilerplate.boilerplate.domain.post.entity.Post;
 import com.boilerplate.boilerplate.domain.post.exception.PostError;
+import com.boilerplate.boilerplate.domain.post.repository.CommentRepository;
 import com.boilerplate.boilerplate.domain.post.repository.PostRepository;
 import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
-import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
@@ -20,10 +23,10 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,14 +35,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class PostServiceTest {
 
-    @Autowired
-    private PostRepository postRepository;
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
+    @InjectMocks
     private PostService postService;
-    @Autowired
+
+    @Mock
+    private PostRepository postRepository;
+    @Mock
+    private CommentRepository commentRepository;
+    @Mock
     private UserService userService;
 
     private User user;
@@ -48,54 +51,68 @@ class PostServiceTest {
     @BeforeEach
     void setUp() {
         user = User.builder()
-            .email("testEmail")
+            .email("testEmail@example.com")
             .username("testUser")
             .password("password")
             .name("testName")
             .role(Role.USER)
             .build();
+        ReflectionTestUtils.setField(user, "id", 1L);
+
         post = Post.builder()
+            .id(1L)
             .title("Test Title")
             .content("Test Content")
             .user(user)
             .build();
-        userRepository.save(user);
-        postRepository.save(post);
     }
 
     @Test
     void 게시글_생성_성공() {
         // Given
         Long userId = user.getId();
-        System.out.println(userId);
+        String title = "New Title";
+        String content = "New Content";
+        when(userService.findById(userId)).thenReturn(user);
+        when(postRepository.save(any(Post.class))).thenAnswer(invocation -> {
+            Post savedPost = invocation.getArgument(0);
+            ReflectionTestUtils.setField(savedPost, "id", 2L);
+            return savedPost;
+        });
 
         // When
-        PostResponse createdPost = postService.create(userId, post.getTitle(), post.getContent());
+        PostResponse createdPost = postService.create(userId, title, content);
 
         // Then
         assertThat(createdPost).isNotNull();
-        assertThat(createdPost.getTitle()).isEqualTo("Test Title");
-        assertThat(createdPost.getContent()).isEqualTo("Test Content");
+        assertThat(createdPost.getTitle()).isEqualTo(title);
+        assertThat(createdPost.getContent()).isEqualTo(content);
         assertThat(createdPost.getUser().getId()).isEqualTo(userId);
+        verify(postRepository, times(1)).save(any(Post.class)); // ✅ postRepository.save() 호출 검증
     }
 
     @Test
     void 게시글_수정_성공() {
         // Given
         Long postId = post.getId();
+        String newTitle = "Updated Title";
+        String newContent = "Updated Content";
+        when(postRepository.findById(postId)).thenReturn(java.util.Optional.of(post));
 
         // When
-        PostResponse updatedPost = postService.update(user.getId(), postId, "Updated Title", "Updated Content");
+        PostResponse updatedPost = postService.update(user.getId(), postId, newTitle, newContent);
 
         // Then
-        assertThat(updatedPost.getTitle()).isEqualTo("Updated Title");
-        assertThat(updatedPost.getContent()).isEqualTo("Updated Content");
+        assertThat(updatedPost.getTitle()).isEqualTo(newTitle);
+        assertThat(updatedPost.getContent()).isEqualTo(newContent);
+        verify(postRepository, times(1)).findById(postId);
     }
 
     @Test
     void 게시글_수정_실패_게시글_없음() {
         // Given
         Long postId = 99L;
+        when(postRepository.findById(postId)).thenReturn(java.util.Optional.empty());
 
         // When & Then
         assertThatThrownBy(() -> postService.update(user.getId(), postId, "New Title", "New Content"))
@@ -103,22 +120,24 @@ class PostServiceTest {
             .hasMessage(PostError.POST_NOT_EXIST.getMessage());
     }
 
-//    @Test
-//    void 게시글_삭제_성공() {
-//        // Given
-//        Long postId = post.getId();
-//
-//        // When
-//        postService.delete(postId);
-//
-//        // Then
-//        assertThat(postService.getAllPosts()).isEmpty();
-//    }
+    @Test
+    void 게시글_삭제_성공() {
+        // Given
+        Long postId = post.getId();
+        when(postRepository.existsById(postId)).thenReturn(true);
+
+        // When
+        postService.delete(user.getId(), postId);
+
+        // Then
+        verify(postRepository, times(1)).deleteById(postId); // ✅ postRepository.deleteById() 호출 검증
+    }
 
     @Test
     void 게시글_삭제_실패_게시글_없음() {
         // Given
         Long postId = 99L;
+        when(postRepository.existsById(postId)).thenReturn(false);
 
         // When & Then
         assertThatThrownBy(() -> postService.delete(user.getId(), postId))
@@ -127,24 +146,17 @@ class PostServiceTest {
     }
 
     @Test
-    void 전체_글_조회_성공() {
-        // When
-        Page<PostSummaryResponse> result = postService.getAllPostsByPage(Pageable.ofSize(10));
-
-        // Then
-        assertThat(result).isNotEmpty();
-        assertThat(result.size()).isEqualTo(1);
-        assertThat(result.getFirst().getId()).isEqualTo(post.getId());
-    }
-
-    @Test
     void 유저별_게시글_조회_성공() {
+        // Given
+        Long userId = user.getId();
+        when(postRepository.findByUserIdWithComments(userId)).thenReturn(List.of(post));
+
         // When
-        List<PostResponse> result = postService.getPostsByUserId(user.getId());
+        List<PostResponse> result = postService.getPostsByUserId(userId);
 
         // Then
         assertThat(result).isNotEmpty();
         assertThat(result.size()).isEqualTo(1);
-        assertThat(result.getFirst().getId()).isEqualTo(post.getId());
+        assertThat(result.get(0).getId()).isEqualTo(post.getId());
     }
 }

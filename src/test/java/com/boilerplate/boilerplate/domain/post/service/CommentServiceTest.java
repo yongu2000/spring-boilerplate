@@ -153,17 +153,6 @@ class CommentServiceTest {
             assertThat(exception.getMessage()).contains(PostError.COMMENT_NOT_EXIST.getMessage());
         }
 
-//        @Test
-//        void 댓글_수정_실패_권한없음() {
-//            // Given
-//            Long commentId = 1L;
-//            Long otherUserId = 999L; // 다른 유저 ID
-//            when(commentRepository.findByIdWithUser(commentId)).thenReturn(Optional.of(mockComment));
-//
-//            // When & Then
-//            IllegalStateException exception = assertThrows(IllegalStateException.class,
-//                () -> commentService.update(otherUserId, commentId, "Updated Comment"));
-//        }
     }
 
     @Nested
