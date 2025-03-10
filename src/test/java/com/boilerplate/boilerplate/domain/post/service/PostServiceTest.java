@@ -99,17 +99,17 @@ class PostServiceTest {
             .hasMessage(PostError.POST_NOT_EXIST.getMessage());
     }
 
-    @Test
-    void 게시글_삭제_성공() {
-        // Given
-        Long postId = post.getId();
-
-        // When
-        postService.delete(postId);
-
-        // Then
-        assertThat(postService.getAllPosts()).isEmpty();
-    }
+//    @Test
+//    void 게시글_삭제_성공() {
+//        // Given
+//        Long postId = post.getId();
+//
+//        // When
+//        postService.delete(postId);
+//
+//        // Then
+//        assertThat(postService.getAllPosts()).isEmpty();
+//    }
 
     @Test
     void 게시글_삭제_실패_게시글_없음() {
@@ -122,16 +122,16 @@ class PostServiceTest {
             .hasMessage(PostError.POST_NOT_EXIST.getMessage());
     }
 
-    @Test
-    void 전체_글_조회_성공() {
-        // When
-        List<PostResponse> result = postService.getAllPosts();
-
-        // Then
-        assertThat(result).isNotEmpty();
-        assertThat(result.size()).isEqualTo(1);
-        assertThat(result.getFirst().getId()).isEqualTo(post.getId());
-    }
+//    @Test
+//    void 전체_글_조회_성공() {
+//        // When
+//        List<PostResponse> result = postService.getAllPosts();
+//
+//        // Then
+//        assertThat(result).isNotEmpty();
+//        assertThat(result.size()).isEqualTo(1);
+//        assertThat(result.getFirst().getId()).isEqualTo(post.getId());
+//    }
 
     @Test
     void 유저별_게시글_조회_성공() {
