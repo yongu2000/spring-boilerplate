@@ -54,7 +54,11 @@ public class PostService {
 
     @PreAuthorize("hasRole('ADMIN') or @postSecurityChecker.isPostOwner(#postId)")
     public void delete(Long postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage());
+        }
         postRepository.deleteById(postId);
+
     }
 
     @Transactional(readOnly = true)

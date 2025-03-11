@@ -14,7 +14,6 @@ import com.boilerplate.boilerplate.domain.post.entity.Post;
 import com.boilerplate.boilerplate.domain.post.exception.PostError;
 import com.boilerplate.boilerplate.domain.post.repository.CommentRepository;
 import com.boilerplate.boilerplate.domain.post.repository.PostRepository;
-import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
@@ -29,7 +28,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("댓글 서비스 CommentService")
@@ -48,20 +46,16 @@ class CommentServiceTest {
     @Mock
     private UserService userService;
 
+    @Mock
     private User mockUser;
+    @Mock
     private Post mockPost;
+    @Mock
     private Comment mockComment;
 
     @BeforeEach
     void setUp() {
-        mockUser = new User("testEmail", "testUser", "password", "testName", Role.USER);
-        ReflectionTestUtils.setField(mockUser, "id", 1L);
-        mockPost = new Post("Test Title", "Test Content", mockUser);
-        ReflectionTestUtils.setField(mockPost, "id", 1L);
-        ReflectionTestUtils.setField(mockPost, "likes", 0L);
-        ReflectionTestUtils.setField(mockPost, "commentCounts", 0L);
-        mockComment = new Comment("Test Comment", mockPost, mockUser, null);
-        ReflectionTestUtils.setField(mockComment, "id", 1L);
+        when(mockComment.getUser()).thenReturn(mockUser);
     }
 
     @Nested
@@ -131,21 +125,21 @@ class CommentServiceTest {
             Long userId = 1L;
             Long commentId = 1L;
             String updatedContent = "Updated Comment";
-            when(commentRepository.findByIdWithUser(commentId)).thenReturn(Optional.of(mockComment));
+            when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
 
             // When
             CommentResponse updatedComment = commentService.update(commentId, updatedContent);
 
             // Then
             assertThat(updatedComment.getContent()).isEqualTo(updatedContent);
-            verify(commentRepository).findByIdWithUser(commentId);
+            verify(commentRepository).findById(commentId);
         }
 
         @Test
         void 댓글_수정_실패_댓글없음() {
             // Given
             Long commentId = 999L;
-            when(commentRepository.findByIdWithUser(commentId)).thenReturn(Optional.empty());
+            when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
 
             // When & Then
             EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
@@ -162,7 +156,9 @@ class CommentServiceTest {
         void 댓글_삭제_성공() {
             // Given
             Long commentId = 1L;
-            when(commentRepository.findByIdWithUser(commentId)).thenReturn(Optional.of(mockComment));
+
+            when(commentRepository.findByIdWithPost(commentId)).thenReturn(Optional.of(mockComment));
+            when(mockComment.getPost()).thenReturn(mockPost);  // ✅ post.getCommentCounts() 호출을 대비
             doNothing().when(commentRepository).deleteById(commentId);
 
             // When
@@ -170,13 +166,14 @@ class CommentServiceTest {
 
             // Then
             verify(commentRepository, times(1)).deleteById(commentId);
+            verify(mockPost, times(1)).decreaseCommentCounts(); // ✅ 댓글 개수 감소 확인
         }
 
         @Test
         void 댓글_삭제_실패_댓글없음() {
             // Given
             Long commentId = 999L;
-            when(commentRepository.findByIdWithUser(commentId)).thenReturn(Optional.empty());
+            when(commentRepository.findByIdWithPost(commentId)).thenReturn(Optional.empty());
 
             // When & Then
             EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,

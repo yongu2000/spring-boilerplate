@@ -42,7 +42,7 @@ public class CommentService {
 
     @PreAuthorize("hasRole('ADMIN') or @commentSecurityChecker.isCommentOwner(#commentId)")
     public CommentResponse update(Long commentId, String newContent) {
-        Comment comment = commentRepository.findByIdWithUser(commentId)
+        Comment comment = commentRepository.findById(commentId)
             .orElseThrow(() -> new EntityNotFoundException(PostError.COMMENT_NOT_EXIST.getMessage() + commentId));
         comment.updateContent(newContent);
         return CommentResponse.from(comment);

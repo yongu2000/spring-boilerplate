@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -68,96 +69,112 @@ class PostServiceTest {
             .build();
     }
 
-    @Test
-    void 게시글_생성_성공() {
-        // Given
-        Long userId = user.getId();
-        String title = "New Title";
-        String content = "New Content";
-        when(userService.findById(userId)).thenReturn(user);
-        when(postRepository.save(any(Post.class))).thenAnswer(invocation -> {
-            Post savedPost = invocation.getArgument(0);
-            ReflectionTestUtils.setField(savedPost, "id", 2L);
-            return savedPost;
-        });
+    @Nested
+    class 게시글_작성 {
 
-        // When
-        PostResponse createdPost = postService.create(userId, title, content);
+        @Test
+        void 게시글_작성_성공() {
+            // Given
+            Long userId = user.getId();
+            String title = "New Title";
+            String content = "New Content";
+            when(userService.findById(userId)).thenReturn(user);
+            when(postRepository.save(any(Post.class))).thenAnswer(invocation -> {
+                Post savedPost = invocation.getArgument(0);
+                ReflectionTestUtils.setField(savedPost, "id", 2L);
+                return savedPost;
+            });
 
-        // Then
-        assertThat(createdPost).isNotNull();
-        assertThat(createdPost.getTitle()).isEqualTo(title);
-        assertThat(createdPost.getContent()).isEqualTo(content);
-        assertThat(createdPost.getUser().getId()).isEqualTo(userId);
-        verify(postRepository, times(1)).save(any(Post.class)); // ✅ postRepository.save() 호출 검증
+            // When
+            PostResponse createdPost = postService.create(userId, title, content);
+
+            // Then
+            assertThat(createdPost).isNotNull();
+            assertThat(createdPost.getTitle()).isEqualTo(title);
+            assertThat(createdPost.getContent()).isEqualTo(content);
+            assertThat(createdPost.getUser().getId()).isEqualTo(userId);
+            verify(postRepository, times(1)).save(any(Post.class)); // ✅ postRepository.save() 호출 검증
+        }
     }
 
-    @Test
-    void 게시글_수정_성공() {
-        // Given
-        Long postId = post.getId();
-        String newTitle = "Updated Title";
-        String newContent = "Updated Content";
-        when(postRepository.findById(postId)).thenReturn(java.util.Optional.of(post));
+    @Nested
+    class 게시글_수정 {
 
-        // When
-        PostResponse updatedPost = postService.update(postId, newTitle, newContent);
+        @Test
+        void 게시글_수정_성공() {
+            // Given
+            Long postId = post.getId();
+            String newTitle = "Updated Title";
+            String newContent = "Updated Content";
+            when(postRepository.findById(postId)).thenReturn(java.util.Optional.of(post));
 
-        // Then
-        assertThat(updatedPost.getTitle()).isEqualTo(newTitle);
-        assertThat(updatedPost.getContent()).isEqualTo(newContent);
-        verify(postRepository, times(1)).findById(postId);
+            // When
+            PostResponse updatedPost = postService.update(postId, newTitle, newContent);
+
+            // Then
+            assertThat(updatedPost.getTitle()).isEqualTo(newTitle);
+            assertThat(updatedPost.getContent()).isEqualTo(newContent);
+            verify(postRepository, times(1)).findById(postId);
+        }
+
+        @Test
+        void 게시글_수정_실패_게시글_없음() {
+            // Given
+            Long postId = 99L;
+            when(postRepository.findById(postId)).thenReturn(Optional.empty());
+
+            // When & Then
+            assertThatThrownBy(() -> postService.update(postId, "New Title", "New Content"))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage(PostError.POST_NOT_EXIST.getMessage());
+        }
     }
 
-    @Test
-    void 게시글_수정_실패_게시글_없음() {
-        // Given
-        Long postId = 99L;
-        when(postRepository.findById(postId)).thenReturn(Optional.empty());
+    @Nested
+    class 게시글_삭제 {
 
-        // When & Then
-        assertThatThrownBy(() -> postService.update(postId, "New Title", "New Content"))
-            .isInstanceOf(EntityNotFoundException.class)
-            .hasMessage(PostError.POST_NOT_EXIST.getMessage());
+        @Test
+        void 게시글_삭제_성공() {
+            // Given
+            Long postId = post.getId();
+
+            // When
+            when(postRepository.existsById(postId)).thenReturn(true);
+            postService.delete(postId);
+
+            // Then
+            verify(postRepository, times(1)).deleteById(postId); // ✅ postRepository.deleteById() 호출 검증
+        }
+
+        @Test
+        void 게시글_삭제_실패_게시글_없음() {
+            // Given
+            Long postId = 99L;
+            when(postRepository.existsById(postId)).thenReturn(false);
+
+            // When & Then
+            assertThatThrownBy(() -> postService.delete(postId))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage(PostError.POST_NOT_EXIST.getMessage());
+        }
     }
 
-    @Test
-    void 게시글_삭제_성공() {
-        // Given
-        Long postId = post.getId();
-        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+    @Nested
+    class 게시글_조회 {
 
-        // When
-        postService.delete(postId);
+        @Test
+        void 유저별_게시글_조회_성공() {
+            // Given
+            Long userId = user.getId();
+            when(postRepository.findByUserIdWithComments(userId)).thenReturn(List.of(post));
 
-        // Then
-        verify(postRepository, times(1)).deleteById(postId); // ✅ postRepository.deleteById() 호출 검증
-    }
+            // When
+            List<PostResponse> result = postService.getPostsByUserId(userId);
 
-    @Test
-    void 게시글_삭제_실패_게시글_없음() {
-        // Given
-        Long postId = 99L;
-        when(postRepository.findById(postId)).thenReturn(Optional.empty());
-
-        // When & Then
-        assertThatThrownBy(() -> postService.delete(postId))
-            .isInstanceOf(EntityNotFoundException.class)
-            .hasMessage(PostError.POST_NOT_EXIST.getMessage());
-    }
-
-    @Test
-    void 유저별_게시글_조회_성공() {
-        // Given
-        Long userId = user.getId();
-        when(postRepository.findByUserIdWithComments(userId)).thenReturn(List.of(post));
-
-        // When
-        List<PostResponse> result = postService.getPostsByUserId(userId);
-
-        // Then
-        assertThat(result).isNotEmpty();
-        assertThat(result.size()).isEqualTo(1);
-        assertThat(result.get(0).getId()).isEqualTo(post.getId());
+            // Then
+            assertThat(result).isNotEmpty();
+            assertThat(result.size()).isEqualTo(1);
+            assertThat(result.get(0).getId()).isEqualTo(post.getId());
+        }
     }
 }
