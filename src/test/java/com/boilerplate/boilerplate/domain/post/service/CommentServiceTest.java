@@ -134,7 +134,7 @@ class CommentServiceTest {
             when(commentRepository.findByIdWithUser(commentId)).thenReturn(Optional.of(mockComment));
 
             // When
-            CommentResponse updatedComment = commentService.update(userId, commentId, updatedContent);
+            CommentResponse updatedComment = commentService.update(commentId, updatedContent);
 
             // Then
             assertThat(updatedComment.getContent()).isEqualTo(updatedContent);
@@ -149,7 +149,7 @@ class CommentServiceTest {
 
             // When & Then
             EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-                () -> commentService.update(mockUser.getId(), commentId, "Updated Comment"));
+                () -> commentService.update(commentId, "Updated Comment"));
             assertThat(exception.getMessage()).contains(PostError.COMMENT_NOT_EXIST.getMessage());
         }
 
@@ -166,7 +166,7 @@ class CommentServiceTest {
             doNothing().when(commentRepository).deleteById(commentId);
 
             // When
-            commentService.delete(mockUser.getId(), commentId);
+            commentService.delete(commentId);
 
             // Then
             verify(commentRepository, times(1)).deleteById(commentId);
@@ -180,7 +180,7 @@ class CommentServiceTest {
 
             // When & Then
             EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-                () -> commentService.delete(mockUser.getId(), commentId));
+                () -> commentService.delete(commentId));
             assertThat(exception.getMessage()).contains(PostError.COMMENT_NOT_EXIST.getMessage());
         }
     }

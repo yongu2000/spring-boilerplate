@@ -50,7 +50,6 @@ public class PostController {
     ) {
         return ResponseEntity.ok(
             postService.update(
-                SecurityUtil.getCurrentUserId(),
                 postId,
                 request.getTitle(),
                 request.getContent()
@@ -60,7 +59,7 @@ public class PostController {
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
-        postService.delete(SecurityUtil.getCurrentUserId(), postId);
+        postService.delete(postId);
         return ResponseEntity.ok().build();
     }
 

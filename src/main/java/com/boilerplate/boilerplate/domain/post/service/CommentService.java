@@ -40,17 +40,17 @@ public class CommentService {
         return CommentResponse.from(commentRepository.save(comment));
     }
 
-    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
-    public CommentResponse update(Long userId, Long commentId, String newContent) {
+    @PreAuthorize("hasRole('ADMIN') or @commentSecurityChecker.isCommentOwner(#commentId)")
+    public CommentResponse update(Long commentId, String newContent) {
         Comment comment = commentRepository.findByIdWithUser(commentId)
             .orElseThrow(() -> new EntityNotFoundException(PostError.COMMENT_NOT_EXIST.getMessage() + commentId));
         comment.updateContent(newContent);
         return CommentResponse.from(comment);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
-    public void delete(Long userId, Long commentId) {
-        Comment comment = commentRepository.findByIdWithUser(commentId)
+    @PreAuthorize("hasRole('ADMIN') or @commentSecurityChecker.isCommentOwner(#commentId)")
+    public void delete(Long commentId) {
+        Comment comment = commentRepository.findByIdWithPost(commentId)
             .orElseThrow(() -> new EntityNotFoundException(PostError.COMMENT_NOT_EXIST.getMessage() + commentId));
         Post post = comment.getPost();
         post.decreaseCommentCounts();

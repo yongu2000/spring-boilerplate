@@ -44,7 +44,6 @@ public class CommentController {
     ) {
         return ResponseEntity.ok(
             commentService.update(
-                SecurityUtil.getCurrentUserId(),
                 commentId,
                 request.getContent()
             )
@@ -55,7 +54,7 @@ public class CommentController {
     public ResponseEntity<Void> deleteComment(
         @PathVariable Long commentId
     ) {
-        commentService.delete(SecurityUtil.getCurrentUserId(), commentId);
+        commentService.delete(commentId);
         return ResponseEntity.ok().build();
     }
 

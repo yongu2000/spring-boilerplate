@@ -17,6 +17,7 @@ import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -100,7 +101,7 @@ class PostServiceTest {
         when(postRepository.findById(postId)).thenReturn(java.util.Optional.of(post));
 
         // When
-        PostResponse updatedPost = postService.update(user.getId(), postId, newTitle, newContent);
+        PostResponse updatedPost = postService.update(postId, newTitle, newContent);
 
         // Then
         assertThat(updatedPost.getTitle()).isEqualTo(newTitle);
@@ -112,10 +113,10 @@ class PostServiceTest {
     void 게시글_수정_실패_게시글_없음() {
         // Given
         Long postId = 99L;
-        when(postRepository.findById(postId)).thenReturn(java.util.Optional.empty());
+        when(postRepository.findById(postId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> postService.update(user.getId(), postId, "New Title", "New Content"))
+        assertThatThrownBy(() -> postService.update(postId, "New Title", "New Content"))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessage(PostError.POST_NOT_EXIST.getMessage());
     }
@@ -124,10 +125,10 @@ class PostServiceTest {
     void 게시글_삭제_성공() {
         // Given
         Long postId = post.getId();
-        when(postRepository.existsById(postId)).thenReturn(true);
+        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
         // When
-        postService.delete(user.getId(), postId);
+        postService.delete(postId);
 
         // Then
         verify(postRepository, times(1)).deleteById(postId); // ✅ postRepository.deleteById() 호출 검증
@@ -137,10 +138,10 @@ class PostServiceTest {
     void 게시글_삭제_실패_게시글_없음() {
         // Given
         Long postId = 99L;
-        when(postRepository.existsById(postId)).thenReturn(false);
+        when(postRepository.findById(postId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> postService.delete(user.getId(), postId))
+        assertThatThrownBy(() -> postService.delete(postId))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessage(PostError.POST_NOT_EXIST.getMessage());
     }

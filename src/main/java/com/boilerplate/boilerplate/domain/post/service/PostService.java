@@ -42,8 +42,8 @@ public class PostService {
         return PostResponse.from(postRepository.save(post));
     }
 
-    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
-    public PostResponse update(Long userId, Long postId, String newTitle, String newContent) {
+    @PreAuthorize("hasRole('ADMIN') or @postSecurityChecker.isPostOwner(#postId)")
+    public PostResponse update(Long postId, String newTitle, String newContent) {
         Post post = postRepository.findById(postId)
             .orElseThrow(() -> new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage()));
 
@@ -52,11 +52,8 @@ public class PostService {
         return PostResponse.from(post);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
-    public void delete(Long userId, Long postId) {
-        if (!postRepository.existsById(postId)) {
-            throw new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage());
-        }
+    @PreAuthorize("hasRole('ADMIN') or @postSecurityChecker.isPostOwner(#postId)")
+    public void delete(Long postId) {
         postRepository.deleteById(postId);
     }
 

@@ -15,4 +15,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
         "WHERE c.id = :commentId")
     Optional<Comment> findByIdWithUser(@Param("commentId") Long commentId);
 
+    @Query("SELECT c FROM Comment c " +
+        "LEFT JOIN FETCH c.post " +
+        "WHERE c.id = :commentId")
+    Optional<Comment> findByIdWithPost(@Param("commentId") Long commentId);
+
 }
