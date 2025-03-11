@@ -1,6 +1,7 @@
 package com.boilerplate.boilerplate.domain.post.controller;
 
 import com.boilerplate.boilerplate.domain.post.dto.CreatePostRequest;
+import com.boilerplate.boilerplate.domain.post.dto.PostLikeStatusResponse;
 import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
 import com.boilerplate.boilerplate.domain.post.dto.PostSummaryResponse;
 import com.boilerplate.boilerplate.domain.post.dto.UpdatePostRequest;
@@ -89,5 +90,22 @@ public class PostController {
         return ResponseEntity.ok(
             postService.getPostById(postId)
         );
+    }
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<Void> likePost(@PathVariable Long postId) {
+        postService.like(SecurityUtil.getCurrentUserId(), postId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{postId}/dislike")
+    public ResponseEntity<Void> dislikePost(@PathVariable Long postId) {
+        postService.dislike(SecurityUtil.getCurrentUserId(), postId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{postId}/like/status")
+    public ResponseEntity<PostLikeStatusResponse> getLikeStatus(@PathVariable Long postId) {
+        return ResponseEntity.ok(postService.getLikeStatus(SecurityUtil.getCurrentUserId(), postId));
     }
 }

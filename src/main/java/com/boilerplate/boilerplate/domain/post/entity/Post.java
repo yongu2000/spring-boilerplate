@@ -100,4 +100,15 @@ public class Post {
     public void increaseViewCounts() {
         viewCounts++;
     }
+
+    public void increaseLikes() {
+        likes++;
+
+    }
+
+    public void decreaseLikes() {
+        if (likes > 0) {
+            likes--;
+        }
+    }
 }

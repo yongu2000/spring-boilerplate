@@ -1,14 +1,17 @@
 package com.boilerplate.boilerplate.domain.post.service;
 
+import com.boilerplate.boilerplate.domain.post.dto.PostLikeStatusResponse;
 import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
 import com.boilerplate.boilerplate.domain.post.dto.PostSummaryResponse;
+import com.boilerplate.boilerplate.domain.post.entity.LikedPost;
 import com.boilerplate.boilerplate.domain.post.entity.Post;
 import com.boilerplate.boilerplate.domain.post.exception.PostError;
-import com.boilerplate.boilerplate.domain.post.repository.CommentRepository;
+import com.boilerplate.boilerplate.domain.post.repository.LikedPostRepository;
 import com.boilerplate.boilerplate.domain.post.repository.PostRepository;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import com.boilerplate.boilerplate.global.dto.CursorResponse;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
+    private final LikedPostRepository likedPostRepository;
     private final UserService userService;
 
     public PostResponse create(Long userId, String title, String content) {
@@ -92,5 +95,36 @@ public class PostService {
             .orElseThrow(() -> new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage()));
         post.increaseViewCounts();
         return PostResponse.from(post);
+    }
+
+    @Transactional
+    public void like(Long userId, Long postId) {
+        if (likedPostRepository.findByUserIdAndPostId(userId, postId).isPresent()) {
+            throw new EntityExistsException(PostError.LIKED_POST_ALREADY_EXISTS.getMessage());
+        }
+        User user = userService.findById(userId);
+        Post post = postRepository.findById(postId)
+            .orElseThrow(() -> new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage()));
+        post.increaseLikes();
+        likedPostRepository.save(LikedPost.builder()
+            .user(user)
+            .post(post)
+            .build());
+    }
+
+    @Transactional
+    public void dislike(Long userId, Long postId) {
+        LikedPost likedPost = likedPostRepository.findByUserIdAndPostId(userId, postId)
+            .orElseThrow(() -> new EntityNotFoundException(PostError.LIKED_POST_NOT_EXIST.getMessage()));
+        Post post = postRepository.findById(postId)
+            .orElseThrow(() -> new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage()));
+        post.decreaseLikes();
+        likedPostRepository.delete(likedPost);
+    }
+
+    @Transactional(readOnly = true)
+    public PostLikeStatusResponse getLikeStatus(Long userId, Long postId) {
+        boolean liked = likedPostRepository.findByUserIdAndPostId(userId, postId).isPresent();
+        return new PostLikeStatusResponse(liked);
     }
 }
