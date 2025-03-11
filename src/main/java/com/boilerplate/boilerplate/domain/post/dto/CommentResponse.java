@@ -14,7 +14,7 @@ public class CommentResponse {
 
     private Long id;
     private String content;
-    private PostUserResponse user;
+    private PostAndCommentUserResponse user;
     private Long parentCommentId;
     private List<CommentResponse> replies;
     private LocalDateTime createdAt;
@@ -24,7 +24,7 @@ public class CommentResponse {
         return CommentResponse.builder()
             .id(comment.getId())
             .content(comment.getContent())
-            .user(PostUserResponse.from(comment.getUser()))
+            .user(PostAndCommentUserResponse.from(comment.getUser()))
             .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
             .replies(comment.getReplies().stream()
                 .map(CommentResponse::from)

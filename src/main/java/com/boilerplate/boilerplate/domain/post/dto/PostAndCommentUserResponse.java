@@ -6,14 +6,14 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PostUserResponse {
+public class PostAndCommentUserResponse {
 
     private Long id;
     private String username;
     private String name;
 
-    public static PostUserResponse from(User user) {
-        return PostUserResponse.builder()
+    public static PostAndCommentUserResponse from(User user) {
+        return PostAndCommentUserResponse.builder()
             .id(user.getId())
             .username(user.getUsername())
             .name(user.getName())

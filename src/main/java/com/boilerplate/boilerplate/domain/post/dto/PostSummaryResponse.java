@@ -17,7 +17,7 @@ public class PostSummaryResponse {
     private Long likes;
     private Long commentCounts;
     private Long viewCounts;
-    private PostUserResponse user;
+    private PostAndCommentUserResponse user;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -29,7 +29,7 @@ public class PostSummaryResponse {
             .likes(post.getLikes())
             .commentCounts(post.getCommentCounts())
             .viewCounts(post.getViewCounts())
-            .user(PostUserResponse.from(post.getUser()))
+            .user(PostAndCommentUserResponse.from(post.getUser()))
             .createdAt(post.getCreatedAt())
             .modifiedAt(post.getModifiedAt())
             .build();
