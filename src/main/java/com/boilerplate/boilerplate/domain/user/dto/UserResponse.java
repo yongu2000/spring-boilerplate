@@ -1,5 +1,6 @@
 package com.boilerplate.boilerplate.domain.user.dto;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,4 +14,5 @@ public class UserResponse {
     private String email;
     private String username;
     private String name;
+    private LocalDateTime createdAt;
 }

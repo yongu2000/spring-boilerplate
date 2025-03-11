@@ -25,7 +25,13 @@ public class UserService {
         if (principal instanceof UserDetails) {
             JwtUserDetails userDetails = (JwtUserDetails) principal;
             User user = findByUsername(userDetails.getUsername()); // DB 조회
-            return new UserResponse(user.getId(), user.getEmail(), user.getUsername(), user.getName());
+            return UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .name(user.getName())
+                .createdAt(user.getCreatedAt())
+                .build();
         } else {
             throw new RuntimeException("유효한 인증 정보가 없습니다.");
         }
