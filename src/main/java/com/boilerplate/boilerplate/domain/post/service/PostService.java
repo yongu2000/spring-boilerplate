@@ -86,9 +86,11 @@ public class PostService {
             .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public PostResponse getPostById(Long postId) {
-        return PostResponse.from(postRepository.findByIdWithComments(postId)
-            .orElseThrow(() -> new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage())));
+        Post post = postRepository.findByIdWithComments(postId)
+            .orElseThrow(() -> new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage()));
+        post.increaseViewCounts();
+        return PostResponse.from(post);
     }
 }

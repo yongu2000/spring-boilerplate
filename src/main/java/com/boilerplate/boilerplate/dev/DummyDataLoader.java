@@ -104,6 +104,7 @@ public class DummyDataLoader implements CommandLineRunner {
                 .content("이것은 " + i + "번째 게시글의 내용입니다.")
                 .likes(0L)
                 .commentCounts(5L)
+                .viewCounts(0L)
                 .user(user)
                 .build();
 

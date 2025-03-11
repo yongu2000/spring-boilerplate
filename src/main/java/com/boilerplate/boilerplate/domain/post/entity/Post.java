@@ -54,6 +54,11 @@ public class Post {
     @Builder.Default
     private Long commentCounts = 0L;
 
+    @Column(nullable = false, name = "view_counts")
+    @ColumnDefault(value = "0")
+    @Builder.Default
+    private Long viewCounts = 0L;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -90,5 +95,9 @@ public class Post {
         if (commentCounts > 0) {
             commentCounts--;
         }
+    }
+
+    public void increaseViewCounts() {
+        viewCounts++;
     }
 }
