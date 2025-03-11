@@ -1,10 +1,10 @@
-package com.boilerplate.boilerplate.global.auth.jwt.service;
+package com.boilerplate.boilerplate.domain.auth.jwt.service;
 
-import com.boilerplate.boilerplate.config.JwtProperties;
-import com.boilerplate.boilerplate.global.auth.jwt.entity.JwtUserDetails;
-import com.boilerplate.boilerplate.global.auth.jwt.entity.RefreshToken;
-import com.boilerplate.boilerplate.global.auth.jwt.exception.TokenError;
-import com.boilerplate.boilerplate.global.auth.jwt.repository.RefreshTokenRepository;
+import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
+import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.auth.jwt.entity.RefreshToken;
+import com.boilerplate.boilerplate.domain.auth.jwt.exception.TokenError;
+import com.boilerplate.boilerplate.domain.auth.jwt.repository.RefreshTokenRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;

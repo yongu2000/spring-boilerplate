@@ -1,12 +1,12 @@
-package com.boilerplate.boilerplate.global.auth.jwt.service;
+package com.boilerplate.boilerplate.domain.auth.jwt.service;
 
-import com.boilerplate.boilerplate.config.JwtProperties;
+import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
+import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.auth.jwt.entity.RefreshToken;
+import com.boilerplate.boilerplate.domain.auth.jwt.exception.TokenError;
+import com.boilerplate.boilerplate.domain.auth.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
-import com.boilerplate.boilerplate.global.auth.jwt.entity.JwtUserDetails;
-import com.boilerplate.boilerplate.global.auth.jwt.entity.RefreshToken;
-import com.boilerplate.boilerplate.global.auth.jwt.exception.TokenError;
 import com.boilerplate.boilerplate.global.utils.CookieUtil;
-import com.boilerplate.boilerplate.global.utils.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

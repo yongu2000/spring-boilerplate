@@ -1,8 +1,8 @@
-package com.boilerplate.boilerplate.global.utils;
+package com.boilerplate.boilerplate.domain.auth.jwt.utils;
 
-import com.boilerplate.boilerplate.config.JwtProperties;
+import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
+import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.user.entity.Role;
-import com.boilerplate.boilerplate.global.auth.jwt.entity.JwtUserDetails;
 import io.jsonwebtoken.Jwts;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;

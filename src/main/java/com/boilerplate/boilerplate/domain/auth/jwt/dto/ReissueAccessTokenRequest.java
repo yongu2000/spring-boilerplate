@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.global.auth.jwt.dto;
+package com.boilerplate.boilerplate.domain.auth.jwt.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

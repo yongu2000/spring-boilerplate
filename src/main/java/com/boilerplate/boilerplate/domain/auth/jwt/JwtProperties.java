@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.config;
+package com.boilerplate.boilerplate.domain.auth.jwt;
 
 import java.time.Duration;
 import lombok.Getter;

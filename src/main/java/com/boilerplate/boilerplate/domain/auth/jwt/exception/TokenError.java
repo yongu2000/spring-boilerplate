@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.global.auth.jwt.exception;
+package com.boilerplate.boilerplate.domain.auth.jwt.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

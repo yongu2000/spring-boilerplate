@@ -1,8 +1,8 @@
-package com.boilerplate.boilerplate.global.auth.jwt.filters;
+package com.boilerplate.boilerplate.domain.auth.jwt.filters;
 
-import com.boilerplate.boilerplate.config.JwtProperties;
-import com.boilerplate.boilerplate.global.auth.jwt.entity.JwtUserDetails;
-import com.boilerplate.boilerplate.global.auth.jwt.service.JwtTokenService;
+import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
+import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

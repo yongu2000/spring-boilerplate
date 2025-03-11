@@ -1,7 +1,7 @@
 package com.boilerplate.boilerplate.global.utils;
 
-import com.boilerplate.boilerplate.global.auth.jwt.entity.JwtUserDetails;
-import com.boilerplate.boilerplate.global.auth.jwt.exception.AuthenticationError;
+import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.auth.jwt.exception.AuthenticationError;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
