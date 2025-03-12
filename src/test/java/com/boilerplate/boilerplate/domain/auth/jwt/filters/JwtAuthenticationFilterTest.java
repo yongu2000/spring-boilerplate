@@ -27,7 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("로그인 필터 테스트")
+@DisplayName("JWT 필터 테스트")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class JwtAuthenticationFilterTest {
 

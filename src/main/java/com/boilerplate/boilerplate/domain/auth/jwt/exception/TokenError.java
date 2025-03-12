@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum TokenError {
 
     INVALID_TOKEN("유효하지 않은 토큰입니다"),
-    REFRESH_TOKEN_NOT_EXIST("Refresh 토큰이 존재하지 않습니다");
+    NO_REFRESH_TOKEN("Refresh Token 이 존재하지 않습니다");
 
     private final String message;
 }

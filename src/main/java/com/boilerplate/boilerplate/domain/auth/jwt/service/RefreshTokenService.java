@@ -3,11 +3,11 @@ package com.boilerplate.boilerplate.domain.auth.jwt.service;
 import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.entity.RefreshToken;
-import com.boilerplate.boilerplate.domain.auth.jwt.exception.TokenError;
+import com.boilerplate.boilerplate.domain.auth.jwt.exception.InvalidRefreshTokenException;
+import com.boilerplate.boilerplate.domain.auth.jwt.exception.RefreshTokenNotFoundException;
 import com.boilerplate.boilerplate.domain.auth.jwt.repository.RefreshTokenRepository;
 import com.boilerplate.boilerplate.domain.auth.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
-import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,9 +30,9 @@ public class RefreshTokenService {
         return refreshToken;
     }
 
-    public String createNewRefreshToken(String refreshToken) {
+    public String reissueRefreshToken(String refreshToken) {
         if (!JwtUtil.isValidToken(refreshToken, jwtProperties.getSecretKey())) {
-            throw new IllegalArgumentException(TokenError.INVALID_TOKEN.getMessage());
+            throw new InvalidRefreshTokenException();
         }
         RefreshToken oldRefreshToken = findByRefreshToken(refreshToken);
         JwtUserDetails userDetails = new JwtUserDetails(userService.findById(oldRefreshToken.getUserId()));
@@ -44,8 +44,7 @@ public class RefreshTokenService {
 
     public RefreshToken findByRefreshToken(String refreshToken) {
         return refreshTokenRepository.findByRefreshToken(refreshToken)
-            .orElseThrow(() -> new EntityNotFoundException(
-                TokenError.REFRESH_TOKEN_NOT_EXIST.getMessage()));
+            .orElseThrow(RefreshTokenNotFoundException::new);
     }
 
     public void deleteByRefreshToken(String refreshToken) {

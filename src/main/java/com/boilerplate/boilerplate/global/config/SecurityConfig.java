@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.config;
+package com.boilerplate.boilerplate.global.config;
 
 import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.filters.JwtAuthenticationFilter;

@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.config;
+package com.boilerplate.boilerplate.global.config;
 
 import com.boilerplate.boilerplate.global.interceptor.LoggingInterceptor;
 import org.springframework.context.annotation.Configuration;

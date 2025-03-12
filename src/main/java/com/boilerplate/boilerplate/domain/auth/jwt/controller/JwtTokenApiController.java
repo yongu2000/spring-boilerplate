@@ -21,7 +21,7 @@ public class JwtTokenApiController {
     private final AccessTokenService accessTokenService;
     private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
-    
+
 //    @PostMapping("/json")
 //    public ResponseEntity<ReissueAccessTokenResponse> reissueAccessTokenAtJson(
 //        @RequestBody ReissueAccessTokenRequest request) {
@@ -39,8 +39,8 @@ public class JwtTokenApiController {
 
         String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtProperties.getRefreshTokenName());
 
-        String newAccessToken = accessTokenService.createNewAccessToken(refreshToken);
-        String newRefreshToken = refreshTokenService.createNewRefreshToken(refreshToken);
+        String newAccessToken = accessTokenService.reissueAccessToken(refreshToken);
+        String newRefreshToken = refreshTokenService.reissueRefreshToken(refreshToken);
 
         CookieUtil.addCookie(response, jwtProperties.getRefreshTokenName(), newRefreshToken,
             (int) jwtProperties.getRefreshTokenExpiration().toSeconds());

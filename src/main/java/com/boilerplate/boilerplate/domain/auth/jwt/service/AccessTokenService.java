@@ -2,7 +2,7 @@ package com.boilerplate.boilerplate.domain.auth.jwt.service;
 
 import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
-import com.boilerplate.boilerplate.domain.auth.jwt.exception.TokenError;
+import com.boilerplate.boilerplate.domain.auth.jwt.exception.InvalidRefreshTokenException;
 import com.boilerplate.boilerplate.domain.auth.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +21,9 @@ public class AccessTokenService {
         return jwtTokenService.generateToken(userDetails, jwtProperties.getAccessTokenExpiration());
     }
 
-    public String createNewAccessToken(String refreshToken) {
+    public String reissueAccessToken(String refreshToken) {
         if (!JwtUtil.isValidToken(refreshToken, jwtProperties.getSecretKey())) {
-            throw new IllegalArgumentException(TokenError.INVALID_TOKEN.getMessage());
+            throw new InvalidRefreshTokenException();
         }
         Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
         JwtUserDetails userDetails = new JwtUserDetails(userService.findById(userId));
