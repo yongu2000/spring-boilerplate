@@ -27,8 +27,11 @@ public class CookieUtil {
     }
 
     public static String getCookieByName(Cookie[] cookies, String name) {
+        if (cookies == null) {
+            return null;
+        }
         for (Cookie cookie : cookies) {
-            if (name.equals(cookie.getName())) {
+            if (cookie.getName().equals(name)) {
                 return cookie.getValue();
             }
         }

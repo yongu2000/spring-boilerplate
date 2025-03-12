@@ -22,7 +22,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenService jwtTokenService;
     private final JwtProperties jwtProperties;
-    private static final String TOKEN_REISSUE_URL = "/api/token/header";
+    private static final String TOKEN_REISSUE_URL = "/api/token/reissue";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -43,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //
 
         // Access Token이 유효하지 않을 때 냅다 재요청 보낸다면?
-        
+
         String requestURI = request.getRequestURI();
 
         // /api/token/header 요청은 필터를 건너뛰도록 예외 처리
@@ -55,17 +55,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authorizationHeader = request.getHeader(jwtProperties.getHeaderAuthorization());
         String accessToken = getAccessToken(authorizationHeader);
 
-        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtProperties.getRefreshTokenName());
-
         boolean isAccessTokenValid = accessToken != null && jwtTokenService.isValidToken(accessToken);
-        boolean isRefreshTokenValid = refreshToken != null && jwtTokenService.isValidToken(refreshToken);
 
         if (isAccessTokenValid) {
             JwtUserDetails userDetails = jwtTokenService.getUserDetailsFromToken(accessToken);
             Authentication authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
                 userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authToken);
+            filterChain.doFilter(request, response);
+            return;
         }
+
+        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtProperties.getRefreshTokenName());
+        boolean isRefreshTokenValid = refreshToken != null && jwtTokenService.isValidToken(refreshToken);
 
         // AccessToken이 만료되었지만 RefreshToken이 유효한 경우 프론트에 재발급 요청 신호 보내기
         if (!isAccessTokenValid && isRefreshTokenValid) {
