@@ -2,7 +2,6 @@ package com.boilerplate.boilerplate.domain.auth.jwt.filters;
 
 import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
-import com.boilerplate.boilerplate.domain.auth.jwt.exception.AuthenticationError;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.domain.user.dto.LoginRequest;
@@ -15,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.json.JsonParseException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -60,16 +60,14 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     private LoginRequest parseJsonLoginRequest(HttpServletRequest request) {
-        LoginRequest loginRequest;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             ServletInputStream inputStream = request.getInputStream();
             String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
-            loginRequest = objectMapper.readValue(messageBody, LoginRequest.class);
+            return objectMapper.readValue(messageBody, LoginRequest.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new JsonParseException();
         }
-        return loginRequest;
     }
 
     @Override
@@ -90,7 +88,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request,
         HttpServletResponse response, AuthenticationException failed) {
-        throw new IllegalStateException(AuthenticationError.LOGIN_FAILURE.getMessage());
+        throw failed;
     }
 
 }
