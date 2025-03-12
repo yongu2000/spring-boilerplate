@@ -3,7 +3,8 @@ package com.boilerplate.boilerplate.domain.auth.jwt.filters;
 import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.exception.AuthenticationError;
-import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
+import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
+import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.domain.user.dto.LoginRequest;
 import com.boilerplate.boilerplate.global.utils.CookieUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,16 +26,18 @@ import org.springframework.util.StreamUtils;
 public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtTokenService jwtTokenService;
+    private final AccessTokenService accessTokenService;
+    private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
 
     private static final String LOGIN_URL = "/api/login";
 
     public JwtLoginFilter(AuthenticationManager authenticationManager,
-        JwtTokenService jwtTokenService, JwtProperties jwtProperties) {
+        AccessTokenService accessTokenService, RefreshTokenService refreshTokenService, JwtProperties jwtProperties) {
         super(authenticationManager);
         this.authenticationManager = authenticationManager;
-        this.jwtTokenService = jwtTokenService;
+        this.accessTokenService = accessTokenService;
+        this.refreshTokenService = refreshTokenService;
         this.jwtProperties = jwtProperties;
         setFilterProcessesUrl(LOGIN_URL);
     }
@@ -74,8 +77,8 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         HttpServletResponse response, FilterChain chain, Authentication authentication) {
         JwtUserDetails userDetails = (JwtUserDetails) authentication.getPrincipal();
 
-        String accessToken = jwtTokenService.createAccessToken(userDetails);
-        String refreshToken = jwtTokenService.createRefreshToken(userDetails);
+        String accessToken = accessTokenService.createAccessToken(userDetails);
+        String refreshToken = refreshTokenService.createRefreshToken(userDetails);
 
         response.addHeader(jwtProperties.getHeaderAuthorization(),
             jwtProperties.getAccessTokenPrefix() + accessToken);

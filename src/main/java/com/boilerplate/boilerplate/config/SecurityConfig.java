@@ -3,7 +3,7 @@ package com.boilerplate.boilerplate.config;
 import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.filters.JwtAuthenticationFilter;
 import com.boilerplate.boilerplate.domain.auth.jwt.filters.JwtLoginFilter;
-import com.boilerplate.boilerplate.domain.auth.jwt.filters.JwtLogoutFilter;
+import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +22,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -33,6 +32,7 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtTokenService jwtTokenService;
+    private final AccessTokenService accessTokenService;
     private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
 
@@ -92,16 +92,16 @@ public class SecurityConfig {
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
 
-        http
-            .addFilterBefore(new JwtLogoutFilter(jwtTokenService, refreshTokenService, jwtProperties),
-                LogoutFilter.class);
+//        http
+//            .addFilterBefore(new JwtLogoutFilter(jwtTokenService, refreshTokenService, jwtProperties),
+//                LogoutFilter.class);
 
         http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenService, jwtProperties), JwtLoginFilter.class);
 
         http
             .addFilterAt(
                 new JwtLoginFilter(authenticationManager(authenticationConfiguration),
-                    jwtTokenService, jwtProperties),
+                    accessTokenService, refreshTokenService, jwtProperties),
                 UsernamePasswordAuthenticationFilter.class);
 
         //세션 설정

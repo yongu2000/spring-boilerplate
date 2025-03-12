@@ -3,6 +3,7 @@ package com.boilerplate.boilerplate.domain.auth.jwt.filters;
 import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
+import com.boilerplate.boilerplate.global.utils.CookieUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +28,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
 
+        // 토큰 재발급 요청은 필터를 건너뛰도록 예외 처리
+        // 헤더에서 Authorization: Bearer AccessToken 가져오기
+        // Bearer AccessToken 에서 AccessToken 부분만 가져오기
+
+        // 쿠키에서 Refresh Token 가져오기
+
+        // Access Token이 유효한지 확인
+        // 유효하다면, Token의 username으로부터 userDetails 가져오고 세션 생성하기
+
+        // Access Token이 유효하지 않지만 Refresh Token이 유효하다면
+        // 프론트에 토큰 재발급을 위해 "x-reissue-token" 헤더 응답
+        // 프론트는 "x-reissue-token" 헤더가 오면 재발급 컨트롤러로 accessToken 재발급 요청 후
+        //
+
+        // Access Token이 유효하지 않을 때 냅다 재요청 보낸다면?
+        
         String requestURI = request.getRequestURI();
 
         // /api/token/header 요청은 필터를 건너뛰도록 예외 처리
@@ -37,7 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authorizationHeader = request.getHeader(jwtProperties.getHeaderAuthorization());
         String accessToken = getAccessToken(authorizationHeader);
-        String refreshToken = jwtTokenService.getRefreshTokenFromCookie(request.getCookies());
+
+        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtProperties.getRefreshTokenName());
 
         boolean isAccessTokenValid = accessToken != null && jwtTokenService.isValidToken(accessToken);
         boolean isRefreshTokenValid = refreshToken != null && jwtTokenService.isValidToken(refreshToken);

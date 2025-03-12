@@ -3,7 +3,8 @@ package com.boilerplate.boilerplate.domain.auth.jwt.controller;
 import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.dto.ReissueAccessTokenRequest;
 import com.boilerplate.boilerplate.domain.auth.jwt.dto.ReissueAccessTokenResponse;
-import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
+import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
+import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.global.utils.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,15 +21,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class JwtTokenApiController {
 
-    private final JwtTokenService jwtTokenService;
+    private final AccessTokenService accessTokenService;
+    private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
 
     @PostMapping("/json")
     public ResponseEntity<ReissueAccessTokenResponse> reissueAccessTokenAtJson(
         @RequestBody ReissueAccessTokenRequest request) {
 
-        String newAccessToken = jwtTokenService.createNewAccessToken(request.getRefreshToken());
-        String newRefreshToken = jwtTokenService.createNewRefreshToken(request.getRefreshToken());
+        String newAccessToken = accessTokenService.createNewAccessToken(request.getRefreshToken());
+        String newRefreshToken = refreshTokenService.createNewRefreshToken(request.getRefreshToken());
 
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(new ReissueAccessTokenResponse(newAccessToken, newRefreshToken));
@@ -38,10 +40,10 @@ public class JwtTokenApiController {
     public ResponseEntity<?> reissueAccessTokenAtHeader(HttpServletRequest request,
         HttpServletResponse response) {
 
-        String refreshToken = jwtTokenService.getRefreshTokenFromCookie(request.getCookies());
+        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtProperties.getRefreshTokenName());
 
-        String newAccessToken = jwtTokenService.createNewAccessToken(refreshToken);
-        String newRefreshToken = jwtTokenService.createNewRefreshToken(refreshToken);
+        String newAccessToken = accessTokenService.createNewAccessToken(refreshToken);
+        String newRefreshToken = refreshTokenService.createNewRefreshToken(refreshToken);
 
         CookieUtil.addCookie(response, jwtProperties.getRefreshTokenName(), newRefreshToken,
             (int) jwtProperties.getRefreshTokenExpiration().toSeconds());
