@@ -26,14 +26,16 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenService jwtTokenService;
+    private final JwtProperties jwtProperties;
 
     private static final String LOGIN_URL = "/api/login";
 
     public JwtLoginFilter(AuthenticationManager authenticationManager,
-        JwtTokenService jwtTokenService) {
+        JwtTokenService jwtTokenService, JwtProperties jwtProperties) {
         super(authenticationManager);
         this.authenticationManager = authenticationManager;
         this.jwtTokenService = jwtTokenService;
+        this.jwtProperties = jwtProperties;
         setFilterProcessesUrl(LOGIN_URL);
     }
 
@@ -75,10 +77,10 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         String accessToken = jwtTokenService.createAccessToken(userDetails);
         String refreshToken = jwtTokenService.createRefreshToken(userDetails);
 
-        response.addHeader(JwtProperties.HEADER_AUTHORIZATION,
-            JwtProperties.ACCESS_TOKEN_PREFIX + accessToken);
-        CookieUtil.addCookie(response, JwtProperties.REFRESH_TOKEN_NAME, refreshToken,
-            (int) JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION.toSeconds());
+        response.addHeader(jwtProperties.getHeaderAuthorization(),
+            jwtProperties.getAccessTokenPrefix() + accessToken);
+        CookieUtil.addCookie(response, jwtProperties.getRefreshTokenName(), refreshToken,
+            (int) jwtProperties.getRefreshTokenExpiration().toSeconds());
     }
 
     //로그인 실패시 실행하는 메소드

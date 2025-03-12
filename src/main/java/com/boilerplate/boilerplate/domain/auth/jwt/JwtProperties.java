@@ -1,6 +1,11 @@
 package com.boilerplate.boilerplate.domain.auth.jwt;
 
+import io.jsonwebtoken.Jwts;
+import jakarta.annotation.PostConstruct;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -9,19 +14,42 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @Component
-@ConfigurationProperties("jwt")
+@ConfigurationProperties(prefix = "jwt")
 public class JwtProperties {
 
     private String issuer;
     private String secretKey;
+    private String headerAuthorization;
+    private String accessTokenPrefix;
+    private String refreshTokenName;
 
-    public static final String HEADER_AUTHORIZATION = "Authorization";
-    public static final String ACCESS_TOKEN_PREFIX = "Bearer ";
+    private String accessTokenExpiration;
+    private String refreshTokenExpiration;
 
-    public static final Duration ACCESS_TOKEN_EXPIRATION_DURATION = Duration.ofMinutes(10);
-    public static final Duration REFRESH_TOKEN_EXPIRATION_DURATION = Duration.ofDays(14);
+    private SecretKey cachedSecretKey;
 
-    public static final String REFRESH_TOKEN_NAME = "REFRESH_TOKEN";
+    @PostConstruct
+    public void init() {
+        this.cachedSecretKey = new SecretKeySpec(
+            secretKey.getBytes(StandardCharsets.UTF_8),
+            Jwts.SIG.HS256.key().build().getAlgorithm()
+        );
+    }
 
+    public Duration getAccessTokenExpiration() {
+        return Duration.parse("PT" + accessTokenExpiration.toUpperCase());
+    }
+
+    public Duration getRefreshTokenExpiration() {
+        return Duration.parse("P" + refreshTokenExpiration.toUpperCase());
+    }
+
+    public String getAccessTokenPrefix() {
+        return accessTokenPrefix + " ";
+    }
+
+    public SecretKey getSecretKey() {
+        return cachedSecretKey;
+    }
 
 }

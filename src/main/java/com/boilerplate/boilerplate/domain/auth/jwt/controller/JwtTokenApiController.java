@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class JwtTokenApiController {
 
     private final JwtTokenService jwtTokenService;
+    private final JwtProperties jwtProperties;
 
     @PostMapping("/json")
     public ResponseEntity<ReissueAccessTokenResponse> reissueAccessTokenAtJson(
@@ -42,10 +43,10 @@ public class JwtTokenApiController {
         String newAccessToken = jwtTokenService.createNewAccessToken(refreshToken);
         String newRefreshToken = jwtTokenService.createNewRefreshToken(refreshToken);
 
-        CookieUtil.addCookie(response, JwtProperties.REFRESH_TOKEN_NAME, newRefreshToken,
-            (int) JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION.toSeconds());
-        response.addHeader(JwtProperties.HEADER_AUTHORIZATION,
-            JwtProperties.ACCESS_TOKEN_PREFIX + newAccessToken);
+        CookieUtil.addCookie(response, jwtProperties.getRefreshTokenName(), newRefreshToken,
+            (int) jwtProperties.getRefreshTokenExpiration().toSeconds());
+        response.addHeader(jwtProperties.getHeaderAuthorization(),
+            jwtProperties.getAccessTokenPrefix() + newAccessToken);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

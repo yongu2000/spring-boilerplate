@@ -20,6 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenService jwtTokenService;
+    private final JwtProperties jwtProperties;
     private static final String TOKEN_REISSUE_URL = "/api/token/header";
 
     @Override
@@ -34,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String authorizationHeader = request.getHeader(JwtProperties.HEADER_AUTHORIZATION);
+        String authorizationHeader = request.getHeader(jwtProperties.getHeaderAuthorization());
         String accessToken = getAccessToken(authorizationHeader);
         String refreshToken = jwtTokenService.getRefreshTokenFromCookie(request.getCookies());
 
@@ -60,8 +61,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String getAccessToken(String authorizationHeader) {
         if (authorizationHeader != null && authorizationHeader.startsWith(
-            JwtProperties.ACCESS_TOKEN_PREFIX)) {
-            return authorizationHeader.substring(JwtProperties.ACCESS_TOKEN_PREFIX.length());
+            jwtProperties.getAccessTokenPrefix())) {
+            return authorizationHeader.substring(jwtProperties.getAccessTokenPrefix().length());
         }
         return null;
     }

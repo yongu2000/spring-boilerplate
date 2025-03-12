@@ -18,11 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class JwtTokenService {
 
     private final JwtUtil jwtUtil;
+    private final JwtProperties jwtProperties;
     private final RefreshTokenService refreshTokenService;
     private final UserService userService;
 
     public String getRefreshTokenFromCookie(Cookie[] cookies) {
-        return CookieUtil.getCookieByName(cookies, JwtProperties.REFRESH_TOKEN_NAME);
+        return CookieUtil.getCookieByName(cookies, jwtProperties.getRefreshTokenName());
     }
 
     public boolean isValidToken(String token) {
@@ -35,12 +36,12 @@ public class JwtTokenService {
     }
 
     public String createAccessToken(JwtUserDetails userDetails) {
-        return jwtUtil.generateToken(userDetails, JwtProperties.ACCESS_TOKEN_EXPIRATION_DURATION);
+        return jwtUtil.generateToken(userDetails, jwtProperties.getAccessTokenExpiration());
     }
 
     public String createRefreshToken(JwtUserDetails userDetails) {
         String refreshToken = jwtUtil.generateToken(userDetails,
-            JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION);
+            jwtProperties.getRefreshTokenExpiration());
         refreshTokenService.save(userDetails, refreshToken);
         return refreshToken;
     }
@@ -51,7 +52,7 @@ public class JwtTokenService {
         }
         Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
         JwtUserDetails userDetails = new JwtUserDetails(userService.findById(userId));
-        return jwtUtil.generateToken(userDetails, JwtProperties.ACCESS_TOKEN_EXPIRATION_DURATION);
+        return jwtUtil.generateToken(userDetails, jwtProperties.getAccessTokenExpiration());
     }
 
     public String createNewRefreshToken(String refreshToken) {
@@ -61,7 +62,7 @@ public class JwtTokenService {
         RefreshToken oldRefreshToken = refreshTokenService.findByRefreshToken(refreshToken);
         JwtUserDetails userDetails = new JwtUserDetails(userService.findById(oldRefreshToken.getUserId()));
         String newRefreshToken = jwtUtil.generateToken(userDetails,
-            JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION);
+            jwtProperties.getRefreshTokenExpiration());
         refreshTokenService.update(oldRefreshToken, newRefreshToken);
         return newRefreshToken;
     }

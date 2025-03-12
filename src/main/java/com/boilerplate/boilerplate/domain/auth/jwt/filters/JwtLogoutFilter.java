@@ -19,6 +19,7 @@ public class JwtLogoutFilter extends GenericFilterBean {
 
     private final JwtTokenService jwtTokenService;
     private final RefreshTokenService refreshTokenService;
+    private final JwtProperties jwtProperties;
 
     private static final String LOGOUT_URL = "^/api/logout$";
     private static final String METHOD_POST = "POST";
@@ -48,7 +49,7 @@ public class JwtLogoutFilter extends GenericFilterBean {
         }
 
         String refreshToken = CookieUtil.getCookieByName(request.getCookies(),
-            JwtProperties.REFRESH_TOKEN_NAME);
+            jwtProperties.getRefreshTokenName());
 
         if (refreshToken == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -69,7 +70,7 @@ public class JwtLogoutFilter extends GenericFilterBean {
 
         refreshTokenService.deleteByRefreshToken(refreshToken);
 
-        CookieUtil.deleteCookie(request, response, JwtProperties.REFRESH_TOKEN_NAME);
+        CookieUtil.deleteCookie(request, response, jwtProperties.getRefreshTokenName());
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtProperties jwtProperties;
 
     public RefreshToken findByRefreshToken(String refreshToken) {
         return refreshTokenRepository.findByRefreshToken(refreshToken)
@@ -30,13 +31,13 @@ public class RefreshTokenService {
 
     public void save(JwtUserDetails userDetails, String refreshToken) {
         LocalDateTime expirationTime = LocalDateTime.now()
-            .plus(JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION);
+            .plus(jwtProperties.getRefreshTokenExpiration());
         refreshTokenRepository.save(new RefreshToken(userDetails.getId(), refreshToken, expirationTime));
     }
 
     public void update(RefreshToken oldRefreshToken, String newRefreshToken) {
         LocalDateTime expirationTime = LocalDateTime.now()
-            .plus(JwtProperties.REFRESH_TOKEN_EXPIRATION_DURATION);
+            .plus(jwtProperties.getRefreshTokenExpiration());
         oldRefreshToken.update(newRefreshToken, expirationTime);
         refreshTokenRepository.save(oldRefreshToken);
     }
