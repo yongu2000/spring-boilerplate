@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.domain.auth.jwt;
+package com.boilerplate.boilerplate.global.config;
 
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Setter
 @Component
 @ConfigurationProperties(prefix = "jwt")
-public class JwtProperties {
+public class JwtConfig {
 
     private String issuer;
     private String secretKey;

@@ -1,6 +1,5 @@
 package com.boilerplate.boilerplate.global.config;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.filters.JwtAuthenticationFilter;
 import com.boilerplate.boilerplate.domain.auth.jwt.filters.JwtLoginFilter;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
@@ -34,7 +33,7 @@ public class SecurityConfig {
     private final JwtTokenService jwtTokenService;
     private final AccessTokenService accessTokenService;
     private final RefreshTokenService refreshTokenService;
-    private final JwtProperties jwtProperties;
+    private final JwtConfig jwtConfig;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
@@ -96,12 +95,12 @@ public class SecurityConfig {
 //            .addFilterBefore(new JwtLogoutFilter(jwtTokenService, refreshTokenService, jwtProperties),
 //                LogoutFilter.class);
 
-        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenService, jwtProperties), JwtLoginFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenService, jwtConfig), JwtLoginFilter.class);
 
         http
             .addFilterAt(
                 new JwtLoginFilter(authenticationManager(authenticationConfiguration),
-                    accessTokenService, refreshTokenService, jwtProperties),
+                    accessTokenService, refreshTokenService, jwtConfig),
                 UsernamePasswordAuthenticationFilter.class);
 
         //세션 설정

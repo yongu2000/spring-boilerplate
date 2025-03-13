@@ -1,10 +1,10 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.service;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.constant.Claim;
 import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
+import com.boilerplate.boilerplate.global.config.JwtConfig;
 import io.jsonwebtoken.Jwts;
 import java.time.Duration;
 import java.util.Date;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class JwtTokenService {
 
-    private final JwtProperties jwtProperties;
+    private final JwtConfig jwtConfig;
     private final UserService userService;
 
     private static final String HEADER_JWT = "JWT";
@@ -36,19 +36,19 @@ public class JwtTokenService {
             .claim(Claim.USERNAME.getValue(), userDetails.getUsername())
             .claim(Claim.NAME.getValue(), userDetails.getName())
             .claim(Claim.ROLE.getValue(), userDetails.getRole())
-            .issuer(jwtProperties.getIssuer())
+            .issuer(jwtConfig.getIssuer())
             .issuedAt(now)
             .expiration(expiration)
-            .signWith(jwtProperties.getSecretKey())
+            .signWith(jwtConfig.getSecretKey())
             .compact();
     }
 
     public boolean isValidToken(String token) {
-        return JwtUtil.isValidToken(token, jwtProperties.getSecretKey());
+        return JwtUtil.isValidToken(token, jwtConfig.getSecretKey());
     }
 
     public JwtUserDetails getUserDetailsFromToken(String token) {
-        String username = JwtUtil.getUsername(token, jwtProperties.getSecretKey());
+        String username = JwtUtil.getUsername(token, jwtConfig.getSecretKey());
         return new JwtUserDetails(userService.findByUsername(username));  // 사용자를 찾는 로직
     }
 }

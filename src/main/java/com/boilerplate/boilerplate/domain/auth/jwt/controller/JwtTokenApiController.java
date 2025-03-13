@@ -1,8 +1,8 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.controller;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
+import com.boilerplate.boilerplate.global.config.JwtConfig;
 import com.boilerplate.boilerplate.global.utils.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,7 +20,7 @@ public class JwtTokenApiController {
 
     private final AccessTokenService accessTokenService;
     private final RefreshTokenService refreshTokenService;
-    private final JwtProperties jwtProperties;
+    private final JwtConfig jwtConfig;
 
 //    @PostMapping("/json")
 //    public ResponseEntity<ReissueAccessTokenResponse> reissueAccessTokenAtJson(
@@ -37,15 +37,15 @@ public class JwtTokenApiController {
     public ResponseEntity<?> reissueAccessTokenAtHeader(HttpServletRequest request,
         HttpServletResponse response) {
 
-        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtProperties.getRefreshTokenName());
+        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtConfig.getRefreshTokenName());
 
         String newAccessToken = accessTokenService.reissueAccessToken(refreshToken);
         String newRefreshToken = refreshTokenService.reissueRefreshToken(refreshToken);
 
-        CookieUtil.addCookie(response, jwtProperties.getRefreshTokenName(), newRefreshToken,
-            (int) jwtProperties.getRefreshTokenExpiration().toSeconds());
-        response.addHeader(jwtProperties.getHeaderAuthorization(),
-            jwtProperties.getAccessTokenPrefix() + newAccessToken);
+        CookieUtil.addCookie(response, jwtConfig.getRefreshTokenName(), newRefreshToken,
+            (int) jwtConfig.getRefreshTokenExpiration().toSeconds());
+        response.addHeader(jwtConfig.getHeaderAuthorization(),
+            jwtConfig.getAccessTokenPrefix() + newAccessToken);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

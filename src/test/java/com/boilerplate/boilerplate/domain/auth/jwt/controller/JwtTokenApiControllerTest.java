@@ -7,11 +7,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.exception.InvalidRefreshTokenException;
 import com.boilerplate.boilerplate.domain.auth.jwt.exception.RefreshTokenNotFoundException;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
+import com.boilerplate.boilerplate.global.config.JwtConfig;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,7 +45,7 @@ class JwtTokenApiControllerTest {
     private RefreshTokenService refreshTokenService;
 
     @MockitoBean
-    private JwtProperties jwtProperties;
+    private JwtConfig jwtConfig;
 
     private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
     private static final String VALID_REFRESH_TOKEN = "valid.refresh.token";
@@ -67,9 +67,9 @@ class JwtTokenApiControllerTest {
 
     @BeforeEach
     void setUp() {
-        given(jwtProperties.getRefreshTokenName()).willReturn(REFRESH_TOKEN_COOKIE_NAME);
-        given(jwtProperties.getHeaderAuthorization()).willReturn(AUTHORIZATION_HEADER);
-        given(jwtProperties.getAccessTokenPrefix()).willReturn(TOKEN_PREFIX);
+        given(jwtConfig.getRefreshTokenName()).willReturn(REFRESH_TOKEN_COOKIE_NAME);
+        given(jwtConfig.getHeaderAuthorization()).willReturn(AUTHORIZATION_HEADER);
+        given(jwtConfig.getAccessTokenPrefix()).willReturn(TOKEN_PREFIX);
     }
 
     @Test

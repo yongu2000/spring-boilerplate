@@ -7,9 +7,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
+import com.boilerplate.boilerplate.global.config.JwtConfig;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,7 +34,7 @@ class JwtAuthenticationFilterTest {
     @Mock
     private JwtTokenService jwtTokenService;
     @Mock
-    private JwtProperties jwtProperties;
+    private JwtConfig jwtConfig;
 
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     private MockHttpServletRequest request;
@@ -45,7 +45,7 @@ class JwtAuthenticationFilterTest {
 
     @BeforeEach
     void setUp() {
-        jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtTokenService, jwtProperties);
+        jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtTokenService, jwtConfig);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         filterChain = mock(FilterChain.class);
@@ -72,8 +72,8 @@ class JwtAuthenticationFilterTest {
         String token = "valid-access-token";
         request.addHeader("Authorization", "Bearer " + token);
 
-        when(jwtProperties.getHeaderAuthorization()).thenReturn("Authorization");
-        when(jwtProperties.getAccessTokenPrefix()).thenReturn("Bearer ");
+        when(jwtConfig.getHeaderAuthorization()).thenReturn("Authorization");
+        when(jwtConfig.getAccessTokenPrefix()).thenReturn("Bearer ");
 
         JwtUserDetails userDetails = mock(JwtUserDetails.class);
         when(jwtTokenService.isValidToken(token)).thenReturn(true);
@@ -94,9 +94,9 @@ class JwtAuthenticationFilterTest {
         String accessToken = "expired-access-token";
         String refreshToken = "valid-refresh-token";
 
-        when(jwtProperties.getHeaderAuthorization()).thenReturn("Authorization");
-        when(jwtProperties.getAccessTokenPrefix()).thenReturn("Bearer ");
-        when(jwtProperties.getRefreshTokenName()).thenReturn("refresh-token");
+        when(jwtConfig.getHeaderAuthorization()).thenReturn("Authorization");
+        when(jwtConfig.getAccessTokenPrefix()).thenReturn("Bearer ");
+        when(jwtConfig.getRefreshTokenName()).thenReturn("refresh-token");
 
         request.addHeader("Authorization", "Bearer " + accessToken);
         request.setCookies(new Cookie("refresh-token", refreshToken));
@@ -119,9 +119,9 @@ class JwtAuthenticationFilterTest {
         String accessToken = "invalid-access-token";
         String refreshToken = "invalid-refresh-token";
 
-        when(jwtProperties.getHeaderAuthorization()).thenReturn("Authorization");
-        when(jwtProperties.getAccessTokenPrefix()).thenReturn("Bearer ");
-        when(jwtProperties.getRefreshTokenName()).thenReturn("refresh-token");
+        when(jwtConfig.getHeaderAuthorization()).thenReturn("Authorization");
+        when(jwtConfig.getAccessTokenPrefix()).thenReturn("Bearer ");
+        when(jwtConfig.getRefreshTokenName()).thenReturn("refresh-token");
 
         request.addHeader("Authorization", "Bearer " + accessToken);
         request.setCookies(new Cookie("refresh-token", refreshToken));

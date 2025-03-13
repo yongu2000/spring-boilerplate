@@ -7,11 +7,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.domain.user.dto.LoginRequest;
+import com.boilerplate.boilerplate.global.config.JwtConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
 import java.util.Collections;
@@ -44,7 +44,7 @@ class JwtLoginFilterTest {
     @Mock
     private RefreshTokenService refreshTokenService;
     @Mock
-    private JwtProperties jwtProperties;
+    private JwtConfig jwtConfig;
 
     private JwtLoginFilter jwtLoginFilter;
     private MockHttpServletRequest request;
@@ -53,7 +53,7 @@ class JwtLoginFilterTest {
     @BeforeEach
     void setUp() {
         jwtLoginFilter = new JwtLoginFilter(authenticationManager, accessTokenService,
-            refreshTokenService, jwtProperties);
+            refreshTokenService, jwtConfig);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
 
@@ -76,10 +76,10 @@ class JwtLoginFilterTest {
         when(authenticationManager.authenticate(any())).thenReturn(authentication);
         when(accessTokenService.createAccessToken(userDetails)).thenReturn("access-token");
         when(refreshTokenService.createRefreshToken(userDetails)).thenReturn("refresh-token");
-        when(jwtProperties.getHeaderAuthorization()).thenReturn("Authorization");
-        when(jwtProperties.getAccessTokenPrefix()).thenReturn("Bearer ");
-        when(jwtProperties.getRefreshTokenName()).thenReturn("refresh-token");
-        when(jwtProperties.getRefreshTokenExpiration()).thenReturn(Duration.ofDays(14));
+        when(jwtConfig.getHeaderAuthorization()).thenReturn("Authorization");
+        when(jwtConfig.getAccessTokenPrefix()).thenReturn("Bearer ");
+        when(jwtConfig.getRefreshTokenName()).thenReturn("refresh-token");
+        when(jwtConfig.getRefreshTokenExpiration()).thenReturn(Duration.ofDays(14));
 
         // when
         Authentication result = jwtLoginFilter.attemptAuthentication(request, response);

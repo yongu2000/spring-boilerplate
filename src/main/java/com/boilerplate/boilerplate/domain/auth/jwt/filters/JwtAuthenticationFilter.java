@@ -1,8 +1,8 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.filters;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.JwtProperties;
 import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
+import com.boilerplate.boilerplate.global.config.JwtConfig;
 import com.boilerplate.boilerplate.global.utils.CookieUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,7 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenService jwtTokenService;
-    private final JwtProperties jwtProperties;
+    private final JwtConfig jwtConfig;
     private static final String TOKEN_REISSUE_URL = "/api/token/reissue";
 
     @Override
@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String authorizationHeader = request.getHeader(jwtProperties.getHeaderAuthorization());
+        String authorizationHeader = request.getHeader(jwtConfig.getHeaderAuthorization());
         String accessToken = getAccessToken(authorizationHeader);
 
         boolean isAccessTokenValid = accessToken != null && jwtTokenService.isValidToken(accessToken);
@@ -66,11 +66,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtProperties.getRefreshTokenName());
+        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtConfig.getRefreshTokenName());
         boolean isRefreshTokenValid = refreshToken != null && jwtTokenService.isValidToken(refreshToken);
 
         // AccessToken이 만료되었지만 RefreshToken이 유효한 경우 프론트에 재발급 요청 신호 보내기
-        if (!isAccessTokenValid && isRefreshTokenValid) {
+        if (isRefreshTokenValid) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setHeader("x-reissue-token", "true");  // 프론트에서 감지해서 자동으로 재발급 요청
             return;
@@ -81,8 +81,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String getAccessToken(String authorizationHeader) {
         if (authorizationHeader != null && authorizationHeader.startsWith(
-            jwtProperties.getAccessTokenPrefix())) {
-            return authorizationHeader.substring(jwtProperties.getAccessTokenPrefix().length());
+            jwtConfig.getAccessTokenPrefix())) {
+            return authorizationHeader.substring(jwtConfig.getAccessTokenPrefix().length());
         }
         return null;
     }
