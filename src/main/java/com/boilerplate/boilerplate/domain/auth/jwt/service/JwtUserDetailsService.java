@@ -1,9 +1,7 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.service;
 
 import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
-import com.boilerplate.boilerplate.domain.user.exception.UserError;
-import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.boilerplate.boilerplate.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,12 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class JwtUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return new JwtUserDetails(userRepository.findByUsername(username)
-            .orElseThrow(() -> new EntityNotFoundException(
-                UserError.NO_SUCH_USER.getMessage())));
+        return new JwtUserDetails(userService.findByUsername(username));
     }
 }

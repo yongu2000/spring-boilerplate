@@ -35,7 +35,7 @@ public class JwtUtil {
     }
 
     public static Role getRole(String token, SecretKey secretKey) {
-        return Role.of(getPayload(token, secretKey).get(Claim.ROLE.getValue(), String.class));
+        return Role.valueOf(getPayload(token, secretKey).get(Claim.ROLE.getValue(), String.class));
     }
 
     public static Date getExpiration(String token, SecretKey secretKey) {

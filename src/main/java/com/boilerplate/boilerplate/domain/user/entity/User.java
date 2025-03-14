@@ -5,6 +5,8 @@ import com.boilerplate.boilerplate.domain.post.entity.Post;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,8 +39,9 @@ public class User {
     private String name;
     @Column(nullable = false)
     private String password;
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String role;
+    private Role role;
 
     @OneToMany(mappedBy = "user")
     private List<Post> posts;
@@ -56,6 +59,6 @@ public class User {
         this.username = username;
         this.password = password;
         this.name = name;
-        this.role = role.getRole();
+        this.role = role;
     }
 }

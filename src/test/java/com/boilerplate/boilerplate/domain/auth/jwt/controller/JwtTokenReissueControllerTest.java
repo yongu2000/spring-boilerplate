@@ -29,11 +29,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(JwtTokenApiController.class)
-@Import(JwtTokenApiControllerTest.TestSecurityConfig.class)
+@WebMvcTest(JwtTokenReissueController.class)
+@Import(JwtTokenReissueControllerTest.TestSecurityConfig.class)
 @DisplayName("토큰 재발급 컨트롤러 테스트")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class JwtTokenApiControllerTest {
+class JwtTokenReissueControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

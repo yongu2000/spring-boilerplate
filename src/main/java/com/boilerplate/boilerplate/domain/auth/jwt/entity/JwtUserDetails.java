@@ -1,10 +1,12 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.entity;
 
+import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Getter
@@ -15,7 +17,8 @@ public class JwtUserDetails implements UserDetails {
     private final String email;
     private final String name;
     private final String password;
-    private final String role;
+    private final Role role;
+    private Collection<SimpleGrantedAuthority> authorities;
 
     public JwtUserDetails(User user) {
         this.id = user.getId();
@@ -30,7 +33,11 @@ public class JwtUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(this::getRole);
-        return authorities;
+        return this.authorities;
+    }
+
+    public String getRole() {
+        return role.toString();
     }
 
     @Override
