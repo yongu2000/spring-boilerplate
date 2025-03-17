@@ -1,10 +1,13 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.filters;
 
 import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
+import com.boilerplate.boilerplate.domain.auth.jwt.exception.AuthenticationError;
+import com.boilerplate.boilerplate.domain.auth.jwt.exception.InvalidJsonRequestException;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.domain.user.dto.LoginRequest;
 import com.boilerplate.boilerplate.global.config.JwtConfig;
+import com.boilerplate.boilerplate.global.dto.ErrorResponse;
 import com.boilerplate.boilerplate.global.utils.CookieUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -14,7 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.json.JsonParseException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -45,18 +47,23 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
         HttpServletResponse response) throws AuthenticationException {
-        LoginRequest loginRequest = parseJsonLoginRequest(request);
+        try {
+            LoginRequest loginRequest = parseJsonLoginRequest(request);
 
-        String username = loginRequest.getUsername();
-        username = username != null ? username.trim() : "";
+            String username = loginRequest.getUsername();
+            username = username != null ? username.trim() : "";
 
-        String password = loginRequest.getPassword();
-        password = password != null ? password : "";
+            String password = loginRequest.getPassword();
+            password = password != null ? password : "";
 
-        UsernamePasswordAuthenticationToken authToken = UsernamePasswordAuthenticationToken.unauthenticated(
-            username, password);
+            UsernamePasswordAuthenticationToken authToken = UsernamePasswordAuthenticationToken.unauthenticated(
+                username, password);
 
-        return authenticationManager.authenticate(authToken);
+            return authenticationManager.authenticate(authToken);
+        } catch (InvalidJsonRequestException e) {
+            throw new AuthenticationException(e.getMessage(), e) {
+            };  // 익명 클래스로 예외 감싸기
+        }
     }
 
     private LoginRequest parseJsonLoginRequest(HttpServletRequest request) {
@@ -66,7 +73,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
             String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
             return objectMapper.readValue(messageBody, LoginRequest.class);
         } catch (IOException e) {
-            throw new JsonParseException();
+            throw new InvalidJsonRequestException("잘못된 JSON 형식입니다: " + e.getMessage());
         }
     }
 
@@ -87,8 +94,18 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     //로그인 실패시 실행하는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request,
-        HttpServletResponse response, AuthenticationException failed) {
-        throw failed;
+        HttpServletResponse response, AuthenticationException failed) throws IOException {
+
+        ErrorResponse errorResponse;
+        if (failed.getCause() instanceof InvalidJsonRequestException jsonException) {
+            errorResponse = ErrorResponse.of(jsonException);
+        } else {
+            errorResponse = ErrorResponse.of(AuthenticationError.LOGIN_FAILED);
+            errorResponse.addDetail("error", failed.getMessage());
+        }
+        response.setStatus(errorResponse.getStatus());
+        response.setContentType("application/json;charset=UTF-8");
+        new ObjectMapper().writeValue(response.getWriter(), errorResponse);
     }
 
 }

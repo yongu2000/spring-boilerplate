@@ -46,7 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String requestURI = request.getRequestURI();
 
-        // /api/token/header 요청은 필터를 건너뛰도록 예외 처리
+        // /api/token/reissue 요청은 필터를 건너뛰도록 예외 처리
         if (requestURI.equals(TOKEN_REISSUE_URL)) {
             filterChain.doFilter(request, response);
             return;
@@ -71,6 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // AccessToken이 만료되었지만 RefreshToken이 유효한 경우 프론트에 재발급 요청 신호 보내기
         if (isRefreshTokenValid) {
+            log.info("토큰 재발급 요청 쿠키 전송");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setHeader("x-reissue-token", "true");  // 프론트에서 감지해서 자동으로 재발급 요청
             return;

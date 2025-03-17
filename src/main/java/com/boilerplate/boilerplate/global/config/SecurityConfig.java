@@ -1,5 +1,7 @@
 package com.boilerplate.boilerplate.global.config;
 
+import com.boilerplate.boilerplate.domain.auth.jwt.exception.CustomAccessDeniedHandler;
+import com.boilerplate.boilerplate.domain.auth.jwt.exception.CustomAuthenticationEntryPoint;
 import com.boilerplate.boilerplate.domain.auth.jwt.filters.JwtAuthenticationFilter;
 import com.boilerplate.boilerplate.domain.auth.jwt.filters.JwtLoginFilter;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
@@ -8,6 +10,7 @@ import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.domain.auth.oauth2.CustomOAuth2UserService;
 import com.boilerplate.boilerplate.domain.auth.oauth2.OAuth2SuccessHandler;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +41,9 @@ public class SecurityConfig {
     private final JwtConfig jwtConfig;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
@@ -76,6 +82,12 @@ public class SecurityConfig {
                     }
                 }));
 
+        http
+            .exceptionHandling(handling -> handling
+                .authenticationEntryPoint(authenticationEntryPoint)  // 인증 실패
+                .accessDeniedHandler(accessDeniedHandler)           // 인가 실패
+            );
+
         //csrf disable
         http.csrf(AbstractHttpConfigurer::disable);
 
@@ -96,15 +108,15 @@ public class SecurityConfig {
                 .anyRequest().authenticated());
 
         //oauth2
-//        http
-//            .oauth2Login((oauth2) -> oauth2
-//                .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-//                    .userService(customOAuth2UserService))
-//                .successHandler(oAuth2SuccessHandler)
-//                .failureHandler((request, response, exception) -> {
-//                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//                })
-//            );
+        http
+            .oauth2Login((oauth2) -> oauth2
+                .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+                    .userService(customOAuth2UserService))
+                .successHandler(oAuth2SuccessHandler)
+                .failureHandler((request, response, exception) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                })
+            );
 
         http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenService, jwtConfig), JwtLoginFilter.class);
 
