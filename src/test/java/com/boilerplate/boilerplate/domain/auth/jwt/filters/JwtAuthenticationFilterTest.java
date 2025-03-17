@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
 import com.boilerplate.boilerplate.global.config.JwtConfig;
 import jakarta.servlet.FilterChain;
@@ -75,7 +75,7 @@ class JwtAuthenticationFilterTest {
         when(jwtConfig.getHeaderAuthorization()).thenReturn("Authorization");
         when(jwtConfig.getAccessTokenPrefix()).thenReturn("Bearer ");
 
-        JwtUserDetails userDetails = mock(JwtUserDetails.class);
+        CustomUserDetails userDetails = mock(CustomUserDetails.class);
         when(jwtTokenService.isValidToken(token)).thenReturn(true);
         when(jwtTokenService.getUserDetailsFromToken(token)).thenReturn(userDetails);
 

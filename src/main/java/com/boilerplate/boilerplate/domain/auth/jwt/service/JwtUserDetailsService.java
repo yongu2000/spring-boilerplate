@@ -1,6 +1,6 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.service;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +18,6 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return new JwtUserDetails(userService.findByUsername(username));
+        return new CustomUserDetails(userService.findByUsername(username));
     }
 }

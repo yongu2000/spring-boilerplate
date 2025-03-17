@@ -1,6 +1,6 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.filters;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
 import com.boilerplate.boilerplate.global.config.JwtConfig;
 import com.boilerplate.boilerplate.global.utils.CookieUtil;
@@ -58,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         boolean isAccessTokenValid = accessToken != null && jwtTokenService.isValidToken(accessToken);
 
         if (isAccessTokenValid) {
-            JwtUserDetails userDetails = jwtTokenService.getUserDetailsFromToken(accessToken);
+            CustomUserDetails userDetails = jwtTokenService.getUserDetailsFromToken(accessToken);
             Authentication authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
                 userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authToken);

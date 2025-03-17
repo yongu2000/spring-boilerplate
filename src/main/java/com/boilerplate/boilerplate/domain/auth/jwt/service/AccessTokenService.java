@@ -1,6 +1,6 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.service;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.exception.InvalidRefreshTokenException;
 import com.boilerplate.boilerplate.domain.auth.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
@@ -17,7 +17,7 @@ public class AccessTokenService {
     private final RefreshTokenService refreshTokenService;
     private final UserService userService;
 
-    public String createAccessToken(JwtUserDetails userDetails) {
+    public String createAccessToken(CustomUserDetails userDetails) {
         return jwtTokenService.generateToken(userDetails, jwtConfig.getAccessTokenExpiration());
     }
 
@@ -26,7 +26,7 @@ public class AccessTokenService {
             throw new InvalidRefreshTokenException();
         }
         Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
-        JwtUserDetails userDetails = new JwtUserDetails(userService.findById(userId));
+        CustomUserDetails userDetails = new CustomUserDetails(userService.findById(userId));
         return jwtTokenService.generateToken(userDetails, jwtConfig.getAccessTokenExpiration());
     }
 

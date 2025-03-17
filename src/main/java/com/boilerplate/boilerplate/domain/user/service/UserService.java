@@ -1,6 +1,6 @@
 package com.boilerplate.boilerplate.domain.user.service;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
 import com.boilerplate.boilerplate.domain.user.dto.UserResponse;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.exception.UserError;
@@ -23,7 +23,7 @@ public class UserService {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (principal instanceof UserDetails) {
-            JwtUserDetails userDetails = (JwtUserDetails) principal;
+            CustomUserDetails userDetails = (CustomUserDetails) principal;
             User user = findByUsername(userDetails.getUsername()); // DB 조회
             return UserResponse.builder()
                 .id(user.getId())

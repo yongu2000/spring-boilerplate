@@ -1,6 +1,6 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.filters;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.domain.user.dto.LoginRequest;
@@ -73,7 +73,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request,
         HttpServletResponse response, FilterChain chain, Authentication authentication) {
-        JwtUserDetails userDetails = (JwtUserDetails) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         String accessToken = accessTokenService.createAccessToken(userDetails);
         String refreshToken = refreshTokenService.createRefreshToken(userDetails);

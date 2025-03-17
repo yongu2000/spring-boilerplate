@@ -5,6 +5,8 @@ import com.boilerplate.boilerplate.domain.auth.jwt.filters.JwtLoginFilter;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
+import com.boilerplate.boilerplate.domain.auth.oauth2.CustomOAuth2UserService;
+import com.boilerplate.boilerplate.domain.auth.oauth2.OAuth2SuccessHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,6 +36,8 @@ public class SecurityConfig {
     private final AccessTokenService accessTokenService;
     private final RefreshTokenService refreshTokenService;
     private final JwtConfig jwtConfig;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
@@ -91,10 +95,14 @@ public class SecurityConfig {
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
 
-//        http
-//            .addFilterBefore(new JwtLogoutFilter(jwtTokenService, refreshTokenService, jwtProperties),
-//                LogoutFilter.class);
-
+        //oauth2
+        http
+            .oauth2Login((oauth2) -> oauth2
+                .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+                    .userService(customOAuth2UserService))
+                .successHandler(oAuth2SuccessHandler)
+            );
+        
         http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenService, jwtConfig), JwtLoginFilter.class);
 
         http

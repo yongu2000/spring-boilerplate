@@ -1,6 +1,6 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.service;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.entity.RefreshToken;
 import com.boilerplate.boilerplate.domain.auth.jwt.exception.InvalidRefreshTokenException;
 import com.boilerplate.boilerplate.domain.auth.jwt.exception.RefreshTokenNotFoundException;
@@ -23,7 +23,7 @@ public class RefreshTokenService {
     private final JwtTokenService jwtTokenService;
     private final UserService userService;
 
-    public String createRefreshToken(JwtUserDetails userDetails) {
+    public String createRefreshToken(CustomUserDetails userDetails) {
         String refreshToken = jwtTokenService.generateToken(userDetails,
             jwtConfig.getRefreshTokenExpiration());
         save(userDetails, refreshToken);
@@ -35,7 +35,7 @@ public class RefreshTokenService {
             throw new InvalidRefreshTokenException();
         }
         RefreshToken oldRefreshToken = findByRefreshToken(refreshToken);
-        JwtUserDetails userDetails = new JwtUserDetails(userService.findById(oldRefreshToken.getUserId()));
+        CustomUserDetails userDetails = new CustomUserDetails(userService.findById(oldRefreshToken.getUserId()));
         String newRefreshToken = jwtTokenService.generateToken(userDetails,
             jwtConfig.getRefreshTokenExpiration());
         delete(oldRefreshToken);
@@ -52,7 +52,7 @@ public class RefreshTokenService {
         refreshTokenRepository.deleteByRefreshToken(refreshToken);
     }
 
-    private void save(JwtUserDetails userDetails, String refreshToken) {
+    private void save(CustomUserDetails userDetails, String refreshToken) {
         LocalDateTime expirationTime = LocalDateTime.now()
             .plus(jwtConfig.getRefreshTokenExpiration());
         refreshTokenRepository.save(new RefreshToken(userDetails.getId(), refreshToken, expirationTime));

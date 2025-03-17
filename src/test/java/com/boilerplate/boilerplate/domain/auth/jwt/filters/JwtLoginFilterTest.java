@@ -7,7 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
+import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.domain.user.dto.LoginRequest;
@@ -69,7 +69,7 @@ class JwtLoginFilterTest {
         String requestBody = new ObjectMapper().writeValueAsString(loginRequest);
         request.setContent(requestBody.getBytes());
 
-        JwtUserDetails userDetails = mock(JwtUserDetails.class);
+        CustomUserDetails userDetails = mock(CustomUserDetails.class);
         Authentication authentication = new UsernamePasswordAuthenticationToken(
             userDetails, null, Collections.emptyList());
 

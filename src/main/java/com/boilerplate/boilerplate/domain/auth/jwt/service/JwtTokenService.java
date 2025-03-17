@@ -1,7 +1,7 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.service;
 
+import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.constant.Claim;
-import com.boilerplate.boilerplate.domain.auth.jwt.entity.JwtUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import com.boilerplate.boilerplate.global.config.JwtConfig;
@@ -22,12 +22,12 @@ public class JwtTokenService {
 
     private static final String HEADER_JWT = "JWT";
 
-    public String generateToken(JwtUserDetails userDetails, Duration expiredAt) {
+    public String generateToken(CustomUserDetails userDetails, Duration expiredAt) {
         Date now = new Date();
         return createJwt(new Date(now.getTime() + expiredAt.toMillis()), userDetails);
     }
 
-    private String createJwt(Date expiration, JwtUserDetails userDetails) {
+    private String createJwt(Date expiration, CustomUserDetails userDetails) {
         Date now = new Date();
         return Jwts.builder()
             .header().type(HEADER_JWT).and()
@@ -47,8 +47,8 @@ public class JwtTokenService {
         return JwtUtil.isValidToken(token, jwtConfig.getSecretKey());
     }
 
-    public JwtUserDetails getUserDetailsFromToken(String token) {
+    public CustomUserDetails getUserDetailsFromToken(String token) {
         String username = JwtUtil.getUsername(token, jwtConfig.getSecretKey());
-        return new JwtUserDetails(userService.findByUsername(username));  // 사용자를 찾는 로직
+        return new CustomUserDetails(userService.findByUsername(username));  // 사용자를 찾는 로직
     }
 }

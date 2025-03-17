@@ -43,6 +43,8 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    private String provider;
+
     @OneToMany(mappedBy = "user")
     private List<Post> posts;
 
@@ -54,11 +56,12 @@ public class User {
     private LocalDateTime createdAt;
 
     @Builder
-    public User(String email, String username, String password, String name, Role role) {
+    public User(String email, String username, String password, String name, Role role, String provider) {
         this.email = email;
         this.username = username;
         this.password = password;
         this.name = name;
         this.role = role;
+        this.provider = provider;
     }
 }
