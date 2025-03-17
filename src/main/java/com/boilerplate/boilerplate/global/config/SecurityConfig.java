@@ -96,13 +96,16 @@ public class SecurityConfig {
                 .anyRequest().authenticated());
 
         //oauth2
-        http
-            .oauth2Login((oauth2) -> oauth2
-                .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-                    .userService(customOAuth2UserService))
-                .successHandler(oAuth2SuccessHandler)
-            );
-        
+//        http
+//            .oauth2Login((oauth2) -> oauth2
+//                .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+//                    .userService(customOAuth2UserService))
+//                .successHandler(oAuth2SuccessHandler)
+//                .failureHandler((request, response, exception) -> {
+//                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                })
+//            );
+
         http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenService, jwtConfig), JwtLoginFilter.class);
 
         http

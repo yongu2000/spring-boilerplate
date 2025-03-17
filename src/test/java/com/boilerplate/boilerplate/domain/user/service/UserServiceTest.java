@@ -71,6 +71,6 @@ class UserServiceTest {
         // When & Then
         assertThatThrownBy(() -> userService.findById(testUserId))
             .isInstanceOf(EntityNotFoundException.class).hasMessage(
-                UserError.NO_SUCH_USER.getMessage());
+                UserError.USER_NOT_FOUND.getMessage());
     }
 }

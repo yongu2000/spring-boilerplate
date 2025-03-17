@@ -3,9 +3,9 @@ package com.boilerplate.boilerplate.domain.user.service;
 import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
 import com.boilerplate.boilerplate.domain.user.dto.UserResponse;
 import com.boilerplate.boilerplate.domain.user.entity.User;
-import com.boilerplate.boilerplate.domain.user.exception.UserError;
+import com.boilerplate.boilerplate.domain.user.exception.UserDetailNotFoundException;
+import com.boilerplate.boilerplate.domain.user.exception.UserNotFoundException;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,17 +33,16 @@ public class UserService {
                 .createdAt(user.getCreatedAt())
                 .build();
         } else {
-            throw new RuntimeException("유효한 인증 정보가 없습니다.");
+            throw new UserDetailNotFoundException();
         }
     }
 
     public User findById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(
-            UserError.NO_SUCH_USER.getMessage()));
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
 
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
-            .orElseThrow(() -> new EntityNotFoundException(UserError.NO_SUCH_USER.getMessage()));
+            .orElseThrow(UserNotFoundException::new);
     }
 }

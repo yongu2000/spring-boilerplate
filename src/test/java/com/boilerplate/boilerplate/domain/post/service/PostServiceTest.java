@@ -126,7 +126,7 @@ class PostServiceTest {
             // When & Then
             assertThatThrownBy(() -> postService.update(postId, "New Title", "New Content"))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage(PostError.POST_NOT_EXIST.getMessage());
+                .hasMessage(PostError.POST_NOT_FOUND.getMessage());
         }
     }
 
@@ -155,7 +155,7 @@ class PostServiceTest {
             // When & Then
             assertThatThrownBy(() -> postService.delete(postId))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage(PostError.POST_NOT_EXIST.getMessage());
+                .hasMessage(PostError.POST_NOT_FOUND.getMessage());
         }
     }
 

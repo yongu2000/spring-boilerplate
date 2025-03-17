@@ -1,12 +1,10 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import com.boilerplate.boilerplate.global.exception.BusinessException;
 
-@ResponseStatus(HttpStatus.UNAUTHORIZED)
-public class InvalidRefreshTokenException extends RuntimeException {
+public class InvalidRefreshTokenException extends BusinessException {
 
     public InvalidRefreshTokenException() {
-        super(TokenError.INVALID_TOKEN.getMessage());
+        super(TokenError.INVALID_TOKEN);
     }
 }

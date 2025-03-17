@@ -112,7 +112,7 @@ class CommentServiceTest {
             // When & Then
             EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                 () -> commentService.create(userId, postId, "Test Comment", null));
-            assertThat(exception.getMessage()).contains(PostError.POST_NOT_EXIST.getMessage());
+            assertThat(exception.getMessage()).contains(PostError.POST_NOT_FOUND.getMessage());
         }
     }
 
@@ -144,7 +144,7 @@ class CommentServiceTest {
             // When & Then
             EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                 () -> commentService.update(commentId, "Updated Comment"));
-            assertThat(exception.getMessage()).contains(PostError.COMMENT_NOT_EXIST.getMessage());
+            assertThat(exception.getMessage()).contains(PostError.COMMENT_NOT_FOUND.getMessage());
         }
 
     }
@@ -178,7 +178,7 @@ class CommentServiceTest {
             // When & Then
             EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                 () -> commentService.delete(commentId));
-            assertThat(exception.getMessage()).contains(PostError.COMMENT_NOT_EXIST.getMessage());
+            assertThat(exception.getMessage()).contains(PostError.COMMENT_NOT_FOUND.getMessage());
         }
     }
 

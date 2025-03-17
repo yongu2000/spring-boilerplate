@@ -58,6 +58,6 @@ class JoinServiceTest {
         // When & Then
         assertThatThrownBy(() -> joinService.join(request))
             .isInstanceOf(IllegalArgumentException.class).hasMessage(
-                UserError.ALREADY_EXIST.getMessage());
+                UserError.DUPLICATE_USER.getMessage());
     }
 }

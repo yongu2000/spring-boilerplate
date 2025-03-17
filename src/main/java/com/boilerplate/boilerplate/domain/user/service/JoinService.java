@@ -4,7 +4,7 @@ import com.boilerplate.boilerplate.domain.user.dto.JoinRequest;
 import com.boilerplate.boilerplate.domain.user.dto.JoinResponse;
 import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
-import com.boilerplate.boilerplate.domain.user.exception.UserError;
+import com.boilerplate.boilerplate.domain.user.exception.DuplicateUserException;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class JoinService {
     private void validateUsernameExistence(String username) {
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isPresent()) {
-            throw new IllegalArgumentException(UserError.ALREADY_EXIST.getMessage());
+            throw new DuplicateUserException();
         }
     }
 }

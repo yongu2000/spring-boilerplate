@@ -5,14 +5,13 @@ import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
 import com.boilerplate.boilerplate.domain.post.dto.PostSummaryResponse;
 import com.boilerplate.boilerplate.domain.post.entity.LikedPost;
 import com.boilerplate.boilerplate.domain.post.entity.Post;
-import com.boilerplate.boilerplate.domain.post.exception.PostError;
+import com.boilerplate.boilerplate.domain.post.exception.DuplicateLikedPostException;
+import com.boilerplate.boilerplate.domain.post.exception.PostNotFoundException;
 import com.boilerplate.boilerplate.domain.post.repository.LikedPostRepository;
 import com.boilerplate.boilerplate.domain.post.repository.PostRepository;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import com.boilerplate.boilerplate.global.dto.CursorResponse;
-import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -45,7 +44,7 @@ public class PostService {
     @PreAuthorize("hasRole('ADMIN') or @postSecurityChecker.isPostOwner(#postId)")
     public PostResponse update(Long postId, String newTitle, String newContent) {
         Post post = postRepository.findById(postId)
-            .orElseThrow(() -> new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage()));
+            .orElseThrow(PostNotFoundException::new);
 
         post.update(newTitle, newContent);
 
@@ -55,7 +54,7 @@ public class PostService {
     @PreAuthorize("hasRole('ADMIN') or @postSecurityChecker.isPostOwner(#postId)")
     public void delete(Long postId) {
         if (!postRepository.existsById(postId)) {
-            throw new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage());
+            throw new PostNotFoundException();
         }
         postRepository.deleteById(postId);
 
@@ -93,7 +92,7 @@ public class PostService {
     @Transactional
     public PostResponse getPostById(Long postId) {
         Post post = postRepository.findByIdWithComments(postId)
-            .orElseThrow(() -> new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage()));
+            .orElseThrow(PostNotFoundException::new);
         post.increaseViewCounts();
         return PostResponse.from(post);
     }
@@ -101,11 +100,11 @@ public class PostService {
     @Transactional
     public void like(Long userId, Long postId) {
         if (likedPostRepository.findByUserIdAndPostId(userId, postId).isPresent()) {
-            throw new EntityExistsException(PostError.LIKED_POST_ALREADY_EXISTS.getMessage());
+            throw new DuplicateLikedPostException();
         }
         User user = userService.findById(userId);
         Post post = postRepository.findById(postId)
-            .orElseThrow(() -> new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage()));
+            .orElseThrow(PostNotFoundException::new);
         post.increaseLikes();
         likedPostRepository.save(LikedPost.builder()
             .user(user)
@@ -116,9 +115,9 @@ public class PostService {
     @Transactional
     public void dislike(Long userId, Long postId) {
         LikedPost likedPost = likedPostRepository.findByUserIdAndPostId(userId, postId)
-            .orElseThrow(() -> new EntityNotFoundException(PostError.LIKED_POST_NOT_EXIST.getMessage()));
+            .orElseThrow(PostNotFoundException::new);
         Post post = postRepository.findById(postId)
-            .orElseThrow(() -> new EntityNotFoundException(PostError.POST_NOT_EXIST.getMessage()));
+            .orElseThrow(PostNotFoundException::new);
         post.decreaseLikes();
         likedPostRepository.delete(likedPost);
     }
