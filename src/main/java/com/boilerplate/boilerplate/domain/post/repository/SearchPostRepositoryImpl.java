@@ -28,7 +28,7 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Post> findBySearchOptions(Pageable pageable, PostSearchOptions searchOptions) {
+    public Page<Post> findPostsBySearchOptionsToPage(Pageable pageable, PostSearchOptions searchOptions) {
         List<Post> content = queryFactory
             .selectFrom(post)
             .leftJoin(post.user, user).fetchJoin()
@@ -60,13 +60,47 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
         return new PageImpl<>(content, pageable, count != null ? count : 0L);
     }
 
-    private OrderSpecifier<?> getOrderSpecifier(PostSortBy sortBy, PostSortDirection sortDirection) {
-        return switch (sortBy) {
+    @Override
+    public List<Post> findPostsBySearchOptionsToCursor(Long cursor, int size, PostSearchOptions searchOptions) {
+
+        return queryFactory
+            .selectFrom(post)
+            .leftJoin(post.user, user).fetchJoin()
+            .where(
+                cursorDirection(cursor, searchOptions.getSortDirection()),
+                searchKeywordContains(searchOptions.getSearchType(), searchOptions.getSearchKeyword()),
+                createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
+                viewCountsGoe(searchOptions.getMinViewCounts()),
+                commentCountsGoe(searchOptions.getMinCommentCounts()),
+                likesGoe(searchOptions.getMinLikes())
+            )
+            .orderBy(getOrderSpecifier(searchOptions.getSortBy(), searchOptions.getSortDirection()))
+            .limit(size)
+            .fetch();
+    }
+
+    private BooleanExpression cursorDirection(Long cursor, PostSortDirection sortDirection) {
+        if (cursor == null) {
+            return null;
+        }
+        return sortDirection == ASC
+            ? post.id.gt(cursor)
+            : post.id.lt(cursor);
+    }
+
+    private OrderSpecifier<?>[] getOrderSpecifier(PostSortBy sortBy, PostSortDirection sortDirection) {
+        OrderSpecifier<?> primaryOrder = switch (sortBy) {
             case VIEWS -> sortDirection == ASC ? post.viewCounts.asc() : post.viewCounts.desc();
             case COMMENTS -> sortDirection == ASC ? post.commentCounts.asc() : post.commentCounts.desc();
             case LIKES -> sortDirection == ASC ? post.likes.asc() : post.likes.desc();
             default -> sortDirection == ASC ? post.createdAt.asc() : post.createdAt.desc();
         };
+
+        OrderSpecifier<?> secondaryOrder = sortDirection == ASC
+            ? post.id.asc()
+            : post.id.desc();
+
+        return new OrderSpecifier<?>[]{primaryOrder, secondaryOrder};
     }
 
     private BooleanExpression likesGoe(Long minLikes) {
@@ -99,7 +133,7 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
 
         return post.createdAt.lt(endDate.plusDays(1).atStartOfDay());
     }
-    
+
     private BooleanExpression searchKeywordContains(PostSearchType searchType, String searchKeyword) {
         if (!hasText(searchKeyword)) {
             return null;

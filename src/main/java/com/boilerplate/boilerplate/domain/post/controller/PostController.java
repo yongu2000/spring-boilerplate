@@ -74,17 +74,18 @@ public class PostController {
         @ModelAttribute PostSearchOptions postSearchOptions
     ) {
         return ResponseEntity.ok(
-            postService.getAllPostsWithSearchOptionsByPage(pageable, postSearchOptions)
+            postService.getAllPostsWithSearchOptionsToPage(pageable, postSearchOptions)
         );
     }
 
     @GetMapping("/grid")
     public ResponseEntity<CursorResponse<PostSummaryResponse>> getAllPostsByCursor(
         @RequestParam(required = false) Long cursor,
-        @RequestParam(defaultValue = "10") int size
+        @RequestParam(defaultValue = "10") int size,
+        @ModelAttribute PostSearchOptions postSearchOptions
     ) {
         return ResponseEntity.ok(
-            postService.getAllPostsByCursor(cursor, size)
+            postService.getAllPostsWithSearchOptionsToCursor(cursor, size, postSearchOptions)
         );
     }
 

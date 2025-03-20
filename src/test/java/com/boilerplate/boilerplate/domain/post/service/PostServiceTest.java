@@ -166,7 +166,7 @@ class PostServiceTest {
         void 유저별_게시글_조회_성공() {
             // Given
             Long userId = user.getId();
-            when(postRepository.findByUserIdWithComments(userId)).thenReturn(List.of(post));
+            when(postRepository.findPostsByUserId(userId)).thenReturn(List.of(post));
 
             // When
             List<PostResponse> result = postService.getPostsByUserId(userId);

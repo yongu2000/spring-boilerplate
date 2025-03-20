@@ -62,17 +62,18 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostSummaryResponse> getAllPostsWithSearchOptionsByPage(Pageable pageable,
+    public Page<PostSummaryResponse> getAllPostsWithSearchOptionsToPage(Pageable pageable,
         PostSearchOptions searchOptions) {
         return postRepository
-            .findBySearchOptions(pageable, searchOptions)
+            .findPostsBySearchOptionsToPage(pageable, searchOptions)
             .map(PostSummaryResponse::from);
     }
 
     @Transactional(readOnly = true)
-    public CursorResponse<PostSummaryResponse> getAllPostsByCursor(Long cursor, int size) {
+    public CursorResponse<PostSummaryResponse> getAllPostsWithSearchOptionsToCursor(Long cursor, int size,
+        PostSearchOptions searchOptions) {
         // 커서 기반 조회
-        List<Post> posts = postRepository.findAllPostsByCursor(cursor, size + 1);
+        List<Post> posts = postRepository.findPostsBySearchOptionsToCursor(cursor, size + 1, searchOptions);
 
         // hasNext 확인을 위해 size + 1개를 조회했으므로, 실제 응답에는 size개만 포함
         boolean hasNext = posts.size() > size;
@@ -87,14 +88,14 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public List<PostResponse> getPostsByUserId(Long userId) {
-        return postRepository.findByUserIdWithComments(userId).stream()
+        return postRepository.findPostsByUserId(userId).stream()
             .map(PostResponse::from)
             .toList();
     }
 
     @Transactional
     public PostResponse getPostById(Long postId) {
-        Post post = postRepository.findByIdWithComments(postId)
+        Post post = postRepository.findPostByPostId(postId)
             .orElseThrow(PostNotFoundException::new);
         post.increaseViewCounts();
         return PostResponse.from(post);
