@@ -13,7 +13,6 @@ import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.global.config.JwtConfig;
 import jakarta.servlet.http.Cookie;
-import java.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -49,6 +48,7 @@ class JwtTokenReissueControllerTest {
     private JwtConfig jwtConfig;
 
     private static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";
+    private static final String REMEMBER_ME_COOKIE_NAME = "REFRESH_TOKEN";
     private static final String VALID_REFRESH_TOKEN = "valid.refresh.token";
     private static final String NEW_ACCESS_TOKEN = "new.access.token";
     private static final String NEW_REFRESH_TOKEN = "new.refresh.token";
@@ -74,24 +74,53 @@ class JwtTokenReissueControllerTest {
     }
 
     @Test
-    void 유효한_리프레시_토큰_새로운_Access_Token_Refresh_Token_재발급() throws Exception {
+    void 유효한_리프레시_토큰_새로운_Access_Token_Refresh_Token_재발급_기본_만료시간() throws Exception {
         // given
         given(accessTokenService.reissueAccessToken(VALID_REFRESH_TOKEN)).willReturn(NEW_ACCESS_TOKEN);
-        given(refreshTokenService.reissueRefreshToken(VALID_REFRESH_TOKEN, Duration.ofDays(14))).willReturn(
-            NEW_REFRESH_TOKEN);
+        given(refreshTokenService.reissueRefreshToken(VALID_REFRESH_TOKEN, jwtConfig.getRefreshTokenExpiration()))
+            .willReturn(NEW_REFRESH_TOKEN);
 
         Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, VALID_REFRESH_TOKEN);
+        Cookie rememberMeCookie = new Cookie(REMEMBER_ME_COOKIE_NAME, "false"); // 🔥 rememberMe = false
 
         // when & then
         mockMvc.perform(post("/api/token/reissue")
                 .cookie(refreshTokenCookie)
-                .contentType(MediaType.APPLICATION_JSON))
+                .cookie(rememberMeCookie)
+                .contentType(MediaType.APPLICATION_JSON)
+            )
             .andExpect(status().isCreated())
             .andExpect(header().string(AUTHORIZATION_HEADER, TOKEN_PREFIX + NEW_ACCESS_TOKEN))
             .andExpect(cookie().value(REFRESH_TOKEN_COOKIE_NAME, NEW_REFRESH_TOKEN));
 
         verify(accessTokenService).reissueAccessToken(VALID_REFRESH_TOKEN);
-        verify(refreshTokenService).reissueRefreshToken(VALID_REFRESH_TOKEN, Duration.ofDays(14));
+        verify(refreshTokenService).reissueRefreshToken(VALID_REFRESH_TOKEN, jwtConfig.getRefreshTokenExpiration());
+    }
+
+    @Test
+    void 유효한_리프레시_토큰_새로운_Access_Token_Refresh_Token_재발급_긴_만료시간() throws Exception {
+        // given
+        given(accessTokenService.reissueAccessToken(VALID_REFRESH_TOKEN)).willReturn(NEW_ACCESS_TOKEN);
+        given(refreshTokenService.reissueRefreshToken(VALID_REFRESH_TOKEN,
+            jwtConfig.getRememberMeRefreshTokenExpiration()))
+            .willReturn(NEW_REFRESH_TOKEN);
+
+        Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, VALID_REFRESH_TOKEN);
+        Cookie rememberMeCookie = new Cookie(REMEMBER_ME_COOKIE_NAME, "true"); // 🔥 rememberMe = true
+
+        // when & then
+        mockMvc.perform(post("/api/token/reissue")
+                .cookie(refreshTokenCookie)
+                .cookie(rememberMeCookie)
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated())
+            .andExpect(header().string(AUTHORIZATION_HEADER, TOKEN_PREFIX + NEW_ACCESS_TOKEN))
+            .andExpect(cookie().value(REFRESH_TOKEN_COOKIE_NAME, NEW_REFRESH_TOKEN));
+
+        verify(accessTokenService).reissueAccessToken(VALID_REFRESH_TOKEN);
+        verify(refreshTokenService).reissueRefreshToken(VALID_REFRESH_TOKEN,
+            jwtConfig.getRememberMeRefreshTokenExpiration());
     }
 
     @Test

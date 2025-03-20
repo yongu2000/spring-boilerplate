@@ -50,7 +50,7 @@ public class JwtTokenReissueController {
         String newRefreshToken = refreshTokenService.reissueRefreshToken(refreshToken, expiration);
 
         CookieUtil.addCookie(response, jwtConfig.getRefreshTokenCookieName(), newRefreshToken,
-            (int) jwtConfig.getRefreshTokenExpiration().toSeconds());
+            (int) expiration.toSeconds());
         response.addHeader(jwtConfig.getHeaderAuthorization(),
             jwtConfig.getAccessTokenPrefix() + newAccessToken);
         return ResponseEntity.status(HttpStatus.CREATED).build();
