@@ -2,6 +2,7 @@ package com.boilerplate.boilerplate.domain.post.service;
 
 import com.boilerplate.boilerplate.domain.post.dto.PostLikeStatusResponse;
 import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
+import com.boilerplate.boilerplate.domain.post.dto.PostSearchOptions;
 import com.boilerplate.boilerplate.domain.post.dto.PostSummaryResponse;
 import com.boilerplate.boilerplate.domain.post.entity.LikedPost;
 import com.boilerplate.boilerplate.domain.post.entity.Post;
@@ -61,8 +62,10 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostSummaryResponse> getAllPostsByPage(Pageable pageable) {
-        return postRepository.findAllPostSummariesByPage(pageable)
+    public Page<PostSummaryResponse> getAllPostsWithSearchOptionsByPage(Pageable pageable,
+        PostSearchOptions searchOptions) {
+        return postRepository
+            .findBySearchOptions(pageable, searchOptions)
             .map(PostSummaryResponse::from);
     }
 

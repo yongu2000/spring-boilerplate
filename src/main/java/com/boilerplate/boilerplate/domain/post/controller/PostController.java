@@ -3,6 +3,7 @@ package com.boilerplate.boilerplate.domain.post.controller;
 import com.boilerplate.boilerplate.domain.post.dto.CreatePostRequest;
 import com.boilerplate.boilerplate.domain.post.dto.PostLikeStatusResponse;
 import com.boilerplate.boilerplate.domain.post.dto.PostResponse;
+import com.boilerplate.boilerplate.domain.post.dto.PostSearchOptions;
 import com.boilerplate.boilerplate.domain.post.dto.PostSummaryResponse;
 import com.boilerplate.boilerplate.domain.post.dto.UpdatePostRequest;
 import com.boilerplate.boilerplate.domain.post.service.PostService;
@@ -12,10 +13,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -67,12 +69,12 @@ public class PostController {
 
 
     @GetMapping("/list")
-    public ResponseEntity<Page<PostSummaryResponse>> getAllPostsByPage(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
+    public ResponseEntity<Page<PostSummaryResponse>> getAllPostsWithSearchOptionsByPage(
+        Pageable pageable,
+        @ModelAttribute PostSearchOptions postSearchOptions
     ) {
         return ResponseEntity.ok(
-            postService.getAllPostsByPage(PageRequest.of(page, size))
+            postService.getAllPostsWithSearchOptionsByPage(pageable, postSearchOptions)
         );
     }
 
