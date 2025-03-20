@@ -23,11 +23,12 @@ public class JwtLogoutController {
     public ResponseEntity<?> logout(HttpServletRequest request,
         HttpServletResponse response) {
 
-        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtConfig.getRefreshTokenName());
+        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtConfig.getRefreshTokenCookieName());
 
         jwtLogoutService.logout(refreshToken);
 
-        CookieUtil.deleteCookie(request, response, jwtConfig.getRefreshTokenName());
+        CookieUtil.deleteCookie(request, response, jwtConfig.getRememberMeCookieName());
+        CookieUtil.deleteCookie(request, response, jwtConfig.getRefreshTokenCookieName());
         return ResponseEntity.ok().build();
     }
 

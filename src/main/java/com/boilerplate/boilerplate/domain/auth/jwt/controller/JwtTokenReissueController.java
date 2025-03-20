@@ -6,6 +6,7 @@ import com.boilerplate.boilerplate.global.config.JwtConfig;
 import com.boilerplate.boilerplate.global.utils.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,12 +38,18 @@ public class JwtTokenReissueController {
     public ResponseEntity<?> reissueAccessTokenAtHeader(HttpServletRequest request,
         HttpServletResponse response) {
 
-        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtConfig.getRefreshTokenName());
+        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtConfig.getRefreshTokenCookieName());
+        boolean rememberMe = Boolean.parseBoolean(
+            CookieUtil.getCookieByName(request.getCookies(), jwtConfig.getRememberMeCookieName()));
+        Duration expiration =
+            rememberMe ?
+                jwtConfig.getRememberMeRefreshTokenExpiration() :
+                jwtConfig.getRefreshTokenExpiration();
 
         String newAccessToken = accessTokenService.reissueAccessToken(refreshToken);
-        String newRefreshToken = refreshTokenService.reissueRefreshToken(refreshToken);
+        String newRefreshToken = refreshTokenService.reissueRefreshToken(refreshToken, expiration);
 
-        CookieUtil.addCookie(response, jwtConfig.getRefreshTokenName(), newRefreshToken,
+        CookieUtil.addCookie(response, jwtConfig.getRefreshTokenCookieName(), newRefreshToken,
             (int) jwtConfig.getRefreshTokenExpiration().toSeconds());
         response.addHeader(jwtConfig.getHeaderAuthorization(),
             jwtConfig.getAccessTokenPrefix() + newAccessToken);

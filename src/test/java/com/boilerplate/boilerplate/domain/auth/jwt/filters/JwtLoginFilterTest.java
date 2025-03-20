@@ -8,9 +8,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
+import com.boilerplate.boilerplate.domain.auth.jwt.dto.LoginRequest;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
-import com.boilerplate.boilerplate.domain.user.dto.LoginRequest;
 import com.boilerplate.boilerplate.global.config.JwtConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
@@ -65,7 +65,7 @@ class JwtLoginFilterTest {
     @Test
     void 로그인_성공_토큰_정상_발급() throws Exception {
         // given
-        LoginRequest loginRequest = new LoginRequest("testUser", "password");
+        LoginRequest loginRequest = new LoginRequest("testUser", "password", false);
         String requestBody = new ObjectMapper().writeValueAsString(loginRequest);
         request.setContent(requestBody.getBytes());
 
@@ -75,10 +75,10 @@ class JwtLoginFilterTest {
 
         when(authenticationManager.authenticate(any())).thenReturn(authentication);
         when(accessTokenService.createAccessToken(userDetails)).thenReturn("access-token");
-        when(refreshTokenService.createRefreshToken(userDetails)).thenReturn("refresh-token");
+        when(refreshTokenService.createRefreshToken(userDetails, Duration.ofDays(14))).thenReturn("refresh-token");
         when(jwtConfig.getHeaderAuthorization()).thenReturn("Authorization");
         when(jwtConfig.getAccessTokenPrefix()).thenReturn("Bearer ");
-        when(jwtConfig.getRefreshTokenName()).thenReturn("refresh-token");
+        when(jwtConfig.getRefreshTokenCookieName()).thenReturn("refresh-token");
         when(jwtConfig.getRefreshTokenExpiration()).thenReturn(Duration.ofDays(14));
 
         // when
@@ -87,14 +87,14 @@ class JwtLoginFilterTest {
 
         // then
         verify(accessTokenService).createAccessToken(userDetails);
-        verify(refreshTokenService).createRefreshToken(userDetails);
+        verify(refreshTokenService).createRefreshToken(userDetails, Duration.ofDays(14));
         assertThat(response.getHeader("Authorization")).isEqualTo("Bearer access-token");
     }
 
     @Test
     void 로그인_실패_잘못된_인증_정보() throws Exception {
         // given
-        LoginRequest loginRequest = new LoginRequest("wrongUser", "wrongPassword");
+        LoginRequest loginRequest = new LoginRequest("wrongUser", "wrongPassword", false);
         String requestBody = new ObjectMapper().writeValueAsString(loginRequest);
         request.setContent(requestBody.getBytes());
 

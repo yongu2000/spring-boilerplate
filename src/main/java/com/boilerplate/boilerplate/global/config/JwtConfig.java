@@ -21,10 +21,13 @@ public class JwtConfig {
     private String secretKey;
     private String headerAuthorization;
     private String accessTokenPrefix;
-    private String refreshTokenName;
+    private String refreshTokenCookieName;
 
     private String accessTokenExpiration;
     private String refreshTokenExpiration;
+    private String rememberMeRefreshTokenExpiration;
+
+    private String rememberMeCookieName;
 
     private SecretKey cachedSecretKey;
 
@@ -42,6 +45,10 @@ public class JwtConfig {
 
     public Duration getRefreshTokenExpiration() {
         return Duration.parse("P" + refreshTokenExpiration.toUpperCase());
+    }
+
+    public Duration getRememberMeRefreshTokenExpiration() {
+        return Duration.parse("P" + rememberMeRefreshTokenExpiration.toUpperCase());
     }
 
     public String getAccessTokenPrefix() {

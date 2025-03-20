@@ -8,6 +8,7 @@ import com.boilerplate.boilerplate.domain.auth.jwt.repository.RefreshTokenReposi
 import com.boilerplate.boilerplate.domain.auth.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import com.boilerplate.boilerplate.global.config.JwtConfig;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,23 +24,23 @@ public class RefreshTokenService {
     private final JwtTokenService jwtTokenService;
     private final UserService userService;
 
-    public String createRefreshToken(CustomUserDetails userDetails) {
+    public String createRefreshToken(CustomUserDetails userDetails, Duration expiration) {
         String refreshToken = jwtTokenService.generateToken(userDetails,
-            jwtConfig.getRefreshTokenExpiration());
-        save(userDetails, refreshToken);
+            expiration);
+        save(userDetails, refreshToken, expiration);
         return refreshToken;
     }
 
-    public String reissueRefreshToken(String refreshToken) {
+    public String reissueRefreshToken(String refreshToken, Duration expiration) {
         if (!JwtUtil.isValidToken(refreshToken, jwtConfig.getSecretKey())) {
             throw new InvalidRefreshTokenException();
         }
         RefreshToken oldRefreshToken = findByRefreshToken(refreshToken);
         CustomUserDetails userDetails = new CustomUserDetails(userService.findById(oldRefreshToken.getUserId()));
         String newRefreshToken = jwtTokenService.generateToken(userDetails,
-            jwtConfig.getRefreshTokenExpiration());
+            expiration);
         delete(oldRefreshToken);
-        save(userDetails, newRefreshToken);
+        save(userDetails, newRefreshToken, expiration);
         return newRefreshToken;
     }
 
@@ -52,9 +53,9 @@ public class RefreshTokenService {
         refreshTokenRepository.deleteByRefreshToken(refreshToken);
     }
 
-    private void save(CustomUserDetails userDetails, String refreshToken) {
+    private void save(CustomUserDetails userDetails, String refreshToken, Duration expiration) {
         LocalDateTime expirationTime = LocalDateTime.now()
-            .plus(jwtConfig.getRefreshTokenExpiration());
+            .plus(expiration);
         refreshTokenRepository.save(new RefreshToken(userDetails.getId(), refreshToken, expirationTime));
     }
 

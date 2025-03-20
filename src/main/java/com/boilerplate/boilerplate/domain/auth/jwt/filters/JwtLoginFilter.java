@@ -1,11 +1,11 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.filters;
 
 import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
+import com.boilerplate.boilerplate.domain.auth.jwt.dto.LoginRequest;
 import com.boilerplate.boilerplate.domain.auth.jwt.exception.AuthenticationError;
 import com.boilerplate.boilerplate.domain.auth.jwt.exception.InvalidJsonRequestException;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
-import com.boilerplate.boilerplate.domain.user.dto.LoginRequest;
 import com.boilerplate.boilerplate.global.config.JwtConfig;
 import com.boilerplate.boilerplate.global.dto.ErrorResponse;
 import com.boilerplate.boilerplate.global.utils.CookieUtil;
@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -49,6 +50,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         HttpServletResponse response) throws AuthenticationException {
         try {
             LoginRequest loginRequest = parseJsonLoginRequest(request);
+            request.setAttribute("rememberMe", loginRequest.isRememberMe());
 
             String username = loginRequest.getUsername();
             username = username != null ? username.trim() : "";
@@ -82,13 +84,23 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         HttpServletResponse response, FilterChain chain, Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
+        boolean rememberMe = (boolean) request.getAttribute("rememberMe");
+
         String accessToken = accessTokenService.createAccessToken(userDetails);
-        String refreshToken = refreshTokenService.createRefreshToken(userDetails);
+        Duration expiration =
+            rememberMe ?
+                jwtConfig.getRememberMeRefreshTokenExpiration() :
+                jwtConfig.getRefreshTokenExpiration();
+
+        String refreshToken = refreshTokenService.createRefreshToken(userDetails, expiration);
 
         response.addHeader(jwtConfig.getHeaderAuthorization(),
             jwtConfig.getAccessTokenPrefix() + accessToken);
-        CookieUtil.addCookie(response, jwtConfig.getRefreshTokenName(), refreshToken,
-            (int) jwtConfig.getRefreshTokenExpiration().toSeconds());
+
+        CookieUtil.addCookie(response, jwtConfig.getRememberMeCookieName(), String.valueOf(rememberMe),
+            (int) expiration.toSeconds());
+        CookieUtil.addCookie(response, jwtConfig.getRefreshTokenCookieName(), refreshToken,
+            (int) expiration.toSeconds());
     }
 
     //로그인 실패시 실행하는 메소드

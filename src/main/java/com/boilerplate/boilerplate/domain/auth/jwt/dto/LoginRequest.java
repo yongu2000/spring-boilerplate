@@ -1,4 +1,4 @@
-package com.boilerplate.boilerplate.domain.user.dto;
+package com.boilerplate.boilerplate.domain.auth.jwt.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,5 +13,6 @@ public class LoginRequest {
 
     private String username;
     private String password;
+    private boolean rememberMe;
 
 }

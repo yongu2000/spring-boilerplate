@@ -96,7 +96,7 @@ class JwtAuthenticationFilterTest {
 
         when(jwtConfig.getHeaderAuthorization()).thenReturn("Authorization");
         when(jwtConfig.getAccessTokenPrefix()).thenReturn("Bearer ");
-        when(jwtConfig.getRefreshTokenName()).thenReturn("refresh-token");
+        when(jwtConfig.getRefreshTokenCookieName()).thenReturn("refresh-token");
 
         request.addHeader("Authorization", "Bearer " + accessToken);
         request.setCookies(new Cookie("refresh-token", refreshToken));
@@ -121,7 +121,7 @@ class JwtAuthenticationFilterTest {
 
         when(jwtConfig.getHeaderAuthorization()).thenReturn("Authorization");
         when(jwtConfig.getAccessTokenPrefix()).thenReturn("Bearer ");
-        when(jwtConfig.getRefreshTokenName()).thenReturn("refresh-token");
+        when(jwtConfig.getRefreshTokenCookieName()).thenReturn("refresh-token");
 
         request.addHeader("Authorization", "Bearer " + accessToken);
         request.setCookies(new Cookie("refresh-token", refreshToken));

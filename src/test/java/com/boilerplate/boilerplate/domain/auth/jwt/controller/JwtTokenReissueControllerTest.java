@@ -13,6 +13,7 @@ import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.global.config.JwtConfig;
 import jakarta.servlet.http.Cookie;
+import java.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -47,7 +48,7 @@ class JwtTokenReissueControllerTest {
     @MockitoBean
     private JwtConfig jwtConfig;
 
-    private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
+    private static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";
     private static final String VALID_REFRESH_TOKEN = "valid.refresh.token";
     private static final String NEW_ACCESS_TOKEN = "new.access.token";
     private static final String NEW_REFRESH_TOKEN = "new.refresh.token";
@@ -67,7 +68,7 @@ class JwtTokenReissueControllerTest {
 
     @BeforeEach
     void setUp() {
-        given(jwtConfig.getRefreshTokenName()).willReturn(REFRESH_TOKEN_COOKIE_NAME);
+        given(jwtConfig.getRefreshTokenCookieName()).willReturn(REFRESH_TOKEN_COOKIE_NAME);
         given(jwtConfig.getHeaderAuthorization()).willReturn(AUTHORIZATION_HEADER);
         given(jwtConfig.getAccessTokenPrefix()).willReturn(TOKEN_PREFIX);
     }
@@ -76,7 +77,8 @@ class JwtTokenReissueControllerTest {
     void 유효한_리프레시_토큰_새로운_Access_Token_Refresh_Token_재발급() throws Exception {
         // given
         given(accessTokenService.reissueAccessToken(VALID_REFRESH_TOKEN)).willReturn(NEW_ACCESS_TOKEN);
-        given(refreshTokenService.reissueRefreshToken(VALID_REFRESH_TOKEN)).willReturn(NEW_REFRESH_TOKEN);
+        given(refreshTokenService.reissueRefreshToken(VALID_REFRESH_TOKEN, Duration.ofDays(14))).willReturn(
+            NEW_REFRESH_TOKEN);
 
         Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, VALID_REFRESH_TOKEN);
 
@@ -89,7 +91,7 @@ class JwtTokenReissueControllerTest {
             .andExpect(cookie().value(REFRESH_TOKEN_COOKIE_NAME, NEW_REFRESH_TOKEN));
 
         verify(accessTokenService).reissueAccessToken(VALID_REFRESH_TOKEN);
-        verify(refreshTokenService).reissueRefreshToken(VALID_REFRESH_TOKEN);
+        verify(refreshTokenService).reissueRefreshToken(VALID_REFRESH_TOKEN, Duration.ofDays(14));
     }
 
     @Test
