@@ -67,4 +67,23 @@ public class User {
         this.role = role;
         this.provider = provider;
     }
+
+    public void updateProfile(String name, String bio, String email, String username) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (bio != null) {
+            this.bio = bio;
+        }
+        if (email != null) {
+            this.email = email;
+        }
+        if (username != null) {
+            this.username = username;
+        }
+    }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

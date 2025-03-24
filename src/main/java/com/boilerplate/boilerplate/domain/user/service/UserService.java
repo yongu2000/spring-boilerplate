@@ -1,14 +1,20 @@
 package com.boilerplate.boilerplate.domain.user.service;
 
 import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
+import com.boilerplate.boilerplate.domain.user.dto.EmailDuplicateCheckResponse;
+import com.boilerplate.boilerplate.domain.user.dto.PublicUserResponse;
+import com.boilerplate.boilerplate.domain.user.dto.UpdateUserProfileRequest;
 import com.boilerplate.boilerplate.domain.user.dto.UserResponse;
+import com.boilerplate.boilerplate.domain.user.dto.UsernameDuplicateCheckResponse;
 import com.boilerplate.boilerplate.domain.user.entity.User;
+import com.boilerplate.boilerplate.domain.user.exception.InvalidPasswordException;
 import com.boilerplate.boilerplate.domain.user.exception.UserDetailNotFoundException;
 import com.boilerplate.boilerplate.domain.user.exception.UserNotFoundException;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserResponse getCurrentUser() {
+    public UserResponse getUserProfile() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (principal instanceof UserDetails) {
@@ -30,11 +37,31 @@ public class UserService {
                 .email(user.getEmail())
                 .username(user.getUsername())
                 .name(user.getName())
+                .bio(user.getBio())
+                .profileImageUrl(user.getProfileImageUrl())
                 .createdAt(user.getCreatedAt())
                 .build();
         } else {
             throw new UserDetailNotFoundException();
         }
+    }
+
+    public PublicUserResponse getPublicUserByUsername(String username) {
+        return PublicUserResponse.of(findByUsername(username));
+    }
+
+    public EmailDuplicateCheckResponse checkEmailDuplicate(String email) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            return new EmailDuplicateCheckResponse(true);
+        }
+        return new EmailDuplicateCheckResponse(false);
+    }
+
+    public UsernameDuplicateCheckResponse checkUsernameDuplicate(String username) {
+        if (userRepository.findByUsername(username).isPresent()) {
+            return new UsernameDuplicateCheckResponse(true);
+        }
+        return new UsernameDuplicateCheckResponse(false);
     }
 
     public User findById(Long userId) {
@@ -49,5 +76,26 @@ public class UserService {
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
             .orElseThrow(UserNotFoundException::new);
+    }
+
+    public UserResponse updateUserProfile(String targetUsername, UpdateUserProfileRequest request) {
+        User user = findByUsername(targetUsername);
+
+        if (request.getNewPassword() != null && !request.getNewPassword().isEmpty()) {
+            if (!request.getCurrentPassword().isEmpty() && !bCryptPasswordEncoder.matches(request.getCurrentPassword(),
+                user.getPassword())) {
+                throw new InvalidPasswordException();
+            }
+            user.updatePassword(bCryptPasswordEncoder.encode(request.getNewPassword()));
+        }
+
+        user.updateProfile(
+            request.getName(),
+            request.getBio(),
+            request.getEmail(),
+            request.getUsername()
+        );
+
+        return UserResponse.of(userRepository.save(user));
     }
 }

@@ -9,20 +9,16 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class UserResponse {
+public class PublicUserResponse {
 
-    private Long id;
-    private String email;
     private String username;
     private String name;
     private String bio;
     private String profileImageUrl;
     private LocalDateTime createdAt;
 
-    public static UserResponse of(User user) {
-        return UserResponse.builder()
-            .id(user.getId())
-            .email(user.getEmail())
+    public static PublicUserResponse of(User user) {
+        return PublicUserResponse.builder()
             .username(user.getUsername())
             .name(user.getName())
             .bio(user.getBio())
