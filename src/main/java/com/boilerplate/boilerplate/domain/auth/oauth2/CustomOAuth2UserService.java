@@ -1,6 +1,7 @@
 package com.boilerplate.boilerplate.domain.auth.oauth2;
 
 import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
+import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,16 +33,39 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfo.of(provider, oAuth2User.getAttributes());
         log.info("oAuth2UserInfo : {}", oAuth2UserInfo.toString());
 
-        // 4. oAuth2UserInfo가 저장되어 있는지 유저 정보 확인
-        //    없으면 DB 저장 후 해당 유저를 저장
-        //    있으면 해당 유저를 저장
-        //    있으면 해당 유저 업데이트 기능 추가?
-        User user = userRepository.findByUsername(oAuth2UserInfo.getUsername())
-            .orElseGet(() -> userRepository.save(oAuth2UserInfo.toEntity()));
+        String username = generateUniqueUsername(oAuth2UserInfo.getEmail());
+        User user = getUser(username, oAuth2UserInfo, provider);
         log.info("user : {}", user);
 
         // 5. UserDetails와 OAuth2User를 다중 상속한 CustomUserDetails
         return new CustomUserDetails(user, oAuth2User.getAttributes());
     }
 
+    private User getUser(String username, OAuth2UserInfo oAuth2UserInfo, String provider) {
+        return userRepository.findByUsername(username)
+            .orElseGet(() -> {
+                User newUser = User.builder()
+                    .username(username)
+                    .password(oAuth2UserInfo.getPassword())
+                    .name(oAuth2UserInfo.getName())
+                    .email(oAuth2UserInfo.getEmail())
+                    .role(Role.USER)
+                    .provider(provider)
+                    .build();
+                return userRepository.save(newUser);
+            });
+    }
+
+    private String generateUniqueUsername(String email) {
+        String baseUsername = email.split("@")[0];
+        String username = baseUsername;
+        int randomNumber = 0;
+
+        while (userRepository.findByUsername(username).isPresent()) {
+            randomNumber = (int) (Math.random() * 10000);
+            username = baseUsername + randomNumber;
+        }
+
+        return username;
+    }
 }
