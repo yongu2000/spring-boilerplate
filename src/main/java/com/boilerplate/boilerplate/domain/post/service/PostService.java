@@ -87,6 +87,34 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
+    public Page<PostSummaryResponse> getUserPostsByUsernameWithSearchOptionsToPage(Pageable pageable, String username,
+        PostSearchOptions searchOptions) {
+        return postRepository.findUserPostsByUsernameAndSearchOptionsToPage(pageable, username, searchOptions)
+            .map(PostSummaryResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public CursorResponse<PostSummaryResponse> getUserLikedPostByUsernameWithSearchOptionsToCursor(Long cursor,
+        int size,
+        String username,
+        PostSearchOptions searchOptions) {
+        // 커서 기반 조회
+        List<Post> posts = postRepository.findUserLikedPostsByUsernameAndSearchOptionsToCursor(cursor, size + 1,
+            username,
+            searchOptions);
+
+        // hasNext 확인을 위해 size + 1개를 조회했으므로, 실제 응답에는 size개만 포함
+        boolean hasNext = posts.size() > size;
+        if (hasNext) {
+            posts = posts.subList(0, size);
+        }
+
+        // 다음 커서는 마지막 게시글의 ID
+        Long nextCursor = hasNext && !posts.isEmpty() ? posts.getLast().getId() : null;
+        return new CursorResponse<>(posts.stream().map(PostSummaryResponse::from).toList(), nextCursor, hasNext);
+    }
+
+    @Transactional(readOnly = true)
     public List<PostResponse> getPostsByUserId(Long userId) {
         return postRepository.findPostsByUserId(userId).stream()
             .map(PostResponse::from)

@@ -97,6 +97,26 @@ public class PostController {
         );
     }
 
+    @GetMapping("/{username}/list")
+    public ResponseEntity<Page<PostSummaryResponse>> getAllUserPostsWithSearchOptionsByPage(Pageable pageable,
+        @PathVariable String username,
+        @ModelAttribute PostSearchOptions postSearchOptions) {
+        return ResponseEntity.ok(
+            postService.getUserPostsByUsernameWithSearchOptionsToPage(pageable, username, postSearchOptions));
+    }
+
+    @GetMapping("/{username}/like/grid")
+    public ResponseEntity<CursorResponse<PostSummaryResponse>> getAllUserLikedPostsWithSearchOptionsByPage(
+        @RequestParam(required = false) Long cursor,
+        @RequestParam(defaultValue = "10") int size,
+        @PathVariable String username,
+        @ModelAttribute PostSearchOptions postSearchOptions
+    ) {
+        return ResponseEntity.ok(
+            postService.getUserLikedPostByUsernameWithSearchOptionsToCursor(cursor, size, username, postSearchOptions)
+        );
+    }
+
     @PostMapping("/{postId}/like")
     public ResponseEntity<Void> likePost(@PathVariable Long postId) {
         postService.like(SecurityUtil.getCurrentUserId(), postId);

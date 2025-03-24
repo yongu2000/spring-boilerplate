@@ -1,5 +1,6 @@
 package com.boilerplate.boilerplate.domain.post.repository;
 
+import static com.boilerplate.boilerplate.domain.post.entity.QLikedPost.likedPost;
 import static com.boilerplate.boilerplate.domain.post.entity.QPost.post;
 import static com.boilerplate.boilerplate.domain.post.repository.constants.PostSortDirection.ASC;
 import static com.boilerplate.boilerplate.domain.user.entity.QUser.user;
@@ -10,6 +11,7 @@ import com.boilerplate.boilerplate.domain.post.entity.Post;
 import com.boilerplate.boilerplate.domain.post.repository.constants.PostSearchType;
 import com.boilerplate.boilerplate.domain.post.repository.constants.PostSortBy;
 import com.boilerplate.boilerplate.domain.post.repository.constants.PostSortDirection;
+import com.boilerplate.boilerplate.domain.user.entity.QUser;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -61,12 +63,71 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
     }
 
     @Override
+    public Page<Post> findUserPostsByUsernameAndSearchOptionsToPage(Pageable pageable, String username,
+        PostSearchOptions searchOptions) {
+        List<Post> content = queryFactory
+            .selectFrom(post)
+            .leftJoin(post.user, user).fetchJoin()
+            .where(
+                post.user.username.eq(username),
+                searchKeywordContains(searchOptions.getSearchType(), searchOptions.getSearchKeyword()),
+                createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
+                viewCountsGoe(searchOptions.getMinViewCounts()),
+                commentCountsGoe(searchOptions.getMinCommentCounts()),
+                likesGoe(searchOptions.getMinLikes())
+            )
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .orderBy(getOrderSpecifier(searchOptions.getSortBy(), searchOptions.getSortDirection()))
+            .fetch();
+
+        Long count = queryFactory
+            .select(post.count())
+            .from(post)
+            .leftJoin(post.user, user)
+            .where(
+                post.user.username.eq(username),
+                searchKeywordContains(searchOptions.getSearchType(), searchOptions.getSearchKeyword()),
+                createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
+                viewCountsGoe(searchOptions.getMinViewCounts()),
+                commentCountsGoe(searchOptions.getMinCommentCounts()),
+                likesGoe(searchOptions.getMinLikes())
+            )
+            .fetchOne();
+
+        return new PageImpl<>(content, pageable, count != null ? count : 0L);
+    }
+
+    @Override
     public List<Post> findPostsBySearchOptionsToCursor(Long cursor, int size, PostSearchOptions searchOptions) {
 
         return queryFactory
             .selectFrom(post)
             .leftJoin(post.user, user).fetchJoin()
             .where(
+                cursorDirection(cursor, searchOptions.getSortDirection()),
+                searchKeywordContains(searchOptions.getSearchType(), searchOptions.getSearchKeyword()),
+                createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
+                viewCountsGoe(searchOptions.getMinViewCounts()),
+                commentCountsGoe(searchOptions.getMinCommentCounts()),
+                likesGoe(searchOptions.getMinLikes())
+            )
+            .orderBy(getOrderSpecifier(searchOptions.getSortBy(), searchOptions.getSortDirection()))
+            .limit(size)
+            .fetch();
+    }
+
+    @Override
+    public List<Post> findUserLikedPostsByUsernameAndSearchOptionsToCursor(Long cursor, int size, String username,
+        PostSearchOptions searchOptions) {
+        QUser user2 = new QUser("user2");
+        return queryFactory
+            .selectFrom(post)
+            .rightJoin(post.user, user).fetchJoin()
+            .join(likedPost).on(likedPost.post.eq(post))
+            .join(likedPost.user, user2)
+            .where(
+                user2.username.eq(username),
                 cursorDirection(cursor, searchOptions.getSortDirection()),
                 searchKeywordContains(searchOptions.getSearchType(), searchOptions.getSearchKeyword()),
                 createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
