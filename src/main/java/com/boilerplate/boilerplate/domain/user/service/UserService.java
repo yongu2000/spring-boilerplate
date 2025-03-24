@@ -78,6 +78,7 @@ public class UserService {
             .orElseThrow(UserNotFoundException::new);
     }
 
+    // 권한 확인 로직 필요 (admin, 본인)
     public UserResponse updateUserProfile(String targetUsername, UpdateUserProfileRequest request) {
         User user = findByUsername(targetUsername);
 
