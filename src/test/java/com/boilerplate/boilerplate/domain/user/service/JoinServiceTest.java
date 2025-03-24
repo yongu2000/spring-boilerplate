@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.boilerplate.boilerplate.domain.user.dto.JoinRequest;
 import com.boilerplate.boilerplate.domain.user.dto.JoinResponse;
+import com.boilerplate.boilerplate.domain.user.exception.DuplicateUserException;
 import com.boilerplate.boilerplate.domain.user.exception.UserError;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -27,10 +28,10 @@ class JoinServiceTest {
     @Autowired
     private UserRepository userRepository;
 
-    String email = "testEmail";
-    String username = "testUsername";
+    String email = "testEmail@Email.com";
     String password = "testPassword";
-    String name = "testName";
+    String name = "testEmail";
+    String username = "testEmail";
 
     @AfterEach
     void cleanUp() {
@@ -40,7 +41,7 @@ class JoinServiceTest {
     @Test
     void 회원가입_성공() {
         // Given
-        JoinRequest request = new JoinRequest(email, username, password, name);
+        JoinRequest request = new JoinRequest(email, password);
 
         // When
         JoinResponse response = joinService.join(request);
@@ -52,12 +53,12 @@ class JoinServiceTest {
     @Test
     void 회원가입_실패_중복_username() {
         // Given
-        JoinRequest request = new JoinRequest(email, username, password, name);
+        JoinRequest request = new JoinRequest(email, password);
         JoinResponse first_response = joinService.join(request);
 
         // When & Then
         assertThatThrownBy(() -> joinService.join(request))
-            .isInstanceOf(IllegalArgumentException.class).hasMessage(
+            .isInstanceOf(DuplicateUserException.class).hasMessage(
                 UserError.DUPLICATE_USER.getMessage());
     }
 }

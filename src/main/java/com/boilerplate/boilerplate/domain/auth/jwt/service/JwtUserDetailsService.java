@@ -18,6 +18,9 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        if (username.contains("@")) {
+            return new CustomUserDetails(userService.findByEmail(username));
+        }
         return new CustomUserDetails(userService.findByUsername(username));
     }
 }

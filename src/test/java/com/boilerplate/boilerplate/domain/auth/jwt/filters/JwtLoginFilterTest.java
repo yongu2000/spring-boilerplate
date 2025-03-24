@@ -77,6 +77,7 @@ class JwtLoginFilterTest {
         when(accessTokenService.createAccessToken(userDetails)).thenReturn("access-token");
         when(refreshTokenService.createRefreshToken(userDetails, Duration.ofDays(14))).thenReturn("refresh-token");
         when(jwtConfig.getHeaderAuthorization()).thenReturn("Authorization");
+        when(jwtConfig.getRememberMeCookieName()).thenReturn("remember-me");
         when(jwtConfig.getAccessTokenPrefix()).thenReturn("Bearer ");
         when(jwtConfig.getRefreshTokenCookieName()).thenReturn("refresh-token");
         when(jwtConfig.getRefreshTokenExpiration()).thenReturn(Duration.ofDays(14));
