@@ -1,0 +1,129 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Boilerplate API",
+    "description" : "Boilerplate API description",
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8080"
+  } ],
+  "tags" : [ ],
+  "paths" : {
+    "/api/join" : {
+      "post" : {
+        "tags" : [ "api", "회원가입" ],
+        "summary" : "회원가입 API",
+        "description" : "회원가입 후 사용자 ID와 이름을 반환",
+        "operationId" : "join-",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/api-join-788118888"
+              },
+              "examples" : {
+                "join-failure" : {
+                  "value" : "{\"email\":\"email@email.com\",\"password\":\"password\"}"
+                },
+                "join-success" : {
+                  "value" : "{\"email\":\"email@email.com\",\"password\":\"password\"}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "409" : {
+            "description" : "409",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/api-join457214475"
+                },
+                "examples" : {
+                  "join-failure" : {
+                    "value" : "{\"message\":\"이미 존재하는 유저입니다\",\"status\":409,\"code\":\"DUPLICATE_USER\",\"timestamp\":\"2025-03-29T05:58:04.0945238\",\"details\":{}}"
+                  }
+                }
+              }
+            }
+          },
+          "201" : {
+            "description" : "201",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/api-join-916578860"
+                },
+                "examples" : {
+                  "join-success" : {
+                    "value" : "{\"id\":1,\"username\":\"email\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "api-join-916578860" : {
+        "required" : [ "id", "username" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "number",
+            "description" : "유저 ID"
+          },
+          "username" : {
+            "type" : "string",
+            "description" : "사용자 이름"
+          }
+        }
+      },
+      "api-join457214475" : {
+        "required" : [ "code", "details", "message", "status", "timestamp" ],
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "description" : "에러 코드"
+          },
+          "details" : {
+            "type" : "object",
+            "description" : "추가 에러 정보"
+          },
+          "message" : {
+            "type" : "string",
+            "description" : "에러 메시지"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "description" : "에러 발생 시각"
+          },
+          "status" : {
+            "type" : "number",
+            "description" : "HTTP 상태 코드"
+          }
+        }
+      },
+      "api-join-788118888" : {
+        "required" : [ "email", "password" ],
+        "type" : "object",
+        "properties" : {
+          "password" : {
+            "type" : "string",
+            "description" : "비밀번호"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "이메일"
+          }
+        }
+      }
+    }
+  }
+}

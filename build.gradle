@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.3'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.epages.restdocs-api-spec' version '0.19.4'
 }
 
 group = 'com.boilerplate'
@@ -43,7 +44,23 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    // API 명세
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.19.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+openapi3 {
+    servers = [
+            { url = 'http://localhost:8080' },
+//            { url = 'http://production-api-server-url.com' }
+    ]
+    title = 'Boilerplate API'
+    description = 'Boilerplate API description'
+    version = '1.0.0'
+    format = 'json'
+    outputFileNamePrefix = 'openapi3'
+    outputDirectory = file("build/api-spec") // openapi3.json 생성 경로
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -54,6 +71,12 @@ sourceSets {
     main {
         java.srcDirs("build/generated/sources/annotationProcessor/java/main")
     }
+}
+
+tasks.register('copyOpenApiSpec', Copy) {
+    dependsOn 'openapi3'
+    from 'build/api-spec/openapi3.json'
+    into 'src/main/resources/static/docs'
 }
 
 clean {
