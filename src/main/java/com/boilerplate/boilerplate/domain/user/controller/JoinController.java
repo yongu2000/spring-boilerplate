@@ -20,7 +20,7 @@ public class JoinController {
     private final JoinService joinService;
 
     @PostMapping
-    public ResponseEntity<?> join(@Valid @RequestBody JoinRequest request) {
+    public ResponseEntity<JoinResponse> join(@Valid @RequestBody JoinRequest request) {
         JoinResponse response = joinService.join(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
