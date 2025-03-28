@@ -24,7 +24,7 @@
               },
               "examples" : {
                 "join-failure" : {
-                  "value" : "{\"email\":\"email@email.com\",\"password\":\"password\"}"
+                  "value" : "{\"email\":\"already@used.com\",\"password\":\"password\"}"
                 },
                 "join-success" : {
                   "value" : "{\"email\":\"email@email.com\",\"password\":\"password\"}"
@@ -43,7 +43,7 @@
                 },
                 "examples" : {
                   "join-failure" : {
-                    "value" : "{\"message\":\"이미 존재하는 유저입니다\",\"status\":409,\"code\":\"DUPLICATE_USER\",\"timestamp\":\"2025-03-29T05:58:04.0945238\",\"details\":{}}"
+                    "value" : "{\"message\":\"이미 존재하는 유저입니다\",\"status\":409,\"code\":\"DUPLICATE_USER\",\"timestamp\":\"2025-03-29T06:24:12.9233968\",\"details\":{}}"
                   }
                 }
               }

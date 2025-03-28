@@ -100,7 +100,8 @@ class JoinControllerTest {
         @Test
         void 회원가입_실패_중복된_이메일() throws Exception {
             // given
-            JoinRequest request = new JoinRequest(email, password);
+            String duplicatedEmail = "already@used.com";
+            JoinRequest request = new JoinRequest(duplicatedEmail, password);
 
             given(joinService.join(any(JoinRequest.class)))
                 .willThrow(new DuplicateUserException());
