@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(JwtTokenReissueController.class)
 @Import(JwtTokenReissueControllerTest.TestSecurityConfig.class)
-@DisplayName("토큰 재발급 컨트롤러 테스트")
+@DisplayName("토큰 재발급 Controller")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class JwtTokenReissueControllerTest {
 
@@ -48,10 +48,10 @@ class JwtTokenReissueControllerTest {
     private JwtConfig jwtConfig;
 
     private static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";
-    private static final String REMEMBER_ME_COOKIE_NAME = "REFRESH_TOKEN";
-    private static final String VALID_REFRESH_TOKEN = "valid.refresh.token";
-    private static final String NEW_ACCESS_TOKEN = "new.access.token";
-    private static final String NEW_REFRESH_TOKEN = "new.refresh.token";
+    private static final String REMEMBER_ME_COOKIE_NAME = "REMEMBER_ME";
+    private static final String VALID_REFRESH_TOKEN = "VALID_REFRESH_TOKEN";
+    private static final String NEW_ACCESS_TOKEN = "NEW_ACCESS_TOKEN";
+    private static final String NEW_REFRESH_TOKEN = "NEW_REFRESH_TOKEN";
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String TOKEN_PREFIX = "Bearer ";
 

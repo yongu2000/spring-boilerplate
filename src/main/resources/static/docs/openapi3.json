@@ -20,7 +20,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/api-join-788118888"
+                "$ref" : "#/components/schemas/JoinRequest"
               },
               "examples" : {
                 "join-failure" : {
@@ -39,11 +39,11 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/api-join457214475"
+                  "$ref" : "#/components/schemas/ErrorResponse"
                 },
                 "examples" : {
                   "join-failure" : {
-                    "value" : "{\"message\":\"이미 존재하는 유저입니다\",\"status\":409,\"code\":\"DUPLICATE_USER\",\"timestamp\":\"2025-03-29T06:24:12.9233968\",\"details\":{}}"
+                    "value" : "{\"message\":\"이미 존재하는 유저입니다\",\"status\":409,\"code\":\"DUPLICATE_USER\",\"timestamp\":\"2025-03-29T06:40:15.7783337\",\"details\":{}}"
                   }
                 }
               }
@@ -54,7 +54,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/api-join-916578860"
+                  "$ref" : "#/components/schemas/JoinResponse"
                 },
                 "examples" : {
                   "join-success" : {
@@ -70,21 +70,8 @@
   },
   "components" : {
     "schemas" : {
-      "api-join-916578860" : {
-        "required" : [ "id", "username" ],
-        "type" : "object",
-        "properties" : {
-          "id" : {
-            "type" : "number",
-            "description" : "유저 ID"
-          },
-          "username" : {
-            "type" : "string",
-            "description" : "사용자 이름"
-          }
-        }
-      },
-      "api-join457214475" : {
+      "ErrorResponse" : {
+        "title" : "ErrorResponse",
         "required" : [ "code", "details", "message", "status", "timestamp" ],
         "type" : "object",
         "properties" : {
@@ -110,7 +97,8 @@
           }
         }
       },
-      "api-join-788118888" : {
+      "JoinRequest" : {
+        "title" : "JoinRequest",
         "required" : [ "email", "password" ],
         "type" : "object",
         "properties" : {
@@ -121,6 +109,21 @@
           "email" : {
             "type" : "string",
             "description" : "이메일"
+          }
+        }
+      },
+      "JoinResponse" : {
+        "title" : "JoinResponse",
+        "required" : [ "id", "username" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "number",
+            "description" : "유저 ID"
+          },
+          "username" : {
+            "type" : "string",
+            "description" : "사용자 이름"
           }
         }
       }

@@ -2,13 +2,11 @@ package com.boilerplate.boilerplate.domain.user.controller;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static com.epages.restdocs.apispec.Schema.schema;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,10 +46,10 @@ class JoinControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private Long id = 1L;
-    private String email = "email@email.com";
-    private String username = "email";
-    private String password = "password";
+    private static final Long id = 1L;
+    private static final String email = "email@email.com";
+    private static final String username = "email";
+    private static final String password = "password";
 
     @Nested
     class 회원가입_성공 {
@@ -71,10 +69,9 @@ class JoinControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andDo(print()) // 👈 응답 JSON 전체 콘솔 출력
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.username").value(username))
-                .andDo(document("join-success", // 💡 스니펫 이름
+                .andDo(document("join-success",
                     resource(
                         ResourceSnippetParameters.builder()
                             .tag("회원가입")
@@ -88,6 +85,8 @@ class JoinControllerTest {
                                 fieldWithPath("id").description("유저 ID"),
                                 fieldWithPath("username").description("사용자 이름")
                             )
+                            .requestSchema(schema("JoinRequest"))
+                            .responseSchema(schema("JoinResponse"))
                             .build()
                     )
                 ));
@@ -117,16 +116,21 @@ class JoinControllerTest {
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.details").isMap())
                 .andDo(document("join-failure",
-                    requestFields(
-                        fieldWithPath("email").description("이메일"),
-                        fieldWithPath("password").description("비밀번호")
-                    ),
-                    responseFields(
-                        fieldWithPath("message").description("에러 메시지"),
-                        fieldWithPath("status").description("HTTP 상태 코드"),
-                        fieldWithPath("code").description("에러 코드"),
-                        fieldWithPath("timestamp").description("에러 발생 시각"),
-                        fieldWithPath("details").description("추가 에러 정보")
+                    resource(ResourceSnippetParameters.builder()
+                        .requestFields(
+                            fieldWithPath("email").description("이메일"),
+                            fieldWithPath("password").description("비밀번호")
+                        )
+                        .responseFields(
+                            fieldWithPath("message").description("에러 메시지"),
+                            fieldWithPath("status").description("HTTP 상태 코드"),
+                            fieldWithPath("code").description("에러 코드"),
+                            fieldWithPath("timestamp").description("에러 발생 시각"),
+                            fieldWithPath("details").description("추가 에러 정보")
+                        )
+                        .requestSchema(schema("JoinRequest"))
+                        .responseSchema(schema("ErrorResponse"))
+                        .build()
                     )
                 ));
         }
