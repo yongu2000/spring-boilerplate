@@ -655,4 +655,171 @@ class PostControllerTest {
                 )
             ));
     }
+
+    @Test
+    void 사용자_게시글_목록_조회_성공() throws Exception {
+        // given
+        Page<PostSummaryResponse> page = new PageImpl<>(List.of(testPostSummaryResponse));
+        given(postService.getUserPostsByUsernameWithSearchOptionsToPage(any(), any(), any())).willReturn(page);
+
+        // when & then
+        mockMvc.perform(get("/api/posts/{username}/list", "test")
+                .param("page", "0")
+                .param("size", "10")
+                .param("searchType", "TITLE")
+                .param("searchKeyword", "Test")
+                .param("sortBy", "DATE")
+                .param("sortDirection", "DESC"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content[0].id").value(1L))
+            .andExpect(jsonPath("$.content[0].title").value("Test Title"))
+            .andDo(document("user-posts-list",
+                resource(ResourceSnippetParameters.builder()
+                    .tag("게시글")
+                    .summary("사용자 게시글 목록 조회 API")
+                    .description("특정 사용자의 게시글 목록을 조회합니다")
+                    .pathParameters(
+                        parameterWithName("username").description("사용자 이름")
+                    )
+                    .queryParameters(
+                        parameterWithName("page").description("페이지 번호").optional(),
+                        parameterWithName("size").description("페이지 크기").optional(),
+                        parameterWithName("searchType").description("검색 유형 (TITLE, CONTENT 등)").optional(),
+                        parameterWithName("searchKeyword").description("검색어").optional(),
+                        parameterWithName("sortBy").description("정렬 기준 (DATE, LIKES, COMMENTS)").optional(),
+                        parameterWithName("sortDirection").description("정렬 방향 (ASC, DESC)").optional()
+                    )
+                    .responseFields(
+                        fieldWithPath("content[].id").description("게시글 ID"),
+                        fieldWithPath("content[].title").description("게시글 제목"),
+                        fieldWithPath("content[].content").description("게시글 내용"),
+                        fieldWithPath("content[].likes").description("좋아요 수"),
+                        fieldWithPath("content[].commentCounts").description("댓글 수"),
+                        fieldWithPath("content[].viewCounts").description("조회수"),
+                        fieldWithPath("content[].user.id").description("작성자 ID"),
+                        fieldWithPath("content[].user.username").description("작성자 이름"),
+                        fieldWithPath("content[].user.name").description("작성자 표시 이름"),
+                        fieldWithPath("content[].createdAt").description("게시글 생성 시간"),
+                        fieldWithPath("content[].modifiedAt").description("게시글 수정 시간"),
+                        fieldWithPath("pageable").description("페이지 요청 정보"),
+                        fieldWithPath("totalElements").description("전체 데이터 수"),
+                        fieldWithPath("totalPages").description("전체 페이지 수"),
+                        fieldWithPath("last").description("마지막 페이지 여부"),
+                        fieldWithPath("size").description("페이지 크기"),
+                        fieldWithPath("number").description("현재 페이지 번호"),
+                        fieldWithPath("sort.empty").description("정렬 정보 없음 여부"),
+                        fieldWithPath("sort.sorted").description("정렬 여부"),
+                        fieldWithPath("sort.unsorted").description("미정렬 여부"),
+                        fieldWithPath("numberOfElements").description("현재 페이지의 데이터 수"),
+                        fieldWithPath("first").description("첫 페이지 여부"),
+                        fieldWithPath("empty").description("데이터 없음 여부")
+                    )
+                    .responseSchema(schema("Page<PostSummaryResponse>"))
+                    .build()
+                )
+            ));
+    }
+
+    @Test
+    void 사용자_좋아요_게시글_목록_조회_성공() throws Exception {
+        // given
+        CursorResponse<PostSummaryResponse> response = new CursorResponse<>(List.of(testPostSummaryResponse), 2L, true);
+        given(postService.getUserLikedPostByUsernameWithSearchOptionsToCursor(anyLong(), anyInt(), any(), any())).willReturn(response);
+
+        // when & then
+        mockMvc.perform(get("/api/posts/{username}/like/grid", "test")
+                .param("cursor", "1")
+                .param("size", "10")
+                .param("searchType", "TITLE")
+                .param("searchKeyword", "Test")
+                .param("sortBy", "DATE")
+                .param("sortDirection", "DESC"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.items[0].id").value(1L))
+            .andExpect(jsonPath("$.items[0].title").value("Test Title"))
+            .andExpect(jsonPath("$.hasNext").value(true))
+            .andExpect(jsonPath("$.nextCursor").value(2L))
+            .andDo(document("user-liked-posts-grid",
+                resource(ResourceSnippetParameters.builder()
+                    .tag("게시글")
+                    .summary("사용자 좋아요 게시글 목록 조회 API")
+                    .description("특정 사용자가 좋아요한 게시글 목록을 커서 기반으로 조회합니다")
+                    .pathParameters(
+                        parameterWithName("username").description("사용자 이름")
+                    )
+                    .queryParameters(
+                        parameterWithName("cursor").description("커서 ID (첫 페이지 조회시 생략)").optional(),
+                        parameterWithName("size").description("페이지 크기").optional(),
+                        parameterWithName("searchType").description("검색 유형 (TITLE, CONTENT 등)").optional(),
+                        parameterWithName("searchKeyword").description("검색어").optional(),
+                        parameterWithName("sortBy").description("정렬 기준 (DATE, LIKES, COMMENTS)").optional(),
+                        parameterWithName("sortDirection").description("정렬 방향 (ASC, DESC)").optional()
+                    )
+                    .responseFields(
+                        fieldWithPath("items[].id").description("게시글 ID"),
+                        fieldWithPath("items[].title").description("게시글 제목"),
+                        fieldWithPath("items[].content").description("게시글 내용"),
+                        fieldWithPath("items[].likes").description("좋아요 수"),
+                        fieldWithPath("items[].commentCounts").description("댓글 수"),
+                        fieldWithPath("items[].viewCounts").description("조회수"),
+                        fieldWithPath("items[].user.id").description("작성자 ID"),
+                        fieldWithPath("items[].user.username").description("작성자 이름"),
+                        fieldWithPath("items[].user.name").description("작성자 표시 이름"),
+                        fieldWithPath("items[].createdAt").description("게시글 생성 시간"),
+                        fieldWithPath("items[].modifiedAt").description("게시글 수정 시간"),
+                        fieldWithPath("hasNext").description("다음 페이지 존재 여부"),
+                        fieldWithPath("nextCursor").description("다음 페이지 커서 ID")
+                    )
+                    .responseSchema(schema("CursorResponse<PostSummaryResponse>"))
+                    .build()
+                )
+            ));
+    }
+
+    @Test
+    void 사용자_좋아요_게시글_목록_조회_마지막_페이지() throws Exception {
+        // given
+        CursorResponse<PostSummaryResponse> response = new CursorResponse<>(List.of(testPostSummaryResponse), null, false);
+        given(postService.getUserLikedPostByUsernameWithSearchOptionsToCursor(anyLong(), anyInt(), any(), any())).willReturn(response);
+
+        // when & then
+        mockMvc.perform(get("/api/posts/{username}/like/grid", "test")
+                .param("cursor", "1")
+                .param("size", "10"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.items[0].id").value(1L))
+            .andExpect(jsonPath("$.hasNext").value(false))
+            .andExpect(jsonPath("$.nextCursor").isEmpty())
+            .andDo(document("user-liked-posts-grid-last-page",
+                resource(ResourceSnippetParameters.builder()
+                    .tag("게시글")
+                    .summary("사용자 좋아요 게시글 목록 조회 API (마지막 페이지)")
+                    .description("특정 사용자가 좋아요한 게시글의 마지막 페이지를 조회합니다")
+                    .pathParameters(
+                        parameterWithName("username").description("사용자 이름")
+                    )
+                    .queryParameters(
+                        parameterWithName("cursor").description("커서 ID"),
+                        parameterWithName("size").description("페이지 크기")
+                    )
+                    .responseFields(
+                        fieldWithPath("items[].id").description("게시글 ID"),
+                        fieldWithPath("items[].title").description("게시글 제목"),
+                        fieldWithPath("items[].content").description("게시글 내용"),
+                        fieldWithPath("items[].likes").description("좋아요 수"),
+                        fieldWithPath("items[].commentCounts").description("댓글 수"),
+                        fieldWithPath("items[].viewCounts").description("조회수"),
+                        fieldWithPath("items[].user.id").description("작성자 ID"),
+                        fieldWithPath("items[].user.username").description("작성자 이름"),
+                        fieldWithPath("items[].user.name").description("작성자 표시 이름"),
+                        fieldWithPath("items[].createdAt").description("게시글 생성 시간"),
+                        fieldWithPath("items[].modifiedAt").description("게시글 수정 시간"),
+                        fieldWithPath("hasNext").description("다음 페이지 존재 여부"),
+                        fieldWithPath("nextCursor").description("다음 페이지 커서 ID (마지막 페이지인 경우 null)")
+                    )
+                    .responseSchema(schema("CursorResponse<PostSummaryResponse>"))
+                    .build()
+                )
+            ));
+    }
 } 
