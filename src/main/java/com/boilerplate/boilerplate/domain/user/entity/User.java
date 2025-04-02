@@ -1,19 +1,18 @@
 package com.boilerplate.boilerplate.domain.user.entity;
 
-import com.boilerplate.boilerplate.domain.post.entity.Comment;
-import com.boilerplate.boilerplate.domain.post.entity.Post;
+import com.boilerplate.boilerplate.domain.image.entity.Image;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,16 +42,11 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    @Column(name = "profile_image_url")
-    private String profileImageUrl = "default";
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_image_id", nullable = false)
+    private Image profileImage;
     private String bio;
     private String provider;
-
-    @OneToMany(mappedBy = "user")
-    private List<Post> posts;
-
-    @OneToMany(mappedBy = "user")
-    private List<Comment> comments = new ArrayList<>();
 
     @CreatedDate
     @Column(name = "created_at")
@@ -86,4 +80,9 @@ public class User {
     public void updatePassword(String newPassword) {
         this.password = newPassword;
     }
+
+    public void changeProfileImage(Image newImage) {
+        this.profileImage = newImage;
+    }
+
 }

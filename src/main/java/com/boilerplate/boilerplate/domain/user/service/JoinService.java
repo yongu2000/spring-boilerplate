@@ -1,5 +1,6 @@
 package com.boilerplate.boilerplate.domain.user.service;
 
+import com.boilerplate.boilerplate.domain.image.DefaultImageProvider;
 import com.boilerplate.boilerplate.domain.user.dto.JoinRequest;
 import com.boilerplate.boilerplate.domain.user.dto.JoinResponse;
 import com.boilerplate.boilerplate.domain.user.entity.Role;
@@ -19,12 +20,12 @@ public class JoinService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final DefaultImageProvider defaultImageProvider;
 
     public JoinResponse join(JoinRequest request) {
         validateEmailExistence(request.getEmail());
         String username = generateUniqueUsername(request.getEmail());
         String name = parseEmailToUsername(request.getEmail());
-
         User newUser = User.builder()
             .email(request.getEmail())
             .username(username)
@@ -32,6 +33,7 @@ public class JoinService {
             .name(name)
             .role(Role.USER)
             .build();
+        newUser.changeProfileImage(defaultImageProvider.getDefaultProfileImage());
         userRepository.save(newUser);
         return JoinResponse.builder()
             .id(newUser.getId())

@@ -90,7 +90,7 @@ class UserServiceTest {
         assertThat(response.getUsername()).isEqualTo(testUser.getUsername());
         assertThat(response.getName()).isEqualTo(testUser.getName());
         assertThat(response.getBio()).isEqualTo(testUser.getBio());
-        assertThat(response.getProfileImageUrl()).isEqualTo(testUser.getProfileImageUrl());
+        assertThat(response.getProfileImageUrl()).isEqualTo(testUser.getProfileImage().getUrl());
         assertThat(response.getCreatedAt()).isEqualTo(testUser.getCreatedAt());
     }
 
@@ -118,7 +118,7 @@ class UserServiceTest {
         assertThat(response.getUsername()).isEqualTo(testUser.getUsername());
         assertThat(response.getName()).isEqualTo(testUser.getName());
         assertThat(response.getBio()).isEqualTo(testUser.getBio());
-        assertThat(response.getProfileImageUrl()).isEqualTo(testUser.getProfileImageUrl());
+        assertThat(response.getProfileImageUrl()).isEqualTo(testUser.getProfileImage().getUrl());
         assertThat(response.getCreatedAt()).isEqualTo(testUser.getCreatedAt());
     }
 

@@ -93,7 +93,7 @@ class UserControllerTest {
             .username(testUser.getUsername())
             .name(testUser.getName())
             .bio(testUser.getBio())
-            .profileImageUrl(testUser.getProfileImageUrl())
+            .profileImageUrl(testUser.getProfileImage().getUrl())
             .createdAt(testUser.getCreatedAt())
             .build();
 
@@ -101,7 +101,7 @@ class UserControllerTest {
             .username(testUser.getUsername())
             .name(testUser.getName())
             .bio(testUser.getBio())
-            .profileImageUrl(testUser.getProfileImageUrl())
+            .profileImageUrl(testUser.getProfileImage().getUrl())
             .createdAt(testUser.getCreatedAt())
             .build();
 
@@ -122,7 +122,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.username").value(testUser.getUsername()))
             .andExpect(jsonPath("$.name").value(testUser.getName()))
             .andExpect(jsonPath("$.bio").value(testUser.getBio()))
-            .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImageUrl()))
+            .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImage().getUrl()))
             .andDo(document("get-user-private-profile",
                 resource(
                     ResourceSnippetParameters.builder()
@@ -167,7 +167,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.username").value(testUser.getUsername()))
             .andExpect(jsonPath("$.name").value(testUser.getName()))
             .andExpect(jsonPath("$.bio").value(testUser.getBio()))
-            .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImageUrl()))
+            .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImage().getUrl()))
             .andExpect(jsonPath("$.createdAt").exists())
             .andDo(document("update-user-profile",
                 resource(
@@ -268,7 +268,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.username").value(testUser.getUsername()))
             .andExpect(jsonPath("$.name").value(testUser.getName()))
             .andExpect(jsonPath("$.bio").value(testUser.getBio()))
-            .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImageUrl()))
+            .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImage().getUrl()))
             .andExpect(jsonPath("$.createdAt").exists())
             .andDo(document("get-public-user",
                 resource(
