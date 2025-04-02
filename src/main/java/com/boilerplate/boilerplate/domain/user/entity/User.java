@@ -44,7 +44,7 @@ public class User {
     private Role role;
 
     @Column(name = "profile_image_url")
-    private String profileImageUrl;
+    private String profileImageUrl = "default";
     private String bio;
     private String provider;
 
