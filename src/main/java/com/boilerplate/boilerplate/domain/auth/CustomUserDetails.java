@@ -4,12 +4,10 @@ import com.boilerplate.boilerplate.domain.user.entity.User;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-@Builder
 public class CustomUserDetails implements UserDetails, OAuth2User {
 
     private final User user;
