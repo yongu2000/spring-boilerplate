@@ -2,16 +2,15 @@ package com.boilerplate.boilerplate.domain.user.controller;
 
 import static com.boilerplate.boilerplate.utils.TestReflectionUtil.setCreatedAt;
 import static com.boilerplate.boilerplate.utils.TestReflectionUtil.setId;
+import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static com.epages.restdocs.apispec.Schema.schema;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -26,6 +25,7 @@ import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import com.boilerplate.boilerplate.global.config.JwtConfig;
+import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import java.time.LocalDateTime;
@@ -124,14 +124,22 @@ class UserControllerTest {
             .andExpect(jsonPath("$.bio").value(testUser.getBio()))
             .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImageUrl()))
             .andDo(document("get-user-private-profile",
-                responseFields(
-                    fieldWithPath("id").type(JsonFieldType.NUMBER).description("사용자 ID"),
-                    fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
-                    fieldWithPath("username").type(JsonFieldType.STRING).description("사용자명"),
-                    fieldWithPath("name").type(JsonFieldType.STRING).description("이름"),
-                    fieldWithPath("bio").type(JsonFieldType.STRING).description("자기소개"),
-                    fieldWithPath("profileImageUrl").type(JsonFieldType.STRING).description("프로필 이미지 URL"),
-                    fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성 시간")
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .tag("사용자")
+                        .summary("내 프로필 조회 API")
+                        .description("자신의 프로필 정보를 조회합니다")
+                        .responseFields(
+                            fieldWithPath("id").type(JsonFieldType.NUMBER).description("사용자 ID"),
+                            fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
+                            fieldWithPath("username").type(JsonFieldType.STRING).description("사용자명"),
+                            fieldWithPath("name").type(JsonFieldType.STRING).description("이름"),
+                            fieldWithPath("bio").type(JsonFieldType.STRING).description("자기소개"),
+                            fieldWithPath("profileImageUrl").type(JsonFieldType.STRING).description("프로필 이미지 URL"),
+                            fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성 시간")
+                        )
+                        .responseSchema(schema("UserResponse"))
+                        .build()
                 )
             ));
     }
@@ -162,25 +170,35 @@ class UserControllerTest {
             .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImageUrl()))
             .andExpect(jsonPath("$.createdAt").exists())
             .andDo(document("update-user-profile",
-                pathParameters(
-                    parameterWithName("username").description("사용자명")
-                ),
-                requestFields(
-                    fieldWithPath("name").type(JsonFieldType.STRING).description("새로운 이름").optional(),
-                    fieldWithPath("bio").type(JsonFieldType.STRING).description("새로운 자기소개").optional(),
-                    fieldWithPath("email").type(JsonFieldType.STRING).description("새로운 이메일").optional(),
-                    fieldWithPath("username").type(JsonFieldType.STRING).description("새로운 사용자명").optional(),
-                    fieldWithPath("currentPassword").type(JsonFieldType.STRING).description("현재 비밀번호").optional(),
-                    fieldWithPath("newPassword").type(JsonFieldType.STRING).description("새로운 비밀번호").optional()
-                ),
-                responseFields(
-                    fieldWithPath("id").type(JsonFieldType.NUMBER).description("사용자 ID"),
-                    fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
-                    fieldWithPath("username").type(JsonFieldType.STRING).description("사용자명"),
-                    fieldWithPath("name").type(JsonFieldType.STRING).description("이름"),
-                    fieldWithPath("bio").type(JsonFieldType.STRING).description("자기소개"),
-                    fieldWithPath("profileImageUrl").type(JsonFieldType.STRING).description("프로필 이미지 URL"),
-                    fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성 시간")
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .tag("사용자")
+                        .summary("프로필 수정 API")
+                        .description("사용자의 프로필 정보를 수정합니다")
+                        .pathParameters(
+                            parameterWithName("username").description("사용자명")
+                        )
+                        .requestFields(
+                            fieldWithPath("name").type(JsonFieldType.STRING).description("새로운 이름").optional(),
+                            fieldWithPath("bio").type(JsonFieldType.STRING).description("새로운 자기소개").optional(),
+                            fieldWithPath("email").type(JsonFieldType.STRING).description("새로운 이메일").optional(),
+                            fieldWithPath("username").type(JsonFieldType.STRING).description("새로운 사용자명").optional(),
+                            fieldWithPath("currentPassword").type(JsonFieldType.STRING).description("현재 비밀번호")
+                                .optional(),
+                            fieldWithPath("newPassword").type(JsonFieldType.STRING).description("새로운 비밀번호").optional()
+                        )
+                        .responseFields(
+                            fieldWithPath("id").type(JsonFieldType.NUMBER).description("사용자 ID"),
+                            fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
+                            fieldWithPath("username").type(JsonFieldType.STRING).description("사용자명"),
+                            fieldWithPath("name").type(JsonFieldType.STRING).description("이름"),
+                            fieldWithPath("bio").type(JsonFieldType.STRING).description("자기소개"),
+                            fieldWithPath("profileImageUrl").type(JsonFieldType.STRING).description("프로필 이미지 URL"),
+                            fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성 시간")
+                        )
+                        .requestSchema(schema("UpdateUserProfileRequest"))
+                        .responseSchema(schema("UserResponse"))
+                        .build()
                 )
             ));
     }
@@ -195,11 +213,19 @@ class UserControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.isDuplicate").value(false))
             .andDo(document("check-email-duplicate",
-                pathParameters(
-                    parameterWithName("email").description("중복 체크할 이메일")
-                ),
-                responseFields(
-                    fieldWithPath("isDuplicate").type(JsonFieldType.BOOLEAN).description("중복 여부")
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .tag("사용자")
+                        .summary("이메일 중복 체크 API")
+                        .description("이메일의 중복 여부를 확인합니다")
+                        .pathParameters(
+                            parameterWithName("email").description("중복 체크할 이메일")
+                        )
+                        .responseFields(
+                            fieldWithPath("isDuplicate").type(JsonFieldType.BOOLEAN).description("중복 여부")
+                        )
+                        .responseSchema(schema("EmailDuplicateCheckResponse"))
+                        .build()
                 )
             ));
     }
@@ -214,11 +240,19 @@ class UserControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.isDuplicate").value(false))
             .andDo(document("check-username-duplicate",
-                pathParameters(
-                    parameterWithName("username").description("중복 체크할 사용자명")
-                ),
-                responseFields(
-                    fieldWithPath("isDuplicate").type(JsonFieldType.BOOLEAN).description("중복 여부")
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .tag("사용자")
+                        .summary("사용자명 중복 체크 API")
+                        .description("사용자명의 중복 여부를 확인합니다")
+                        .pathParameters(
+                            parameterWithName("username").description("중복 체크할 사용자명")
+                        )
+                        .responseFields(
+                            fieldWithPath("isDuplicate").type(JsonFieldType.BOOLEAN).description("중복 여부")
+                        )
+                        .responseSchema(schema("UsernameDuplicateCheckResponse"))
+                        .build()
                 )
             ));
     }
@@ -237,15 +271,23 @@ class UserControllerTest {
             .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImageUrl()))
             .andExpect(jsonPath("$.createdAt").exists())
             .andDo(document("get-public-user",
-                pathParameters(
-                    parameterWithName("username").description("사용자명")
-                ),
-                responseFields(
-                    fieldWithPath("username").type(JsonFieldType.STRING).description("사용자명"),
-                    fieldWithPath("name").type(JsonFieldType.STRING).description("이름"),
-                    fieldWithPath("bio").type(JsonFieldType.STRING).description("자기소개"),
-                    fieldWithPath("profileImageUrl").type(JsonFieldType.STRING).description("프로필 이미지 URL"),
-                    fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성 시간")
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .tag("사용자")
+                        .summary("공개 프로필 조회 API")
+                        .description("다른 사용자의 공개 프로필 정보를 조회합니다")
+                        .pathParameters(
+                            parameterWithName("username").description("사용자명")
+                        )
+                        .responseFields(
+                            fieldWithPath("username").type(JsonFieldType.STRING).description("사용자명"),
+                            fieldWithPath("name").type(JsonFieldType.STRING).description("이름"),
+                            fieldWithPath("bio").type(JsonFieldType.STRING).description("자기소개"),
+                            fieldWithPath("profileImageUrl").type(JsonFieldType.STRING).description("프로필 이미지 URL"),
+                            fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성 시간")
+                        )
+                        .responseSchema(schema("PublicUserResponse"))
+                        .build()
                 )
             ));
     }

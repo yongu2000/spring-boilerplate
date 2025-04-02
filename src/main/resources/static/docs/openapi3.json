@@ -43,7 +43,7 @@
                 },
                 "examples" : {
                   "join-failure" : {
-                    "value" : "{\"message\":\"이미 존재하는 유저입니다\",\"status\":409,\"code\":\"DUPLICATE_USER\",\"timestamp\":\"2025-04-02T19:19:38.587585\",\"details\":{}}"
+                    "value" : "{\"message\":\"이미 존재하는 유저입니다\",\"status\":409,\"code\":\"DUPLICATE_USER\",\"timestamp\":\"2025-04-03T00:29:16.6257387\",\"details\":{}}"
                   }
                 }
               }
@@ -97,7 +97,7 @@
                 },
                 "examples" : {
                   "post-create" : {
-                    "value" : "{\"id\":1,\"title\":\"Test Title\",\"content\":\"Test Content\",\"likes\":0,\"commentCounts\":0,\"viewCounts\":0,\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"comments\":null,\"createdAt\":\"2025-04-02T19:19:37.3029807\",\"modifiedAt\":\"2025-04-02T19:19:37.3029807\"}"
+                    "value" : "{\"id\":1,\"title\":\"Test Title\",\"content\":\"Test Content\",\"likes\":0,\"commentCounts\":0,\"viewCounts\":0,\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"comments\":null,\"createdAt\":\"2025-04-03T00:29:15.7349079\",\"modifiedAt\":\"2025-04-03T00:29:15.7349079\"}"
                   }
                 }
               }
@@ -106,12 +106,219 @@
         }
       }
     },
-    "/api/posts/1" : {
+    "/api/posts/grid" : {
+      "get" : {
+        "tags" : [ "게시글" ],
+        "summary" : "게시글 커서 기반 조회 API",
+        "description" : "커서 기반 페이지네이션을 사용하여 게시글을 조회합니다",
+        "operationId" : "post-cursor-search",
+        "parameters" : [ {
+          "name" : "cursor",
+          "in" : "query",
+          "description" : "커서 ID (첫 페이지 조회시 생략)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "페이지 크기",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "searchType",
+          "in" : "query",
+          "description" : "검색 유형 (TITLE, CONTENT 등)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "searchKeyword",
+          "in" : "query",
+          "description" : "검색어",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "정렬 기준 (DATE, LIKES, COMMENTS)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sortDirection",
+          "in" : "query",
+          "description" : "정렬 방향 (ASC, DESC)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CursorResponse<PostSummaryResponse>"
+                },
+                "examples" : {
+                  "post-cursor-search" : {
+                    "value" : "{\"items\":[{\"id\":1,\"title\":\"Test Title\",\"content\":null,\"likes\":null,\"commentCounts\":null,\"viewCounts\":null,\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"createdAt\":null,\"modifiedAt\":null}],\"nextCursor\":2,\"hasNext\":true}"
+                  },
+                  "post-cursor-search-last-page" : {
+                    "value" : "{\"items\":[{\"id\":1,\"title\":\"Test Title\",\"content\":null,\"likes\":null,\"commentCounts\":null,\"viewCounts\":null,\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"createdAt\":null,\"modifiedAt\":null}],\"nextCursor\":null,\"hasNext\":false}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/list" : {
+      "get" : {
+        "tags" : [ "게시글" ],
+        "summary" : "게시글 검색 API",
+        "description" : "검색 옵션을 사용하여 게시글을 조회합니다",
+        "operationId" : "post-search",
+        "parameters" : [ {
+          "name" : "searchType",
+          "in" : "query",
+          "description" : "검색 유형 (TITLE, CONTENT 등)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "searchKeyword",
+          "in" : "query",
+          "description" : "검색어",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "description" : "페이지 번호",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "페이지 크기",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "정렬 기준 (DATE, LIKES, COMMENTS)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sortDirection",
+          "in" : "query",
+          "description" : "정렬 방향 (ASC, DESC)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Page<PostSummaryResponse>"
+                },
+                "examples" : {
+                  "post-search" : {
+                    "value" : "{\"content\":[{\"id\":1,\"title\":\"Test Title\",\"content\":null,\"likes\":null,\"commentCounts\":null,\"viewCounts\":null,\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"createdAt\":null,\"modifiedAt\":null}],\"pageable\":\"INSTANCE\",\"last\":true,\"totalPages\":1,\"totalElements\":1,\"size\":1,\"number\":0,\"sort\":{\"empty\":true,\"unsorted\":true,\"sorted\":false},\"first\":true,\"numberOfElements\":1,\"empty\":false}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/{postId}" : {
+      "get" : {
+        "tags" : [ "게시글" ],
+        "summary" : "게시글 상세 조회 API",
+        "description" : "게시글의 상세 정보를 조회합니다",
+        "operationId" : "post-detail",
+        "parameters" : [ {
+          "name" : "postId",
+          "in" : "path",
+          "description" : "게시글 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PostResponse"
+                },
+                "examples" : {
+                  "post-detail" : {
+                    "value" : "{\"id\":1,\"title\":\"Test Title\",\"content\":\"Test Content\",\"likes\":0,\"commentCounts\":0,\"viewCounts\":0,\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"comments\":null,\"createdAt\":\"2025-04-03T00:29:15.89708\",\"modifiedAt\":\"2025-04-03T00:29:15.89708\"}"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                },
+                "examples" : {
+                  "post-detail-failure-not-found" : {
+                    "value" : "{\"message\":\"찾을 수 없는 게시글입니다\",\"status\":404,\"code\":\"POST_NOT_FOUND\",\"timestamp\":\"2025-04-03T00:29:15.961615\",\"details\":{}}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "put" : {
         "tags" : [ "게시글" ],
         "summary" : "게시글 수정 API",
         "description" : "기존 게시글을 수정합니다",
         "operationId" : "post-update",
+        "parameters" : [ {
+          "name" : "postId",
+          "in" : "path",
+          "description" : "게시글 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -120,6 +327,9 @@
               },
               "examples" : {
                 "post-update" : {
+                  "value" : "{\"title\":\"Updated Title\",\"content\":\"Updated Content\"}"
+                },
+                "post-update-failure-not-owner" : {
                   "value" : "{\"title\":\"Updated Title\",\"content\":\"Updated Content\"}"
                 }
               }
@@ -136,7 +346,22 @@
                 },
                 "examples" : {
                   "post-update" : {
-                    "value" : "{\"id\":1,\"title\":\"Test Title\",\"content\":\"Test Content\",\"likes\":0,\"commentCounts\":0,\"viewCounts\":0,\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"comments\":null,\"createdAt\":\"2025-04-02T19:19:37.5745687\",\"modifiedAt\":\"2025-04-02T19:19:37.5745687\"}"
+                    "value" : "{\"id\":1,\"title\":\"Test Title\",\"content\":\"Test Content\",\"likes\":0,\"commentCounts\":0,\"viewCounts\":0,\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"comments\":null,\"createdAt\":\"2025-04-03T00:29:15.8757039\",\"modifiedAt\":\"2025-04-03T00:29:15.8757039\"}"
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "403",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                },
+                "examples" : {
+                  "post-update-failure-not-owner" : {
+                    "value" : "{\"message\":\"게시글에 대한 권한이 없습니다\",\"status\":403,\"code\":\"POST_NOT_OWNED\",\"timestamp\":\"2025-04-03T00:29:15.7993027\",\"details\":{}}"
                   }
                 }
               }
@@ -149,30 +374,29 @@
         "summary" : "게시글 삭제 API",
         "description" : "게시글을 삭제합니다",
         "operationId" : "post-delete",
+        "parameters" : [ {
+          "name" : "postId",
+          "in" : "path",
+          "description" : "게시글 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "200"
-          }
-        }
-      }
-    },
-    "/api/posts/list" : {
-      "get" : {
-        "tags" : [ "게시글" ],
-        "summary" : "게시글 검색 API",
-        "description" : "검색 옵션을 사용하여 게시글을 조회합니다",
-        "operationId" : "post-search",
-        "responses" : {
-          "200" : {
-            "description" : "200",
+          },
+          "404" : {
+            "description" : "404",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Page<PostSummaryResponse>"
+                  "$ref" : "#/components/schemas/ErrorResponse"
                 },
                 "examples" : {
-                  "post-search" : {
-                    "value" : "{\"content\":[{\"id\":1,\"title\":\"Test Title\",\"content\":null,\"likes\":null,\"commentCounts\":null,\"viewCounts\":null,\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"createdAt\":null,\"modifiedAt\":null}],\"pageable\":\"INSTANCE\",\"last\":true,\"totalPages\":1,\"totalElements\":1,\"size\":1,\"number\":0,\"sort\":{\"empty\":true,\"sorted\":false,\"unsorted\":true},\"first\":true,\"numberOfElements\":1,\"empty\":false}"
+                  "post-delete-failure-not-found" : {
+                    "value" : "{\"message\":\"찾을 수 없는 게시글입니다\",\"status\":404,\"code\":\"POST_NOT_FOUND\",\"timestamp\":\"2025-04-03T00:29:15.619864\",\"details\":{}}"
                   }
                 }
               }
@@ -181,12 +405,126 @@
         }
       }
     },
-    "/api/posts/1/comments" : {
+    "/api/user/my" : {
+      "get" : {
+        "tags" : [ "사용자" ],
+        "summary" : "내 프로필 조회 API",
+        "description" : "자신의 프로필 정보를 조회합니다",
+        "operationId" : "get-user-private-profile",
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponse"
+                },
+                "examples" : {
+                  "get-user-private-profile" : {
+                    "value" : "{\"id\":1,\"email\":\"test@example.com\",\"username\":\"test\",\"name\":\"Test User\",\"bio\":\"Test Bio\",\"profileImageUrl\":\"default\",\"createdAt\":\"2025-04-03T00:29:17.036113\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/{username}" : {
+      "get" : {
+        "tags" : [ "사용자" ],
+        "summary" : "공개 프로필 조회 API",
+        "description" : "다른 사용자의 공개 프로필 정보를 조회합니다",
+        "operationId" : "get-public-user",
+        "parameters" : [ {
+          "name" : "username",
+          "in" : "path",
+          "description" : "사용자명",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PublicUserResponse"
+                },
+                "examples" : {
+                  "get-public-user" : {
+                    "value" : "{\"username\":\"test\",\"name\":\"Test User\",\"bio\":\"Test Bio\",\"profileImageUrl\":\"default\",\"createdAt\":\"2025-04-03T00:29:16.9781381\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "사용자" ],
+        "summary" : "프로필 수정 API",
+        "description" : "사용자의 프로필 정보를 수정합니다",
+        "operationId" : "update-user-profile",
+        "parameters" : [ {
+          "name" : "username",
+          "in" : "path",
+          "description" : "사용자명",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateUserProfileRequest"
+              },
+              "examples" : {
+                "update-user-profile" : {
+                  "value" : "{\"name\":\"New Name\",\"bio\":\"New Bio\",\"email\":\"new@example.com\",\"username\":\"newusername\",\"currentPassword\":\"currentPassword\",\"newPassword\":\"newPassword\"}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponse"
+                },
+                "examples" : {
+                  "update-user-profile" : {
+                    "value" : "{\"id\":1,\"email\":\"test@example.com\",\"username\":\"test\",\"name\":\"Test User\",\"bio\":\"Test Bio\",\"profileImageUrl\":\"default\",\"createdAt\":\"2025-04-03T00:29:16.998323\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/{postId}/comments" : {
       "post" : {
         "tags" : [ "댓글" ],
         "summary" : "댓글 생성 API",
         "description" : "새로운 댓글을 생성합니다",
         "operationId" : "comment-",
+        "parameters" : [ {
+          "name" : "postId",
+          "in" : "path",
+          "description" : "게시글 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -214,7 +552,7 @@
                 },
                 "examples" : {
                   "comment-create" : {
-                    "value" : "{\"id\":1,\"content\":\"Test Comment\",\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"parentCommentId\":null,\"replies\":null,\"createdAt\":\"2025-04-02T19:19:36.6761783\",\"modifiedAt\":\"2025-04-02T19:19:36.6761783\"}"
+                    "value" : "{\"id\":1,\"content\":\"Test Comment\",\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"parentCommentId\":null,\"replies\":null,\"createdAt\":\"2025-04-03T00:29:15.0209076\",\"modifiedAt\":\"2025-04-03T00:29:15.0209076\"}"
                   },
                   "comment-reply-create" : {
                     "value" : "{\"id\":2,\"content\":\"Test Reply\",\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"parentCommentId\":1,\"replies\":null,\"createdAt\":null,\"modifiedAt\":null}"
@@ -226,12 +564,21 @@
         }
       }
     },
-    "/api/posts/1/dislike" : {
+    "/api/posts/{postId}/dislike" : {
       "post" : {
         "tags" : [ "게시글" ],
         "summary" : "게시글 좋아요 취소 API",
         "description" : "게시글의 좋아요를 취소합니다",
         "operationId" : "post-dislike",
+        "parameters" : [ {
+          "name" : "postId",
+          "in" : "path",
+          "description" : "게시글 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "200"
@@ -239,25 +586,148 @@
         }
       }
     },
-    "/api/posts/1/like" : {
+    "/api/posts/{postId}/like" : {
       "post" : {
         "tags" : [ "게시글" ],
         "summary" : "게시글 좋아요 API",
         "description" : "게시글에 좋아요를 추가합니다",
         "operationId" : "post-like",
+        "parameters" : [ {
+          "name" : "postId",
+          "in" : "path",
+          "description" : "게시글 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "200"
+          },
+          "409" : {
+            "description" : "409",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                },
+                "examples" : {
+                  "post-like-failure-duplicate" : {
+                    "value" : "{\"message\":\"이미 좋아요 한 게시글입니다\",\"status\":409,\"code\":\"DUPLICATE_LIKED_POST\",\"timestamp\":\"2025-04-03T00:29:15.7157355\",\"details\":{}}"
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
-    "/api/posts/1/comments/1" : {
+    "/api/posts/{username}/list" : {
+      "get" : {
+        "tags" : [ "게시글" ],
+        "summary" : "사용자 게시글 목록 조회 API",
+        "description" : "특정 사용자의 게시글 목록을 조회합니다",
+        "operationId" : "user-posts-list",
+        "parameters" : [ {
+          "name" : "username",
+          "in" : "path",
+          "description" : "사용자 이름",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "description" : "페이지 번호",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "페이지 크기",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "searchType",
+          "in" : "query",
+          "description" : "검색 유형 (TITLE, CONTENT 등)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "searchKeyword",
+          "in" : "query",
+          "description" : "검색어",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "정렬 기준 (DATE, LIKES, COMMENTS)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sortDirection",
+          "in" : "query",
+          "description" : "정렬 방향 (ASC, DESC)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Page<PostSummaryResponse>"
+                },
+                "examples" : {
+                  "user-posts-list" : {
+                    "value" : "{\"content\":[{\"id\":1,\"title\":\"Test Title\",\"content\":null,\"likes\":null,\"commentCounts\":null,\"viewCounts\":null,\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"createdAt\":null,\"modifiedAt\":null}],\"pageable\":\"INSTANCE\",\"last\":true,\"totalPages\":1,\"totalElements\":1,\"size\":1,\"number\":0,\"sort\":{\"empty\":true,\"unsorted\":true,\"sorted\":false},\"first\":true,\"numberOfElements\":1,\"empty\":false}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/{postId}/comments/{commentId}" : {
       "put" : {
         "tags" : [ "댓글" ],
         "summary" : "댓글 수정 API",
         "description" : "기존 댓글을 수정합니다",
         "operationId" : "comment-update",
+        "parameters" : [ {
+          "name" : "postId",
+          "in" : "path",
+          "description" : "게시글 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "commentId",
+          "in" : "path",
+          "description" : "댓글 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -266,6 +736,9 @@
               },
               "examples" : {
                 "comment-update" : {
+                  "value" : "{\"content\":\"Updated Comment\",\"parentCommentId\":null}"
+                },
+                "comment-update-failure-not-owner" : {
                   "value" : "{\"content\":\"Updated Comment\",\"parentCommentId\":null}"
                 }
               }
@@ -282,7 +755,22 @@
                 },
                 "examples" : {
                   "comment-update" : {
-                    "value" : "{\"id\":1,\"content\":\"Test Comment\",\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"parentCommentId\":null,\"replies\":null,\"createdAt\":\"2025-04-02T19:19:36.7423571\",\"modifiedAt\":\"2025-04-02T19:19:36.7423571\"}"
+                    "value" : "{\"id\":1,\"content\":\"Test Comment\",\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"parentCommentId\":null,\"replies\":null,\"createdAt\":\"2025-04-03T00:29:15.0702586\",\"modifiedAt\":\"2025-04-03T00:29:15.0702586\"}"
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "403",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                },
+                "examples" : {
+                  "comment-update-failure-not-owner" : {
+                    "value" : "{\"message\":\"댓글에 대한 권한이 없습니다\",\"status\":403,\"code\":\"COMMENT_NOT_OWNED\",\"timestamp\":\"2025-04-03T00:29:14.9941207\",\"details\":{}}"
                   }
                 }
               }
@@ -295,19 +783,60 @@
         "summary" : "댓글 삭제 API",
         "description" : "댓글을 삭제합니다",
         "operationId" : "comment-delete",
+        "parameters" : [ {
+          "name" : "postId",
+          "in" : "path",
+          "description" : "게시글 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "commentId",
+          "in" : "path",
+          "description" : "댓글 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "200"
+          },
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                },
+                "examples" : {
+                  "comment-delete-failure-not-found" : {
+                    "value" : "{\"message\":\"찾을 수 없는 댓글입니다: \",\"status\":404,\"code\":\"COMMENT_NOT_FOUND\",\"timestamp\":\"2025-04-03T00:29:14.43603\",\"details\":{}}"
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
-    "/api/posts/1/like/status" : {
+    "/api/posts/{postId}/like/status" : {
       "get" : {
         "tags" : [ "게시글" ],
         "summary" : "게시글 좋아요 상태 조회 API",
         "description" : "게시글의 좋아요 상태를 조회합니다",
         "operationId" : "post-like-status",
+        "parameters" : [ {
+          "name" : "postId",
+          "in" : "path",
+          "description" : "게시글 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "200",
@@ -326,40 +855,218 @@
           }
         }
       }
+    },
+    "/api/posts/{username}/like/grid" : {
+      "get" : {
+        "tags" : [ "게시글" ],
+        "summary" : "사용자 좋아요 게시글 목록 조회 API",
+        "description" : "특정 사용자가 좋아요한 게시글 목록을 커서 기반으로 조회합니다",
+        "operationId" : "user-liked-posts-grid",
+        "parameters" : [ {
+          "name" : "username",
+          "in" : "path",
+          "description" : "사용자 이름",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "cursor",
+          "in" : "query",
+          "description" : "커서 ID (첫 페이지 조회시 생략)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "페이지 크기",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "searchType",
+          "in" : "query",
+          "description" : "검색 유형 (TITLE, CONTENT 등)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "searchKeyword",
+          "in" : "query",
+          "description" : "검색어",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "정렬 기준 (DATE, LIKES, COMMENTS)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sortDirection",
+          "in" : "query",
+          "description" : "정렬 방향 (ASC, DESC)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CursorResponse<PostSummaryResponse>"
+                },
+                "examples" : {
+                  "user-liked-posts-grid" : {
+                    "value" : "{\"items\":[{\"id\":1,\"title\":\"Test Title\",\"content\":null,\"likes\":null,\"commentCounts\":null,\"viewCounts\":null,\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"createdAt\":null,\"modifiedAt\":null}],\"nextCursor\":2,\"hasNext\":true}"
+                  },
+                  "user-liked-posts-grid-last-page" : {
+                    "value" : "{\"items\":[{\"id\":1,\"title\":\"Test Title\",\"content\":null,\"likes\":null,\"commentCounts\":null,\"viewCounts\":null,\"user\":{\"id\":1,\"username\":\"test\",\"name\":\"test\"},\"createdAt\":null,\"modifiedAt\":null}],\"nextCursor\":null,\"hasNext\":false}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/check/email/{email}" : {
+      "get" : {
+        "tags" : [ "사용자" ],
+        "summary" : "이메일 중복 체크 API",
+        "description" : "이메일의 중복 여부를 확인합니다",
+        "operationId" : "check-email-duplicate",
+        "parameters" : [ {
+          "name" : "email",
+          "in" : "path",
+          "description" : "중복 체크할 이메일",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EmailDuplicateCheckResponse"
+                },
+                "examples" : {
+                  "check-email-duplicate" : {
+                    "value" : "{\"isDuplicate\":false}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/check/username/{username}" : {
+      "get" : {
+        "tags" : [ "사용자" ],
+        "summary" : "사용자명 중복 체크 API",
+        "description" : "사용자명의 중복 여부를 확인합니다",
+        "operationId" : "check-username-duplicate",
+        "parameters" : [ {
+          "name" : "username",
+          "in" : "path",
+          "description" : "중복 체크할 사용자명",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UsernameDuplicateCheckResponse"
+                },
+                "examples" : {
+                  "check-username-duplicate" : {
+                    "value" : "{\"isDuplicate\":false}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
     "schemas" : {
-      "ErrorResponse" : {
-        "title" : "ErrorResponse",
-        "required" : [ "code", "details", "message", "status", "timestamp" ],
+      "CursorResponse<PostSummaryResponse>" : {
+        "title" : "CursorResponse<PostSummaryResponse>",
+        "required" : [ "hasNext", "nextCursor" ],
         "type" : "object",
         "properties" : {
-          "code" : {
-            "type" : "string",
-            "description" : "에러 코드"
+          "nextCursor" : {
+            "description" : "다음 페이지 커서 ID (마지막 페이지인 경우 null)",
+            "oneOf" : [ null, {
+              "type" : "number"
+            } ]
           },
-          "details" : {
-            "type" : "object",
-            "description" : "추가 에러 정보"
+          "hasNext" : {
+            "type" : "boolean",
+            "description" : "다음 페이지 존재 여부"
           },
-          "message" : {
-            "type" : "string",
-            "description" : "에러 메시지"
-          },
-          "timestamp" : {
-            "type" : "string",
-            "description" : "에러 발생 시각"
-          },
-          "status" : {
-            "type" : "number",
-            "description" : "HTTP 상태 코드"
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "required" : [ "commentCounts", "content", "createdAt", "id", "likes", "modifiedAt", "title", "viewCounts" ],
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "number",
+                  "description" : "게시글 ID"
+                },
+                "title" : {
+                  "type" : "string",
+                  "description" : "게시글 제목"
+                },
+                "user" : {
+                  "required" : [ "id", "name", "username" ],
+                  "type" : "object",
+                  "properties" : {
+                    "name" : {
+                      "type" : "string",
+                      "description" : "작성자 표시 이름"
+                    },
+                    "id" : {
+                      "type" : "number",
+                      "description" : "작성자 ID"
+                    },
+                    "username" : {
+                      "type" : "string",
+                      "description" : "작성자 이름"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       },
       "CommentResponse" : {
         "title" : "CommentResponse",
-        "required" : [ "content", "createdAt", "id", "modifiedAt", "parentCommentId", "replies" ],
+        "required" : [ "content", "createdAt", "id", "modifiedAt", "parentCommentId" ],
         "type" : "object",
         "properties" : {
           "createdAt" : {
@@ -494,21 +1201,6 @@
           }
         }
       },
-      "JoinRequest" : {
-        "title" : "JoinRequest",
-        "required" : [ "email", "password" ],
-        "type" : "object",
-        "properties" : {
-          "password" : {
-            "type" : "string",
-            "description" : "비밀번호"
-          },
-          "email" : {
-            "type" : "string",
-            "description" : "이메일"
-          }
-        }
-      },
       "JoinResponse" : {
         "title" : "JoinResponse",
         "required" : [ "id", "username" ],
@@ -524,20 +1216,65 @@
           }
         }
       },
-      "CommentRequest" : {
-        "title" : "CommentRequest",
-        "required" : [ "content", "parentCommentId" ],
+      "PublicUserResponse" : {
+        "title" : "PublicUserResponse",
+        "required" : [ "bio", "createdAt", "name", "profileImageUrl", "username" ],
         "type" : "object",
         "properties" : {
-          "parentCommentId" : {
-            "description" : "부모 댓글 ID",
-            "oneOf" : [ {
-              "type" : "number"
-            }, null ]
-          },
-          "content" : {
+          "createdAt" : {
             "type" : "string",
-            "description" : "답글 내용"
+            "description" : "생성 시간"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "이름"
+          },
+          "bio" : {
+            "type" : "string",
+            "description" : "자기소개"
+          },
+          "profileImageUrl" : {
+            "type" : "string",
+            "description" : "프로필 이미지 URL"
+          },
+          "username" : {
+            "type" : "string",
+            "description" : "사용자명"
+          }
+        }
+      },
+      "UserResponse" : {
+        "title" : "UserResponse",
+        "required" : [ "bio", "createdAt", "email", "id", "name", "profileImageUrl", "username" ],
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "description" : "생성 시간"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "이름"
+          },
+          "bio" : {
+            "type" : "string",
+            "description" : "자기소개"
+          },
+          "id" : {
+            "type" : "number",
+            "description" : "사용자 ID"
+          },
+          "profileImageUrl" : {
+            "type" : "string",
+            "description" : "프로필 이미지 URL"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "이메일"
+          },
+          "username" : {
+            "type" : "string",
+            "description" : "사용자명"
           }
         }
       },
@@ -552,9 +1289,150 @@
           }
         }
       },
+      "UsernameDuplicateCheckResponse" : {
+        "title" : "UsernameDuplicateCheckResponse",
+        "required" : [ "isDuplicate" ],
+        "type" : "object",
+        "properties" : {
+          "isDuplicate" : {
+            "type" : "boolean",
+            "description" : "중복 여부"
+          }
+        }
+      },
+      "CommentRequest" : {
+        "title" : "CommentRequest",
+        "required" : [ "content", "parentCommentId" ],
+        "type" : "object",
+        "properties" : {
+          "content" : {
+            "type" : "string",
+            "description" : "수정할 댓글 내용"
+          }
+        }
+      },
+      "UpdatePostRequest" : {
+        "title" : "UpdatePostRequest",
+        "required" : [ "content", "title" ],
+        "type" : "object",
+        "properties" : {
+          "title" : {
+            "type" : "string",
+            "description" : "수정할 게시글 제목"
+          },
+          "content" : {
+            "type" : "string",
+            "description" : "수정할 게시글 내용"
+          }
+        }
+      },
+      "ErrorResponse" : {
+        "title" : "ErrorResponse",
+        "required" : [ "code", "details", "message", "status", "timestamp" ],
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "description" : "에러 코드"
+          },
+          "details" : {
+            "type" : "object",
+            "description" : "추가 에러 정보"
+          },
+          "message" : {
+            "type" : "string",
+            "description" : "에러 메시지"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "description" : "에러 발생 시각"
+          },
+          "status" : {
+            "type" : "number",
+            "description" : "HTTP 상태 코드"
+          }
+        }
+      },
+      "EmailDuplicateCheckResponse" : {
+        "title" : "EmailDuplicateCheckResponse",
+        "required" : [ "isDuplicate" ],
+        "type" : "object",
+        "properties" : {
+          "isDuplicate" : {
+            "type" : "boolean",
+            "description" : "중복 여부"
+          }
+        }
+      },
+      "JoinRequest" : {
+        "title" : "JoinRequest",
+        "required" : [ "email", "password" ],
+        "type" : "object",
+        "properties" : {
+          "password" : {
+            "type" : "string",
+            "description" : "비밀번호"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "이메일"
+          }
+        }
+      },
+      "UpdateUserProfileRequest" : {
+        "title" : "UpdateUserProfileRequest",
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "description" : "새로운 이름",
+            "nullable" : true
+          },
+          "newPassword" : {
+            "type" : "string",
+            "description" : "새로운 비밀번호",
+            "nullable" : true
+          },
+          "bio" : {
+            "type" : "string",
+            "description" : "새로운 자기소개",
+            "nullable" : true
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "새로운 이메일",
+            "nullable" : true
+          },
+          "currentPassword" : {
+            "type" : "string",
+            "description" : "현재 비밀번호",
+            "nullable" : true
+          },
+          "username" : {
+            "type" : "string",
+            "description" : "새로운 사용자명",
+            "nullable" : true
+          }
+        }
+      },
+      "CreatePostRequest" : {
+        "title" : "CreatePostRequest",
+        "required" : [ "content", "title" ],
+        "type" : "object",
+        "properties" : {
+          "title" : {
+            "type" : "string",
+            "description" : "게시글 제목"
+          },
+          "content" : {
+            "type" : "string",
+            "description" : "게시글 내용"
+          }
+        }
+      },
       "PostResponse" : {
         "title" : "PostResponse",
-        "required" : [ "commentCounts", "comments", "content", "createdAt", "id", "likes", "modifiedAt", "title", "viewCounts" ],
+        "required" : [ "commentCounts", "content", "createdAt", "id", "likes", "modifiedAt", "title", "viewCounts" ],
         "type" : "object",
         "properties" : {
           "commentCounts" : {
@@ -606,36 +1484,6 @@
           "likes" : {
             "type" : "number",
             "description" : "좋아요 수"
-          }
-        }
-      },
-      "UpdatePostRequest" : {
-        "title" : "UpdatePostRequest",
-        "required" : [ "content", "title" ],
-        "type" : "object",
-        "properties" : {
-          "title" : {
-            "type" : "string",
-            "description" : "수정할 게시글 제목"
-          },
-          "content" : {
-            "type" : "string",
-            "description" : "수정할 게시글 내용"
-          }
-        }
-      },
-      "CreatePostRequest" : {
-        "title" : "CreatePostRequest",
-        "required" : [ "content", "title" ],
-        "type" : "object",
-        "properties" : {
-          "title" : {
-            "type" : "string",
-            "description" : "게시글 제목"
-          },
-          "content" : {
-            "type" : "string",
-            "description" : "게시글 내용"
           }
         }
       }
