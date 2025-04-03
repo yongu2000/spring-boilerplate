@@ -5,10 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
+import com.boilerplate.boilerplate.domain.image.entity.Image;
+import com.boilerplate.boilerplate.domain.image.service.ImageService;
 import com.boilerplate.boilerplate.domain.user.dto.EmailDuplicateCheckResponse;
 import com.boilerplate.boilerplate.domain.user.dto.PublicUserResponse;
 import com.boilerplate.boilerplate.domain.user.dto.UpdateUserProfileRequest;
@@ -30,10 +33,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("사용자 서비스 단위 테스트")
@@ -42,6 +47,9 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private ImageService imageService;
 
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -58,13 +66,18 @@ class UserServiceTest {
     private User testUser;
     private CustomUserDetails userDetails;
 
+    private final String testEmail = "test@example.com";
+    private final String testUsername = "test";
+    private final String testName = "Test User";
+    private final String testPassword = "encodedPassword";
+
     @BeforeEach
     void setUp() {
         testUser = User.builder()
-            .email("test@example.com")
-            .username("test")
-            .name("Test User")
-            .password("encodedPassword")
+            .email(testEmail)
+            .username(testUsername)
+            .name(testName)
+            .password(testPassword)
             .role(Role.USER)
             .build();
         testUser.updateProfile(null, "Test Bio", null, null);
@@ -363,4 +376,22 @@ class UserServiceTest {
         verify(bCryptPasswordEncoder, never()).matches(any(), any());
         verify(bCryptPasswordEncoder).encode("newPassword");
     }
+    
+    @Test
+    void 사용자_프로필_이미지_업로드() throws Exception {
+        // given
+        MultipartFile mockFile = new MockMultipartFile("image", "profile.jpg", "image/jpeg", "data".getBytes());
+        Image mockImage = new Image("/uploads/abc.jpg", "profile.jpg", "image/jpeg");
+        given(userRepository.findByUsername(testUsername)).willReturn(Optional.ofNullable(testUser));
+        given(imageService.uploadImage(any(MultipartFile.class))).willReturn(mockImage);
+
+        // when
+        userService.uploadProfileImage(testUsername, mockFile);
+
+        // then
+        then(userRepository).should().findByUsername(testUsername);
+        then(imageService).should().uploadImage(mockFile);
+        assertThat(testUser.getProfileImage()).isEqualTo(mockImage);
+    }
+
 } 

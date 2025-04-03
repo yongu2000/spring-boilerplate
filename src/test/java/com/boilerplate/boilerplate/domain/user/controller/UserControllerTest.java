@@ -8,6 +8,7 @@ import static com.epages.restdocs.apispec.Schema.schema;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -16,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
+import com.boilerplate.boilerplate.domain.image.entity.Image;
 import com.boilerplate.boilerplate.domain.user.dto.EmailDuplicateCheckResponse;
 import com.boilerplate.boilerplate.domain.user.dto.PublicUserResponse;
 import com.boilerplate.boilerplate.domain.user.dto.UpdateUserProfileRequest;
@@ -39,6 +41,7 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -83,6 +86,11 @@ class UserControllerTest {
             .role(Role.USER)
             .build();
 
+        testUser.changeProfileImage(Image.builder()
+            .url("/upload/uuid_profile.png")
+            .originalFileName("profile.png")
+            .contentType("image/png")
+            .build());
         testUser.updateProfile(null, "Test Bio", null, null);
         setId(testUser, 1L);
         setCreatedAt(testUser, LocalDateTime.now());
@@ -290,5 +298,34 @@ class UserControllerTest {
                         .build()
                 )
             ));
+    }
+
+    @Test
+    void 프로필_이미지_업로드_성공() throws Exception {
+        // given
+        MockMultipartFile file = new MockMultipartFile(
+            "image", "profile.jpg", "image/jpeg", "data".getBytes()
+        );
+
+        // when & then
+        mockMvc.perform(
+                multipart("/api/user/{username}/image", "test").file(file)
+                    .contentType(MediaType.MULTIPART_FORM_DATA))
+            .andExpect(status().isOk());
+        // requestPart가 없어서 문서화 어려움
+//            .andDo(document("upload-profile-image",
+//                resource(
+//                    ResourceSnippetParameters.builder()
+//                        .tag("사용자")
+//                        .summary("프로필 이미지 업로드 API")
+//                        .description("프로필 이미지를 업로드 합니다")
+//                        .pathParameters(
+//                            parameterWithName("username").description("사용자명")
+//                        )
+//                        .requestFields(
+//                            fieldWithPath("image").description("프로필 사진").type(JsonFieldType.STRING).optional())
+//                        .build()
+//                )
+//            ));
     }
 } 
