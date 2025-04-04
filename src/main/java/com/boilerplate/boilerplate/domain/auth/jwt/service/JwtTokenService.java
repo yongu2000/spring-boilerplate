@@ -2,11 +2,12 @@ package com.boilerplate.boilerplate.domain.auth.jwt.service;
 
 import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.constant.Claim;
+import com.boilerplate.boilerplate.domain.auth.jwt.constant.TokenType;
+import com.boilerplate.boilerplate.domain.auth.jwt.exception.InvalidTokenTypeException;
 import com.boilerplate.boilerplate.domain.auth.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import com.boilerplate.boilerplate.global.config.JwtConfig;
 import io.jsonwebtoken.Jwts;
-import java.time.Duration;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,20 +23,39 @@ public class JwtTokenService {
 
     private static final String HEADER_JWT = "JWT";
 
-    public String generateToken(CustomUserDetails userDetails, Duration expiredAt) {
-        Date now = new Date();
-        return createJwt(new Date(now.getTime() + expiredAt.toMillis()), userDetails);
+    public Date getExpirationDate(TokenType tokenType, boolean rememberMe) {
+
     }
 
-    private String createJwt(Date expiration, CustomUserDetails userDetails) {
+    public String createToken(TokenType tokenType, CustomUserDetails userDetails) {
+        return switch (tokenType) {
+            case TokenType.ACCESS -> createAccessToken(userDetails);
+            case TokenType.REFRESH -> createRefreshToken(userDetails);
+            default -> throw new InvalidTokenTypeException();
+        };
+    }
+
+    private String createRefreshToken(CustomUserDetails userDetails) {
         Date now = new Date();
+        Date expiration = new Date(now.getTime() + jwtConfig.getRefreshTokenExpiration().toMillis());
         return Jwts.builder()
             .header().type(HEADER_JWT).and()
-            .claim(Claim.ID.getValue(), userDetails.getId())
-            .claim(Claim.EMAIL.getValue(), userDetails.getEmail())
+            .claim(Claim.TOKEN_TYPE.getValue(), TokenType.REFRESH.name())
             .claim(Claim.USERNAME.getValue(), userDetails.getUsername())
-            .claim(Claim.NAME.getValue(), userDetails.getName())
-            .claim(Claim.ROLE.getValue(), userDetails.getRole())
+            .issuer(jwtConfig.getIssuer())
+            .issuedAt(now)
+            .expiration(expiration)
+            .signWith(jwtConfig.getSecretKey())
+            .compact();
+    }
+
+    private String createAccessToken(CustomUserDetails userDetails) {
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + jwtConfig.getAccessTokenExpiration().toMillis());
+        return Jwts.builder()
+            .header().type(HEADER_JWT).and()
+            .claim(Claim.TOKEN_TYPE.getValue(), TokenType.ACCESS.name())
+            .claim(Claim.USERNAME.getValue(), userDetails.getUsername())
             .issuer(jwtConfig.getIssuer())
             .issuedAt(now)
             .expiration(expiration)

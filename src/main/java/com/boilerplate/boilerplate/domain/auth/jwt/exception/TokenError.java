@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum TokenError implements ErrorCode {
 
+    INVALID_TOKEN_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 토큰 타입입니다"),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다"),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "Refresh Token 이 존재하지 않습니다");
 

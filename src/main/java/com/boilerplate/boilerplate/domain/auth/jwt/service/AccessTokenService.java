@@ -18,7 +18,7 @@ public class AccessTokenService {
     private final UserService userService;
 
     public String createAccessToken(CustomUserDetails userDetails) {
-        return jwtTokenService.generateToken(userDetails, jwtConfig.getAccessTokenExpiration());
+        return jwtTokenService.createToken(userDetails, jwtConfig.getAccessTokenExpiration());
     }
 
     public String reissueAccessToken(String refreshToken) {
@@ -27,7 +27,7 @@ public class AccessTokenService {
         }
         Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
         CustomUserDetails userDetails = new CustomUserDetails(userService.findById(userId));
-        return jwtTokenService.generateToken(userDetails, jwtConfig.getAccessTokenExpiration());
+        return jwtTokenService.createToken(userDetails, jwtConfig.getAccessTokenExpiration());
     }
 
 }

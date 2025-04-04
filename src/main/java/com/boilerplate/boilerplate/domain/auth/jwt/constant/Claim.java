@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum Claim {
+    TOKEN_TYPE("token_type"),
     ID("id"),
     EMAIL("email"),
     USERNAME("username"),

@@ -25,7 +25,7 @@ public class RefreshTokenService {
     private final UserService userService;
 
     public String createRefreshToken(CustomUserDetails userDetails, Duration expiration) {
-        String refreshToken = jwtTokenService.generateToken(userDetails,
+        String refreshToken = jwtTokenService.createToken(userDetails,
             expiration);
         save(userDetails, refreshToken, expiration);
         return refreshToken;
@@ -37,7 +37,7 @@ public class RefreshTokenService {
         }
         RefreshToken oldRefreshToken = findByRefreshToken(refreshToken);
         CustomUserDetails userDetails = new CustomUserDetails(userService.findById(oldRefreshToken.getUserId()));
-        String newRefreshToken = jwtTokenService.generateToken(userDetails,
+        String newRefreshToken = jwtTokenService.createToken(userDetails,
             expiration);
         delete(oldRefreshToken);
         save(userDetails, newRefreshToken, expiration);
