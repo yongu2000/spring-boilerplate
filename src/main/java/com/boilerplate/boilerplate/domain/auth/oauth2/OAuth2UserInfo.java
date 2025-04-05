@@ -13,6 +13,7 @@ public class OAuth2UserInfo {
     private String email;
     private String password;
     private String name;
+    private String profileImageUrl;
     private String provider;
 
     public static OAuth2UserInfo of(String provider, Map<String, Object> attributes) {
@@ -29,6 +30,7 @@ public class OAuth2UserInfo {
             .provider("google")
             .email((String) attributes.get("email"))
             .password((String) attributes.get("sub"))
+            .profileImageUrl((String) attributes.get("picture"))
             .name((String) attributes.get("name"))
             .build();
     }
@@ -48,6 +50,7 @@ public class OAuth2UserInfo {
             .email((String) ((Map) attributes.get("response")).get("email"))
             .password((String) ((Map) attributes.get("response")).get("id"))
             .name((String) ((Map) attributes.get("response")).get("name"))
+            .profileImageUrl((String) ((Map) attributes.get("response")).get("profile_image"))
             .build();
     }
 

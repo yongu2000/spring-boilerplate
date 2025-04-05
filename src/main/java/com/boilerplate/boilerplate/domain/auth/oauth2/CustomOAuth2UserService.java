@@ -1,6 +1,7 @@
 package com.boilerplate.boilerplate.domain.auth.oauth2;
 
 import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
+import com.boilerplate.boilerplate.domain.image.entity.Image;
 import com.boilerplate.boilerplate.domain.image.service.ImageService;
 import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
@@ -46,6 +47,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private User getUser(String username, OAuth2UserInfo oAuth2UserInfo, String provider) {
         return userRepository.findByUsername(username)
             .orElseGet(() -> {
+                Image image = imageService.saveExternalImage(
+                    oAuth2UserInfo.getProfileImageUrl());
                 User newUser = User.builder()
                     .username(username)
                     .password(oAuth2UserInfo.getPassword())
@@ -54,6 +57,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .role(Role.USER)
                     .provider(provider)
                     .build();
+                newUser.changeProfileImage(image);
+
                 return userRepository.save(newUser);
             });
     }

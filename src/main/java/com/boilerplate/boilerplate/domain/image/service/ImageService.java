@@ -20,4 +20,8 @@ public class ImageService {
         Image image = new Image(url, file.getOriginalFilename(), file.getContentType());
         return imageRepository.save(image);
     }
+
+    public Image saveExternalImage(String imageUrl) {
+        return storageService.downloadAndSaveImage(imageUrl);
+    }
 }
