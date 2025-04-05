@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class JwtLogoutService {
 
     private final JwtTokenService jwtTokenService;
-    private final RefreshTokenService refreshTokenService;
 
     public void logout(String refreshToken) {
 
@@ -18,10 +17,10 @@ public class JwtLogoutService {
             return;
         }
 
-        if (!jwtTokenService.isValidToken(refreshToken)) {
+        if (!jwtTokenService.isValidRefreshToken(refreshToken)) {
             return;
         }
 
-        refreshTokenService.deleteByRefreshToken(refreshToken);
+        jwtTokenService.deleteRefreshToken(refreshToken);
     }
 }

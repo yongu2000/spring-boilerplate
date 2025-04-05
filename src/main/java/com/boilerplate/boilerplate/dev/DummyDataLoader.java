@@ -1,5 +1,6 @@
 package com.boilerplate.boilerplate.dev;
 
+import com.boilerplate.boilerplate.domain.image.DefaultImageProvider;
 import com.boilerplate.boilerplate.domain.post.entity.Comment;
 import com.boilerplate.boilerplate.domain.post.entity.Post;
 import com.boilerplate.boilerplate.domain.post.repository.CommentRepository;
@@ -25,7 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class DummyDataLoader implements CommandLineRunner {
 
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(
+        "yyyy-MM-dd HH:mm:ss.SSS");
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -33,6 +35,7 @@ public class DummyDataLoader implements CommandLineRunner {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final DefaultImageProvider defaultImageProvider;
     private final Random random = new Random();
 
     @Override
@@ -84,6 +87,7 @@ public class DummyDataLoader implements CommandLineRunner {
                 .name("User " + i)
                 .role(Role.USER)
                 .build();
+            user.changeProfileImage(defaultImageProvider.getDefaultProfileImage());
             entityManager.persist(user);
             if (i % 50 == 0) { // ✅ 50개 단위로 flush
                 entityManager.flush();

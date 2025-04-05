@@ -4,9 +4,7 @@ import com.boilerplate.boilerplate.domain.auth.jwt.exception.CustomAccessDeniedH
 import com.boilerplate.boilerplate.domain.auth.jwt.exception.CustomAuthenticationEntryPoint;
 import com.boilerplate.boilerplate.domain.auth.jwt.filters.JwtAuthenticationFilter;
 import com.boilerplate.boilerplate.domain.auth.jwt.filters.JwtLoginFilter;
-import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
 import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
-import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.domain.auth.oauth2.CustomOAuth2UserService;
 import com.boilerplate.boilerplate.domain.auth.oauth2.OAuth2SuccessHandler;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,8 +33,6 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtTokenService jwtTokenService;
-    private final AccessTokenService accessTokenService;
-    private final RefreshTokenService refreshTokenService;
     private final JwtConfig jwtConfig;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
@@ -118,12 +114,13 @@ public class SecurityConfig {
                 })
             );
 
-        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenService, jwtConfig), JwtLoginFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenService, jwtConfig),
+            JwtLoginFilter.class);
 
         http
             .addFilterAt(
                 new JwtLoginFilter(authenticationManager(authenticationConfiguration),
-                    accessTokenService, refreshTokenService, jwtConfig),
+                    jwtTokenService),
                 UsernamePasswordAuthenticationFilter.class);
 
         //세션 설정

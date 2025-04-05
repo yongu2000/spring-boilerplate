@@ -15,8 +15,6 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
-import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
 import com.boilerplate.boilerplate.domain.image.entity.Image;
 import com.boilerplate.boilerplate.domain.user.dto.EmailDuplicateCheckResponse;
 import com.boilerplate.boilerplate.domain.user.dto.PublicUserResponse;
@@ -61,12 +59,6 @@ class UserControllerTest {
 
     @MockitoBean
     private UserService userService;
-
-    @MockitoBean
-    private AccessTokenService accessTokenService;
-
-    @MockitoBean
-    private RefreshTokenService refreshTokenService;
 
     @MockitoBean
     private JwtConfig jwtConfig;
@@ -114,7 +106,8 @@ class UserControllerTest {
             .build();
 
         testUpdateRequest = new UpdateUserProfileRequest(
-            "New Name", "New Bio", "new@example.com", "newusername", "currentPassword", "newPassword");
+            "New Name", "New Bio", "new@example.com", "newusername", "currentPassword",
+            "newPassword");
     }
 
     @Test
@@ -140,11 +133,14 @@ class UserControllerTest {
                         .responseFields(
                             fieldWithPath("id").type(JsonFieldType.NUMBER).description("사용자 ID"),
                             fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
-                            fieldWithPath("username").type(JsonFieldType.STRING).description("사용자명"),
+                            fieldWithPath("username").type(JsonFieldType.STRING)
+                                .description("사용자명"),
                             fieldWithPath("name").type(JsonFieldType.STRING).description("이름"),
                             fieldWithPath("bio").type(JsonFieldType.STRING).description("자기소개"),
-                            fieldWithPath("profileImageUrl").type(JsonFieldType.STRING).description("프로필 이미지 URL"),
-                            fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성 시간")
+                            fieldWithPath("profileImageUrl").type(JsonFieldType.STRING)
+                                .description("프로필 이미지 URL"),
+                            fieldWithPath("createdAt").type(JsonFieldType.STRING)
+                                .description("생성 시간")
                         )
                         .responseSchema(schema("UserResponse"))
                         .build()
@@ -157,12 +153,6 @@ class UserControllerTest {
         // given
         given(userService.updateUserProfile(any(), any())).willReturn(testUserResponse);
         given(userService.findByUsername(any())).willReturn(testUser);
-        given(accessTokenService.createAccessToken(any())).willReturn("newAccessToken");
-        given(refreshTokenService.createRefreshToken(any(), any())).willReturn("newRefreshToken");
-        given(jwtConfig.getRememberMeCookieName()).willReturn("rememberMe");
-        given(jwtConfig.getRefreshTokenCookieName()).willReturn("refreshToken");
-        given(jwtConfig.getHeaderAuthorization()).willReturn("Authorization");
-        given(jwtConfig.getAccessTokenPrefix()).willReturn("Bearer ");
 
         // when & then
         mockMvc.perform(put("/api/user/{username}", "test")
@@ -187,22 +177,31 @@ class UserControllerTest {
                             parameterWithName("username").description("사용자명")
                         )
                         .requestFields(
-                            fieldWithPath("name").type(JsonFieldType.STRING).description("새로운 이름").optional(),
-                            fieldWithPath("bio").type(JsonFieldType.STRING).description("새로운 자기소개").optional(),
-                            fieldWithPath("email").type(JsonFieldType.STRING).description("새로운 이메일").optional(),
-                            fieldWithPath("username").type(JsonFieldType.STRING).description("새로운 사용자명").optional(),
-                            fieldWithPath("currentPassword").type(JsonFieldType.STRING).description("현재 비밀번호")
+                            fieldWithPath("name").type(JsonFieldType.STRING).description("새로운 이름")
                                 .optional(),
-                            fieldWithPath("newPassword").type(JsonFieldType.STRING).description("새로운 비밀번호").optional()
+                            fieldWithPath("bio").type(JsonFieldType.STRING).description("새로운 자기소개")
+                                .optional(),
+                            fieldWithPath("email").type(JsonFieldType.STRING).description("새로운 이메일")
+                                .optional(),
+                            fieldWithPath("username").type(JsonFieldType.STRING)
+                                .description("새로운 사용자명").optional(),
+                            fieldWithPath("currentPassword").type(JsonFieldType.STRING)
+                                .description("현재 비밀번호")
+                                .optional(),
+                            fieldWithPath("newPassword").type(JsonFieldType.STRING)
+                                .description("새로운 비밀번호").optional()
                         )
                         .responseFields(
                             fieldWithPath("id").type(JsonFieldType.NUMBER).description("사용자 ID"),
                             fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
-                            fieldWithPath("username").type(JsonFieldType.STRING).description("사용자명"),
+                            fieldWithPath("username").type(JsonFieldType.STRING)
+                                .description("사용자명"),
                             fieldWithPath("name").type(JsonFieldType.STRING).description("이름"),
                             fieldWithPath("bio").type(JsonFieldType.STRING).description("자기소개"),
-                            fieldWithPath("profileImageUrl").type(JsonFieldType.STRING).description("프로필 이미지 URL"),
-                            fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성 시간")
+                            fieldWithPath("profileImageUrl").type(JsonFieldType.STRING)
+                                .description("프로필 이미지 URL"),
+                            fieldWithPath("createdAt").type(JsonFieldType.STRING)
+                                .description("생성 시간")
                         )
                         .requestSchema(schema("UpdateUserProfileRequest"))
                         .responseSchema(schema("UserResponse"))
@@ -214,7 +213,8 @@ class UserControllerTest {
     @Test
     void 이메일_중복_체크_성공() throws Exception {
         // given
-        given(userService.checkEmailDuplicate(any())).willReturn(new EmailDuplicateCheckResponse(false));
+        given(userService.checkEmailDuplicate(any())).willReturn(
+            new EmailDuplicateCheckResponse(false));
 
         // when & then
         mockMvc.perform(get("/api/user/check/email/{email}", "test@example.com"))
@@ -230,7 +230,8 @@ class UserControllerTest {
                             parameterWithName("email").description("중복 체크할 이메일")
                         )
                         .responseFields(
-                            fieldWithPath("isDuplicate").type(JsonFieldType.BOOLEAN).description("중복 여부")
+                            fieldWithPath("isDuplicate").type(JsonFieldType.BOOLEAN)
+                                .description("중복 여부")
                         )
                         .responseSchema(schema("EmailDuplicateCheckResponse"))
                         .build()
@@ -241,7 +242,8 @@ class UserControllerTest {
     @Test
     void 사용자명_중복_체크_성공() throws Exception {
         // given
-        given(userService.checkUsernameDuplicate(any())).willReturn(new UsernameDuplicateCheckResponse(false));
+        given(userService.checkUsernameDuplicate(any())).willReturn(
+            new UsernameDuplicateCheckResponse(false));
 
         // when & then
         mockMvc.perform(get("/api/user/check/username/{username}", "test"))
@@ -257,7 +259,8 @@ class UserControllerTest {
                             parameterWithName("username").description("중복 체크할 사용자명")
                         )
                         .responseFields(
-                            fieldWithPath("isDuplicate").type(JsonFieldType.BOOLEAN).description("중복 여부")
+                            fieldWithPath("isDuplicate").type(JsonFieldType.BOOLEAN)
+                                .description("중복 여부")
                         )
                         .responseSchema(schema("UsernameDuplicateCheckResponse"))
                         .build()
@@ -288,11 +291,14 @@ class UserControllerTest {
                             parameterWithName("username").description("사용자명")
                         )
                         .responseFields(
-                            fieldWithPath("username").type(JsonFieldType.STRING).description("사용자명"),
+                            fieldWithPath("username").type(JsonFieldType.STRING)
+                                .description("사용자명"),
                             fieldWithPath("name").type(JsonFieldType.STRING).description("이름"),
                             fieldWithPath("bio").type(JsonFieldType.STRING).description("자기소개"),
-                            fieldWithPath("profileImageUrl").type(JsonFieldType.STRING).description("프로필 이미지 URL"),
-                            fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성 시간")
+                            fieldWithPath("profileImageUrl").type(JsonFieldType.STRING)
+                                .description("프로필 이미지 URL"),
+                            fieldWithPath("createdAt").type(JsonFieldType.STRING)
+                                .description("생성 시간")
                         )
                         .responseSchema(schema("PublicUserResponse"))
                         .build()

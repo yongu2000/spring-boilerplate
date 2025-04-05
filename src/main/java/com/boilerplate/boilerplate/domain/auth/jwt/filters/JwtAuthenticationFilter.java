@@ -55,7 +55,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authorizationHeader = request.getHeader(jwtConfig.getHeaderAuthorization());
         String accessToken = getAccessToken(authorizationHeader);
 
-        boolean isAccessTokenValid = accessToken != null && jwtTokenService.isValidToken(accessToken);
+        boolean isAccessTokenValid =
+            accessToken != null && jwtTokenService.isValidAccessToken(accessToken);
 
         if (isAccessTokenValid) {
             CustomUserDetails userDetails = jwtTokenService.getUserDetailsFromToken(accessToken);
@@ -66,8 +67,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtConfig.getRefreshTokenCookieName());
-        boolean isRefreshTokenValid = refreshToken != null && jwtTokenService.isValidToken(refreshToken);
+        String refreshToken = CookieUtil.getCookieByName(request.getCookies(),
+            jwtConfig.getRefreshTokenCookieName());
+        boolean isRefreshTokenValid =
+            refreshToken != null && jwtTokenService.isValidRefreshToken(refreshToken);
 
         // AccessToken이 만료되었지만 RefreshToken이 유효한 경우 프론트에 재발급 요청 신호 보내기
         if (isRefreshTokenValid) {
@@ -76,7 +79,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.setHeader("x-reissue-token", "true");  // 프론트에서 감지해서 자동으로 재발급 요청
             return;
         }
-
+        
         filterChain.doFilter(request, response);
     }
 

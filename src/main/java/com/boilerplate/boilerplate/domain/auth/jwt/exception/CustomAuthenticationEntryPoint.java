@@ -32,6 +32,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         // OAuth2 인증 실패인 경우 별도 처리
         if (authException instanceof OAuth2AuthenticationException) {
+            log.error("OAuth2 error");
+
             OAuth2Error oauth2Error = ((OAuth2AuthenticationException) authException).getError();
             ErrorResponse errorResponse = ErrorResponse.of(errorCode);
             errorResponse.addDetail("oauth2_error", oauth2Error.getErrorCode());
@@ -42,6 +44,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         // JWT 토큰 관련 예외 처리
         if (authException.getCause() instanceof JwtException) {
+            log.error("JWT Token error");
+
             errorCode = TokenError.INVALID_TOKEN;
         }
 
@@ -49,7 +53,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         sendErrorResponse(response, errorResponse);
     }
 
-    private void sendErrorResponse(HttpServletResponse response, ErrorResponse errorResponse) throws IOException {
+    private void sendErrorResponse(HttpServletResponse response, ErrorResponse errorResponse)
+        throws IOException {
         response.setStatus(errorResponse.getStatus());
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));

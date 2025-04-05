@@ -4,11 +4,8 @@ import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
 import com.boilerplate.boilerplate.domain.auth.jwt.dto.LoginRequest;
 import com.boilerplate.boilerplate.domain.auth.jwt.exception.AuthenticationError;
 import com.boilerplate.boilerplate.domain.auth.jwt.exception.InvalidJsonRequestException;
-import com.boilerplate.boilerplate.domain.auth.jwt.service.AccessTokenService;
-import com.boilerplate.boilerplate.domain.auth.jwt.service.RefreshTokenService;
-import com.boilerplate.boilerplate.global.config.JwtConfig;
+import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
 import com.boilerplate.boilerplate.global.dto.ErrorResponse;
-import com.boilerplate.boilerplate.global.utils.CookieUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletInputStream;
@@ -16,7 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,19 +25,15 @@ import org.springframework.util.StreamUtils;
 public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    private final AccessTokenService accessTokenService;
-    private final RefreshTokenService refreshTokenService;
-    private final JwtConfig jwtConfig;
+    private final JwtTokenService jwtTokenService;
 
     private static final String LOGIN_URL = "/api/login";
 
     public JwtLoginFilter(AuthenticationManager authenticationManager,
-        AccessTokenService accessTokenService, RefreshTokenService refreshTokenService, JwtConfig jwtConfig) {
+        JwtTokenService jwtTokenService) {
         super(authenticationManager);
         this.authenticationManager = authenticationManager;
-        this.accessTokenService = accessTokenService;
-        this.refreshTokenService = refreshTokenService;
-        this.jwtConfig = jwtConfig;
+        this.jwtTokenService = jwtTokenService;
         setFilterProcessesUrl(LOGIN_URL);
     }
 
@@ -60,7 +52,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
             UsernamePasswordAuthenticationToken authToken = UsernamePasswordAuthenticationToken.unauthenticated(
                 username, password);
-
+            log.info("로그인 시도 중입니다 {}, {}", username, password);
             return authenticationManager.authenticate(authToken);
         } catch (InvalidJsonRequestException e) {
             throw new AuthenticationException(e.getMessage(), e) {
@@ -85,22 +77,20 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         boolean rememberMe = (boolean) request.getAttribute("rememberMe");
+        log.info("로그인 성공");
 
-        String accessToken = accessTokenService.createAccessToken(userDetails);
-        Duration expiration =
-            rememberMe ?
-                jwtConfig.getRememberMeRefreshTokenExpiration() :
-                jwtConfig.getRefreshTokenExpiration();
+        String accessToken = jwtTokenService.createAccessToken(userDetails);
+        String refreshToken = jwtTokenService.createRefreshToken(userDetails, rememberMe);
 
-        String refreshToken = refreshTokenService.createRefreshToken(userDetails, expiration);
+        jwtTokenService.setAccessToken(response, accessToken);
+        jwtTokenService.setRefreshToken(response, refreshToken);
+//        response.addHeader(jwtConfig.getHeaderAuthorization(),
+//            jwtConfig.getAccessTokenPrefix() + accessToken);
+//
+//        CookieUtil.addCookie(response, jwtConfig.getRefreshTokenCookieName(), refreshToken,
+//            (int) expiration.toSeconds());
+        log.info("토큰 발급 완료");
 
-        response.addHeader(jwtConfig.getHeaderAuthorization(),
-            jwtConfig.getAccessTokenPrefix() + accessToken);
-
-        CookieUtil.addCookie(response, jwtConfig.getRememberMeCookieName(), String.valueOf(rememberMe),
-            (int) expiration.toSeconds());
-        CookieUtil.addCookie(response, jwtConfig.getRefreshTokenCookieName(), refreshToken,
-            (int) expiration.toSeconds());
     }
 
     //로그인 실패시 실행하는 메소드
