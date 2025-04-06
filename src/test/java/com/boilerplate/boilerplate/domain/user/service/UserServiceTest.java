@@ -80,6 +80,9 @@ class UserServiceTest {
             .password(testPassword)
             .role(Role.USER)
             .build();
+        Image testImage = new Image("test", "test", "test/jpg");
+        testUser.changeProfileImage(testImage);
+
         testUser.updateProfile(null, "Test Bio", null, null);
         setId(testUser, 1L);
 
@@ -269,7 +272,8 @@ class UserServiceTest {
     void 사용자_프로필_수정_성공() {
         // given
         UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-            "New Name", "New Bio", "new@example.com", "newusername", "currentPassword", "newPassword");
+            "New Name", "New Bio", "new@example.com", "newusername", "currentPassword",
+            "newPassword");
         given(userRepository.findByUsername(any())).willReturn(Optional.of(testUser));
         given(bCryptPasswordEncoder.matches(any(), any())).willReturn(true);
         given(bCryptPasswordEncoder.encode(any())).willReturn("newEncodedPassword");
@@ -290,7 +294,8 @@ class UserServiceTest {
     void 사용자_프로필_수정_실패_비밀번호_불일치() {
         // given
         UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-            "New Name", "New Bio", "new@example.com", "newusername", "wrongPassword", "newPassword");
+            "New Name", "New Bio", "new@example.com", "newusername", "wrongPassword",
+            "newPassword");
         given(userRepository.findByUsername(any())).willReturn(Optional.of(testUser));
         given(bCryptPasswordEncoder.matches(any(), any())).willReturn(false);
 
@@ -303,7 +308,8 @@ class UserServiceTest {
     void 사용자_프로필_수정_실패_사용자_없음() {
         // given
         UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-            "New Name", "New Bio", "new@example.com", "newusername", "currentPassword", "newPassword");
+            "New Name", "New Bio", "new@example.com", "newusername", "currentPassword",
+            "newPassword");
         given(userRepository.findByUsername(any())).willReturn(Optional.empty());
 
         // when & then
@@ -315,7 +321,8 @@ class UserServiceTest {
     void 사용자_프로필_수정_성공_비밀번호_변경_현재_비밀번호_일치() {
         // given
         UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-            "New Name", "New Bio", "new@example.com", "newusername", "currentPassword", "newPassword");
+            "New Name", "New Bio", "new@example.com", "newusername", "currentPassword",
+            "newPassword");
         given(userRepository.findByUsername(any())).willReturn(Optional.of(testUser));
         given(bCryptPasswordEncoder.matches(any(), any())).willReturn(true);
         given(bCryptPasswordEncoder.encode(any())).willReturn("newEncodedPassword");
@@ -376,13 +383,15 @@ class UserServiceTest {
         verify(bCryptPasswordEncoder, never()).matches(any(), any());
         verify(bCryptPasswordEncoder).encode("newPassword");
     }
-    
+
     @Test
     void 사용자_프로필_이미지_업로드() throws Exception {
         // given
-        MultipartFile mockFile = new MockMultipartFile("image", "profile.jpg", "image/jpeg", "data".getBytes());
+        MultipartFile mockFile = new MockMultipartFile("image", "profile.jpg", "image/jpeg",
+            "data".getBytes());
         Image mockImage = new Image("/uploads/abc.jpg", "profile.jpg", "image/jpeg");
-        given(userRepository.findByUsername(testUsername)).willReturn(Optional.ofNullable(testUser));
+        given(userRepository.findByUsername(testUsername)).willReturn(
+            Optional.ofNullable(testUser));
         given(imageService.uploadImage(any(MultipartFile.class))).willReturn(mockImage);
 
         // when
