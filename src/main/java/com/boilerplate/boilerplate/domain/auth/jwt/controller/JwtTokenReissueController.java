@@ -37,26 +37,13 @@ public class JwtTokenReissueController {
 
         String refreshToken = CookieUtil.getCookieByName(request.getCookies(),
             jwtConfig.getRefreshTokenCookieName());
-//        boolean rememberMe = Boolean.parseBoolean(
-//            CookieUtil.getCookieByName(request.getCookies(), jwtConfig.getRememberMeCookieName()));
-//        Duration expiration =
-//            rememberMe ?
-//                jwtConfig.getRememberMeRefreshTokenExpiration() :
-//                jwtConfig.getRefreshTokenExpiration();
-//
-//        String newAccessToken = accessTokenService.reissueAccessToken(refreshToken);
-//        String newRefreshToken = refreshTokenService.reissueRefreshToken(refreshToken, expiration);
 
         String newAccessToken = jwtTokenService.reissueAccessToken(refreshToken);
         String newRefreshToken = jwtTokenService.reissueRefreshToken(refreshToken);
 
         jwtTokenService.setAccessToken(response, newAccessToken);
         jwtTokenService.setRefreshToken(response, newRefreshToken);
-
-//        CookieUtil.addCookie(response, jwtConfig.getRefreshTokenCookieName(), newRefreshToken,
-//            (int) expiration.toSeconds());
-//        response.addHeader(jwtConfig.getHeaderAuthorization(),
-//            jwtConfig.getAccessTokenPrefix() + newAccessToken);
+        
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

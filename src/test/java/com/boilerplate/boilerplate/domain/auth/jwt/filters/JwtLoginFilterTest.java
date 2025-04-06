@@ -9,6 +9,7 @@
 //
 //import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
 //import com.boilerplate.boilerplate.domain.auth.jwt.dto.LoginRequest;
+//import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
 //import com.boilerplate.boilerplate.global.config.JwtConfig;
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import java.time.Duration;
@@ -37,9 +38,7 @@
 //    @Mock
 //    private AuthenticationManager authenticationManager;
 //    @Mock
-//    private AccessTokenService accessTokenService;
-//    @Mock
-//    private RefreshTokenService refreshTokenService;
+//    private JwtTokenService jwtTokenService;
 //    @Mock
 //    private JwtConfig jwtConfig;
 //
@@ -49,8 +48,7 @@
 //
 //    @BeforeEach
 //    void setUp() {
-//        jwtLoginFilter = new JwtLoginFilter(authenticationManager, accessTokenService,
-//            refreshTokenService, jwtConfig);
+//        jwtLoginFilter = new JwtLoginFilter(authenticationManager, jwtTokenService);
 //        request = new MockHttpServletRequest();
 //        response = new MockHttpServletResponse();
 //
@@ -71,8 +69,8 @@
 //            userDetails, null, Collections.emptyList());
 //
 //        when(authenticationManager.authenticate(any())).thenReturn(authentication);
-//        when(accessTokenService.createAccessToken(userDetails)).thenReturn("access-token");
-//        when(refreshTokenService.createRefreshToken(userDetails, Duration.ofDays(14))).thenReturn(
+//        when(jwtTokenService.createAccessToken(userDetails)).thenReturn("access-token");
+//        when(jwtTokenService.createRefreshToken(userDetails, false)).thenReturn(
 //            "refresh-token");
 //        when(jwtConfig.getHeaderAuthorization()).thenReturn("Authorization");
 //        when(jwtConfig.getRememberMeCookieName()).thenReturn("remember-me");
@@ -85,8 +83,8 @@
 //        jwtLoginFilter.successfulAuthentication(request, response, null, result);
 //
 //        // then
-//        verify(accessTokenService).createAccessToken(userDetails);
-//        verify(refreshTokenService).createRefreshToken(userDetails, Duration.ofDays(14));
+//        verify(jwtTokenService).createAccessToken(userDetails);
+//        verify(jwtTokenService).createRefreshToken(userDetails, false);
 //        assertThat(response.getHeader("Authorization")).isEqualTo("Bearer access-token");
 //    }
 //
@@ -106,8 +104,4 @@
 //            () -> jwtLoginFilter.attemptAuthentication(request, response));
 //    }
 //
-/// /    @Test /    void 로그인_실패_잘못된_JSON_형식() { /        // given /
-/// request.setContent("invalid json".getBytes()); / /        // when & then /
-/// assertThrows(JsonParseException.class, /            () ->
-/// jwtLoginFilter.attemptAuthentication(request, response)); /    }
 //}

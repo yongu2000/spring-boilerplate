@@ -109,7 +109,6 @@ public class JwtTokenService {
     public void setAccessToken(HttpServletResponse response, String accessToken) {
         response.addHeader(jwtConfig.getHeaderAuthorization(),
             jwtConfig.getAccessTokenPrefix() + accessToken);
-
     }
 
     public void setRefreshToken(HttpServletResponse response, String refreshToken) {
