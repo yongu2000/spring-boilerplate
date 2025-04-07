@@ -1,8 +1,6 @@
 package com.boilerplate.boilerplate.domain.auth.jwt.controller;
 
-import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtLogoutService;
-import com.boilerplate.boilerplate.global.config.JwtConfig;
-import com.boilerplate.boilerplate.global.utils.CookieUtil;
+import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,19 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class JwtLogoutController {
 
-    private final JwtLogoutService jwtLogoutService;
-    private final JwtConfig jwtConfig;
+    private final JwtTokenService jwtTokenService;
 
-    @PostMapping()
-    public ResponseEntity<?> logout(HttpServletRequest request,
-        HttpServletResponse response) {
-
-        String refreshToken = CookieUtil.getCookieByName(request.getCookies(), jwtConfig.getRefreshTokenCookieName());
-
-        jwtLogoutService.logout(refreshToken);
-
-        CookieUtil.deleteCookie(request, response, jwtConfig.getRememberMeCookieName());
-        CookieUtil.deleteCookie(request, response, jwtConfig.getRefreshTokenCookieName());
+    @PostMapping
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        jwtTokenService.logout(request, response);
         return ResponseEntity.ok().build();
     }
 

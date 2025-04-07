@@ -9,6 +9,7 @@ import com.boilerplate.boilerplate.domain.user.service.UserService;
 import com.boilerplate.boilerplate.global.config.JwtConfig;
 import com.boilerplate.boilerplate.global.utils.CookieUtil;
 import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;
 import java.util.Date;
@@ -158,70 +159,16 @@ public class JwtTokenService {
             .orElseThrow(InvalidRefreshTokenException::new);
     }
 
-    //    public String createToken(TokenType tokenType, CustomUserDetails userDetails) {
-//        String token = createTokenWithType(tokenType, getExpirationByType(tokenType),
-//            userDetails);
-//        if (tokenType != TokenType.ACCESS) {
-//            saveRefreshToken(token, userDetails.getId());
-//        }
-//        return token;
-//    }
-//
-//    public String reissueToken(TokenType tokenType, String refreshToken) {
-//        if (!JwtUtil.isValidToken(refreshToken, jwtConfig.getSecretKey())) {
-//            throw new InvalidRefreshTokenException();
-//        }
-//        Long userId = getUserIdByRefreshToken(refreshToken);
-//        CustomUserDetails userDetails = new CustomUserDetails(userService.findById(userId));
-//        return switch (tokenType) {
-//            case ACCESS -> createToken(tokenType, userDetails);
-//            case REFRESH, REMEMBER_ME_REFRESH -> reissueRefreshToken(userDetails, refreshToken);
-//        };
-//    }
-//
-//    private String reissueRefreshToken(UserDetails userDetails, String refreshToken) {
-//        Date expiration = JwtUtil.getExpiration(refreshToken, jwtConfig.getSecretKey());
-//        long ttlInMillis = expiration.getTime() - System.currentTimeMillis();
-//    }
-//
-
-//
-//    private String createTokenWithType(TokenType tokenType, Duration expirationDuration,
-//        CustomUserDetails userDetails) {
-//        Date now = new Date();
-//        Date expiration = new Date(now.getTime() + expirationDuration.toMillis());
-//
-//        return Jwts.builder()
-//            .header().type(HEADER_JWT).and()
-//            .claim(Claim.TOKEN_TYPE.getValue(), tokenType.name())
-//            .claim(Claim.ID.getValue(), userDetails.getId())
-//            .issuer(jwtConfig.getIssuer())
-//            .issuedAt(now)
-//            .expiration(expiration)
-//            .signWith(jwtConfig.getSecretKey())
-//            .compact();
-//    }
-//
-//    private Duration getExpirationByType(TokenType tokenType) {
-//        return switch (tokenType) {
-//            case ACCESS -> jwtConfig.getAccessTokenExpiration();
-//            case REFRESH -> jwtConfig.getRefreshTokenExpiration();
-//            case REMEMBER_ME_REFRESH -> jwtConfig.getRememberMeRefreshTokenExpiration();
-//        };
-//    }
-//
-//    private String createJwt(Date expiration, CustomUserDetails userDetails) {
-//        Date now = new Date();
-//        return Jwts.builder()
-//            .header().type(HEADER_JWT).and()
-//            .claim(Claim.ID.getValue(), userDetails.getId())
-//            .issuer(jwtConfig.getIssuer())
-//            .issuedAt(now)
-//            .expiration(expiration)
-//            .signWith(jwtConfig.getSecretKey())
-//            .compact();
-//    }
-//
-
-
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = CookieUtil.getCookieByName(request.getCookies(),
+            jwtConfig.getRefreshTokenCookieName());
+        if (refreshToken == null) {
+            return;
+        }
+        if (!isValidRefreshToken(refreshToken)) {
+            return;
+        }
+        deleteRefreshToken(refreshToken);
+        CookieUtil.deleteCookie(request, response, jwtConfig.getRefreshTokenCookieName());
+    }
 }
