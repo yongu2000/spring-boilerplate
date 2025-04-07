@@ -5,12 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
-import com.boilerplate.boilerplate.domain.image.entity.Image;
 import com.boilerplate.boilerplate.domain.image.service.ImageService;
 import com.boilerplate.boilerplate.domain.user.dto.EmailDuplicateCheckResponse;
 import com.boilerplate.boilerplate.domain.user.dto.PublicUserResponse;
@@ -33,12 +31,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("사용자 서비스 단위 테스트")
@@ -78,12 +74,10 @@ class UserServiceTest {
             .username(testUsername)
             .name(testName)
             .password(testPassword)
+            .profileImageUrl("test")
             .role(Role.USER)
             .build();
-        Image testImage = new Image("test", "test", "test/jpg");
-        testUser.changeProfileImage(testImage);
-
-        testUser.updateProfile(null, "Test Bio", null, null);
+        testUser.updateProfile(null, "Test Bio", null, null, null);
         setId(testUser, 1L);
 
         userDetails = new CustomUserDetails(testUser);
@@ -106,7 +100,7 @@ class UserServiceTest {
         assertThat(response.getUsername()).isEqualTo(testUser.getUsername());
         assertThat(response.getName()).isEqualTo(testUser.getName());
         assertThat(response.getBio()).isEqualTo(testUser.getBio());
-        assertThat(response.getProfileImageUrl()).isEqualTo(testUser.getProfileImage().getUrl());
+        assertThat(response.getProfileImageUrl()).isEqualTo(testUser.getProfileImageUrl());
         assertThat(response.getCreatedAt()).isEqualTo(testUser.getCreatedAt());
     }
 
@@ -134,7 +128,7 @@ class UserServiceTest {
         assertThat(response.getUsername()).isEqualTo(testUser.getUsername());
         assertThat(response.getName()).isEqualTo(testUser.getName());
         assertThat(response.getBio()).isEqualTo(testUser.getBio());
-        assertThat(response.getProfileImageUrl()).isEqualTo(testUser.getProfileImage().getUrl());
+        assertThat(response.getProfileImageUrl()).isEqualTo(testUser.getProfileImageUrl());
         assertThat(response.getCreatedAt()).isEqualTo(testUser.getCreatedAt());
     }
 
@@ -273,7 +267,7 @@ class UserServiceTest {
         // given
         UpdateUserProfileRequest request = new UpdateUserProfileRequest(
             "New Name", "New Bio", "new@example.com", "newusername", "currentPassword",
-            "newPassword");
+            "newPassword", "newProfileImage");
         given(userRepository.findByUsername(any())).willReturn(Optional.of(testUser));
         given(bCryptPasswordEncoder.matches(any(), any())).willReturn(true);
         given(bCryptPasswordEncoder.encode(any())).willReturn("newEncodedPassword");
@@ -287,6 +281,7 @@ class UserServiceTest {
         assertThat(response.getBio()).isEqualTo("New Bio");
         assertThat(response.getEmail()).isEqualTo("new@example.com");
         assertThat(response.getUsername()).isEqualTo("newusername");
+        assertThat(response.getProfileImageUrl()).isEqualTo("newProfileImage");
         verify(userRepository).save(any());
     }
 
@@ -295,7 +290,7 @@ class UserServiceTest {
         // given
         UpdateUserProfileRequest request = new UpdateUserProfileRequest(
             "New Name", "New Bio", "new@example.com", "newusername", "wrongPassword",
-            "newPassword");
+            "newPassword", "newProfileImage");
         given(userRepository.findByUsername(any())).willReturn(Optional.of(testUser));
         given(bCryptPasswordEncoder.matches(any(), any())).willReturn(false);
 
@@ -309,7 +304,7 @@ class UserServiceTest {
         // given
         UpdateUserProfileRequest request = new UpdateUserProfileRequest(
             "New Name", "New Bio", "new@example.com", "newusername", "currentPassword",
-            "newPassword");
+            "newPassword", "newProfileImage");
         given(userRepository.findByUsername(any())).willReturn(Optional.empty());
 
         // when & then
@@ -322,7 +317,7 @@ class UserServiceTest {
         // given
         UpdateUserProfileRequest request = new UpdateUserProfileRequest(
             "New Name", "New Bio", "new@example.com", "newusername", "currentPassword",
-            "newPassword");
+            "newPassword", "newProfileImage");
         given(userRepository.findByUsername(any())).willReturn(Optional.of(testUser));
         given(bCryptPasswordEncoder.matches(any(), any())).willReturn(true);
         given(bCryptPasswordEncoder.encode(any())).willReturn("newEncodedPassword");
@@ -336,6 +331,7 @@ class UserServiceTest {
         assertThat(response.getBio()).isEqualTo("New Bio");
         assertThat(response.getEmail()).isEqualTo("new@example.com");
         assertThat(response.getUsername()).isEqualTo("newusername");
+        assertThat(response.getProfileImageUrl()).isEqualTo("newProfileImage");
         verify(userRepository).save(any());
         verify(bCryptPasswordEncoder).matches("currentPassword", "encodedPassword");
         verify(bCryptPasswordEncoder).encode("newPassword");
@@ -345,7 +341,7 @@ class UserServiceTest {
     void 사용자_프로필_수정_성공_비밀번호_변경_없음() {
         // given
         UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-            "New Name", "New Bio", "new@example.com", "newusername", null, null);
+            "New Name", "New Bio", "new@example.com", "newusername", null, null, null);
         given(userRepository.findByUsername(any())).willReturn(Optional.of(testUser));
         given(userRepository.save(any())).willReturn(testUser);
 
@@ -366,7 +362,8 @@ class UserServiceTest {
     void 사용자_프로필_수정_성공_비밀번호_변경_현재_비밀번호_없음() {
         // given
         UpdateUserProfileRequest request = new UpdateUserProfileRequest(
-            "New Name", "New Bio", "new@example.com", "newusername", "", "newPassword");
+            "New Name", "New Bio", "new@example.com", "newusername", "", "newPassword",
+            "newProfileImage");
         given(userRepository.findByUsername(any())).willReturn(Optional.of(testUser));
         given(bCryptPasswordEncoder.encode(any())).willReturn("newEncodedPassword");
         given(userRepository.save(any())).willReturn(testUser);
@@ -379,28 +376,9 @@ class UserServiceTest {
         assertThat(response.getBio()).isEqualTo("New Bio");
         assertThat(response.getEmail()).isEqualTo("new@example.com");
         assertThat(response.getUsername()).isEqualTo("newusername");
+        assertThat(response.getProfileImageUrl()).isEqualTo("newProfileImage");
         verify(userRepository).save(any());
         verify(bCryptPasswordEncoder, never()).matches(any(), any());
         verify(bCryptPasswordEncoder).encode("newPassword");
     }
-
-    @Test
-    void 사용자_프로필_이미지_업로드() throws Exception {
-        // given
-        MultipartFile mockFile = new MockMultipartFile("image", "profile.jpg", "image/jpeg",
-            "data".getBytes());
-        Image mockImage = new Image("/uploads/abc.jpg", "profile.jpg", "image/jpeg");
-        given(userRepository.findByUsername(testUsername)).willReturn(
-            Optional.ofNullable(testUser));
-        given(imageService.uploadImage(any(MultipartFile.class))).willReturn(mockImage);
-
-        // when
-        userService.uploadProfileImage(testUsername, mockFile);
-
-        // then
-        then(userRepository).should().findByUsername(testUsername);
-        then(imageService).should().uploadImage(mockFile);
-        assertThat(testUser.getProfileImage()).isEqualTo(mockImage);
-    }
-
 } 

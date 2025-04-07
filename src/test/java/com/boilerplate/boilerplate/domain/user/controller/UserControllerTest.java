@@ -8,14 +8,12 @@ import static com.epages.restdocs.apispec.Schema.schema;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.boilerplate.boilerplate.domain.image.entity.Image;
 import com.boilerplate.boilerplate.domain.user.dto.EmailDuplicateCheckResponse;
 import com.boilerplate.boilerplate.domain.user.dto.PublicUserResponse;
 import com.boilerplate.boilerplate.domain.user.dto.UpdateUserProfileRequest;
@@ -39,7 +37,6 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -75,15 +72,11 @@ class UserControllerTest {
             .username("test")
             .name("Test User")
             .password("encodedPassword")
+            .profileImageUrl("/upload/uuid_profile.png")
             .role(Role.USER)
             .build();
 
-        testUser.changeProfileImage(Image.builder()
-            .url("/upload/uuid_profile.png")
-            .originalFileName("profile.png")
-            .contentType("image/png")
-            .build());
-        testUser.updateProfile(null, "Test Bio", null, null);
+        testUser.updateProfile(null, "Test Bio", null, null, null);
         setId(testUser, 1L);
         setCreatedAt(testUser, LocalDateTime.now());
 
@@ -93,7 +86,7 @@ class UserControllerTest {
             .username(testUser.getUsername())
             .name(testUser.getName())
             .bio(testUser.getBio())
-            .profileImageUrl(testUser.getProfileImage().getUrl())
+            .profileImageUrl(testUser.getProfileImageUrl())
             .createdAt(testUser.getCreatedAt())
             .build();
 
@@ -101,13 +94,13 @@ class UserControllerTest {
             .username(testUser.getUsername())
             .name(testUser.getName())
             .bio(testUser.getBio())
-            .profileImageUrl(testUser.getProfileImage().getUrl())
+            .profileImageUrl(testUser.getProfileImageUrl())
             .createdAt(testUser.getCreatedAt())
             .build();
 
         testUpdateRequest = new UpdateUserProfileRequest(
             "New Name", "New Bio", "new@example.com", "newusername", "currentPassword",
-            "newPassword");
+            "newPassword", null);
     }
 
     @Test
@@ -123,7 +116,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.username").value(testUser.getUsername()))
             .andExpect(jsonPath("$.name").value(testUser.getName()))
             .andExpect(jsonPath("$.bio").value(testUser.getBio()))
-            .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImage().getUrl()))
+            .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImageUrl()))
             .andDo(document("get-user-private-profile",
                 resource(
                     ResourceSnippetParameters.builder()
@@ -165,7 +158,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.username").value(testUser.getUsername()))
             .andExpect(jsonPath("$.name").value(testUser.getName()))
             .andExpect(jsonPath("$.bio").value(testUser.getBio()))
-            .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImage().getUrl()))
+            .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImageUrl()))
             .andExpect(jsonPath("$.createdAt").exists())
             .andDo(document("update-user-profile",
                 resource(
@@ -182,6 +175,9 @@ class UserControllerTest {
                             fieldWithPath("bio").type(JsonFieldType.STRING).description("새로운 자기소개")
                                 .optional(),
                             fieldWithPath("email").type(JsonFieldType.STRING).description("새로운 이메일")
+                                .optional(),
+                            fieldWithPath("profileImageUrl").type(JsonFieldType.STRING)
+                                .description("새로운 프로필 이미지")
                                 .optional(),
                             fieldWithPath("username").type(JsonFieldType.STRING)
                                 .description("새로운 사용자명").optional(),
@@ -279,7 +275,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.username").value(testUser.getUsername()))
             .andExpect(jsonPath("$.name").value(testUser.getName()))
             .andExpect(jsonPath("$.bio").value(testUser.getBio()))
-            .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImage().getUrl()))
+            .andExpect(jsonPath("$.profileImageUrl").value(testUser.getProfileImageUrl()))
             .andExpect(jsonPath("$.createdAt").exists())
             .andDo(document("get-public-user",
                 resource(
@@ -304,34 +300,5 @@ class UserControllerTest {
                         .build()
                 )
             ));
-    }
-
-    @Test
-    void 프로필_이미지_업로드_성공() throws Exception {
-        // given
-        MockMultipartFile file = new MockMultipartFile(
-            "image", "profile.jpg", "image/jpeg", "data".getBytes()
-        );
-
-        // when & then
-        mockMvc.perform(
-                multipart("/api/user/{username}/image", "test").file(file)
-                    .contentType(MediaType.MULTIPART_FORM_DATA))
-            .andExpect(status().isOk());
-        // requestPart가 없어서 문서화 어려움
-//            .andDo(document("upload-profile-image",
-//                resource(
-//                    ResourceSnippetParameters.builder()
-//                        .tag("사용자")
-//                        .summary("프로필 이미지 업로드 API")
-//                        .description("프로필 이미지를 업로드 합니다")
-//                        .pathParameters(
-//                            parameterWithName("username").description("사용자명")
-//                        )
-//                        .requestFields(
-//                            fieldWithPath("image").description("프로필 사진").type(JsonFieldType.STRING).optional())
-//                        .build()
-//                )
-//            ));
     }
 } 
