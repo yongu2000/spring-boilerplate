@@ -47,6 +47,14 @@ public class EmailService {
 
     public VerifyCodeResponse verifyCode(String email, String code) {
         String storedCode = redisTemplate.opsForValue().get("EMAIL:" + email);
+        boolean verified = code.equals(storedCode);
+        if (verified) {
+            redisTemplate.opsForValue().set(
+                "VERIFIED:" + email,
+                String.valueOf(true),
+                Duration.ofMinutes(10)
+            );
+        }
         return new VerifyCodeResponse(code.equals(storedCode));
     }
 }

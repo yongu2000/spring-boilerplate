@@ -1,6 +1,5 @@
 package com.boilerplate.boilerplate.dev;
 
-import com.boilerplate.boilerplate.domain.image.DefaultImageProvider;
 import com.boilerplate.boilerplate.domain.post.entity.Comment;
 import com.boilerplate.boilerplate.domain.post.entity.Post;
 import com.boilerplate.boilerplate.domain.post.repository.CommentRepository;
@@ -35,7 +34,6 @@ public class DummyDataLoader implements CommandLineRunner {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
-    private final DefaultImageProvider defaultImageProvider;
     private final Random random = new Random();
 
     @Override

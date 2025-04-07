@@ -1,14 +1,15 @@
 package com.boilerplate.boilerplate.domain.user.service;
 
-import com.boilerplate.boilerplate.domain.image.DefaultImageProvider;
 import com.boilerplate.boilerplate.domain.user.dto.JoinRequest;
 import com.boilerplate.boilerplate.domain.user.dto.JoinResponse;
 import com.boilerplate.boilerplate.domain.user.entity.Role;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.exception.DuplicateUserException;
+import com.boilerplate.boilerplate.domain.user.exception.EmailNotVerifiedException;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,12 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class JoinService {
 
+    private final RedisTemplate<String, String> redisTemplate;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final DefaultImageProvider defaultImageProvider;
 
     public JoinResponse join(JoinRequest request) {
         validateEmailExistence(request.getEmail());
+        validateEmailVerification(request.getEmail());
+
         String username = generateUniqueUsername(request.getEmail());
         String name = parseEmailToUsername(request.getEmail());
         User newUser = User.builder()
@@ -40,6 +43,13 @@ public class JoinService {
             .build();
     }
 
+    private void validateEmailVerification(String email) {
+        String value = redisTemplate.opsForValue().get("VERIFIED:" + email);
+        if (!Boolean.parseBoolean(value)) {
+            throw new EmailNotVerifiedException();
+        }
+    }
+
     private void validateEmailExistence(String email) {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
@@ -50,7 +60,7 @@ public class JoinService {
     private String generateUniqueUsername(String email) {
         String baseUsername = parseEmailToUsername(email);
         String username = baseUsername;
-        int randomNumber = 0;
+        int randomNumber;
 
         while (userRepository.findByUsername(username).isPresent()) {
             randomNumber = (int) (Math.random() * 10000);
