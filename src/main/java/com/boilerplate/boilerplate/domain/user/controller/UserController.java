@@ -6,19 +6,15 @@ import com.boilerplate.boilerplate.domain.user.dto.UpdateUserProfileRequest;
 import com.boilerplate.boilerplate.domain.user.dto.UserResponse;
 import com.boilerplate.boilerplate.domain.user.dto.UsernameDuplicateCheckResponse;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
-import com.boilerplate.boilerplate.global.config.JwtConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/user")
@@ -26,8 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
     private final UserService userService;
-
-    private final JwtConfig jwtConfig;
 
     @GetMapping("/my")
     public ResponseEntity<UserResponse> getUserProfile() {
@@ -63,12 +57,12 @@ public class UserController {
             .body(userService.getPublicUserByUsername(username));
     }
 
-    @PostMapping("/{username}/image")
-    public ResponseEntity<Void> uploadProfileImage(
-        @PathVariable String username,
-        @RequestPart("image") MultipartFile file
-    ) {
-        userService.uploadProfileImage(username, file);
-        return ResponseEntity.ok().build();
-    }
+//    @PostMapping("/{username}/image")
+//    public ResponseEntity<Void> uploadProfileImage(
+//        @PathVariable String username,
+//        @RequestPart("image") MultipartFile file
+//    ) {
+//        userService.uploadProfileImage(username, file);
+//        return ResponseEntity.ok().build();
+//    }
 }

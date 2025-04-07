@@ -1,17 +1,13 @@
 package com.boilerplate.boilerplate.domain.user.entity;
 
-import com.boilerplate.boilerplate.domain.image.entity.Image;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -41,10 +37,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "profile_image_id", nullable = false)
-    private Image profileImage;
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
     private String bio;
     private String provider;
 
@@ -53,16 +47,20 @@ public class User {
     private LocalDateTime createdAt;
 
     @Builder
-    public User(String email, String username, String password, String name, Role role, String provider) {
+    public User(String email, String username, String password, String name, Role role,
+        String profileImageUrl,
+        String provider) {
         this.email = email;
         this.username = username;
         this.password = password;
         this.name = name;
         this.role = role;
+        this.profileImageUrl = profileImageUrl;
         this.provider = provider;
     }
 
-    public void updateProfile(String name, String bio, String email, String username) {
+    public void updateProfile(String name, String bio, String email, String username,
+        String profileImageUrl) {
         if (name != null) {
             this.name = name;
         }
@@ -75,14 +73,12 @@ public class User {
         if (username != null) {
             this.username = username;
         }
+        if (profileImageUrl != null) {
+            this.profileImageUrl = profileImageUrl;
+        }
     }
 
     public void updatePassword(String newPassword) {
         this.password = newPassword;
     }
-
-    public void changeProfileImage(Image newImage) {
-        this.profileImage = newImage;
-    }
-
 }

@@ -85,9 +85,9 @@ public class DummyDataLoader implements CommandLineRunner {
                 .username("user" + i)
                 .password("password" + i)
                 .name("User " + i)
+                .profileImageUrl("/uploads/image/default.jpg")
                 .role(Role.USER)
                 .build();
-            user.changeProfileImage(defaultImageProvider.getDefaultProfileImage());
             entityManager.persist(user);
             if (i % 50 == 0) { // ✅ 50개 단위로 flush
                 entityManager.flush();

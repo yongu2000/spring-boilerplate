@@ -33,7 +33,6 @@ public class JoinService {
             .name(name)
             .role(Role.USER)
             .build();
-        newUser.changeProfileImage(defaultImageProvider.getDefaultProfileImage());
         userRepository.save(newUser);
         return JoinResponse.builder()
             .id(newUser.getId())

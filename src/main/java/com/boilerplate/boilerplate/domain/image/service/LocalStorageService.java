@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional
 public class LocalStorageService implements StorageService {
 
+    private static final String baseDir = "uploads/image/";
     private static final String fileUploadPath = "/uploads/image/";
 
     private final ImageRepository imageRepository;
@@ -78,7 +79,7 @@ public class LocalStorageService implements StorageService {
     }
 
     private void saveFile(byte[] fileBytes, String fileName) throws IOException {
-        Path path = Paths.get(fileUploadPath, fileName);
+        Path path = Paths.get(baseDir, fileName);
         Files.createDirectories(path.getParent());
         Files.write(path, fileBytes);
     }

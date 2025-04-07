@@ -1,7 +1,6 @@
 package com.boilerplate.boilerplate.domain.user.service;
 
 import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
-import com.boilerplate.boilerplate.domain.image.entity.Image;
 import com.boilerplate.boilerplate.domain.image.service.ImageService;
 import com.boilerplate.boilerplate.domain.user.dto.EmailDuplicateCheckResponse;
 import com.boilerplate.boilerplate.domain.user.dto.PublicUserResponse;
@@ -19,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Service
@@ -42,7 +40,7 @@ public class UserService {
                 .username(user.getUsername())
                 .name(user.getName())
                 .bio(user.getBio())
-                .profileImageUrl(user.getProfileImage().getUrl())
+                .profileImageUrl(user.getProfileImageUrl())
                 .createdAt(user.getCreatedAt())
                 .build();
         } else {
@@ -87,7 +85,8 @@ public class UserService {
         User user = findByUsername(targetUsername);
 
         if (request.getNewPassword() != null && !request.getNewPassword().isEmpty()) {
-            if (!request.getCurrentPassword().isEmpty() && !bCryptPasswordEncoder.matches(request.getCurrentPassword(),
+            if (!request.getCurrentPassword().isEmpty() && !bCryptPasswordEncoder.matches(
+                request.getCurrentPassword(),
                 user.getPassword())) {
                 throw new InvalidPasswordException();
             }
@@ -98,15 +97,16 @@ public class UserService {
             request.getName(),
             request.getBio(),
             request.getEmail(),
-            request.getUsername()
+            request.getUsername(),
+            request.getProfileImageUrl()
         );
 
         return UserResponse.of(userRepository.save(user));
     }
 
-    public void uploadProfileImage(String username, MultipartFile file) {
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
-        Image image = imageService.uploadImage(file);
-        user.changeProfileImage(image);
-    }
+//    public void uploadProfileImage(String username, MultipartFile file) {
+//        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+//        Image image = imageService.uploadImage(file);
+//        user.changeProfileImage(image);
+//    }
 }
