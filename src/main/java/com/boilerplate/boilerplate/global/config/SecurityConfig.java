@@ -97,7 +97,8 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
             .authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/", "/api/login", "/api/join", "/api/token/**", "/uploads/**")
+                .requestMatchers("/", "/api/login", "/api/join", "/api/token/**", "/uploads/**",
+                    "/api/email/**")
                 .permitAll() // 기본 공개 API
                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
