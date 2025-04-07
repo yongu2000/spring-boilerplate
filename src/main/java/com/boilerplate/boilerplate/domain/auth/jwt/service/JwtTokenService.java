@@ -8,6 +8,7 @@ import com.boilerplate.boilerplate.domain.auth.jwt.utils.JwtUtil;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
 import com.boilerplate.boilerplate.global.config.JwtConfig;
 import com.boilerplate.boilerplate.global.utils.CookieUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -125,12 +126,20 @@ public class JwtTokenService {
     }
 
     public boolean isValidAccessToken(String accessToken) {
-        return JwtUtil.getTokenType(accessToken, jwtConfig.getSecretKey()) == TokenType.ACCESS;
+        try {
+            return JwtUtil.getTokenType(accessToken, jwtConfig.getSecretKey()) == TokenType.ACCESS;
+        } catch (ExpiredJwtException e) {
+            return false;
+        }
     }
 
     public boolean isValidRefreshToken(String refreshToken) {
-        return JwtUtil.getTokenType(refreshToken, jwtConfig.getSecretKey()) == TokenType.REFRESH
-            && redisTemplate.hasKey("RT:" + refreshToken);
+        try {
+            return JwtUtil.getTokenType(refreshToken, jwtConfig.getSecretKey()) == TokenType.REFRESH
+                && redisTemplate.hasKey("RT:" + refreshToken);
+        } catch (ExpiredJwtException e) {
+            return false;
+        }
     }
 
     public CustomUserDetails getUserDetailsFromToken(String token) {
