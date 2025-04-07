@@ -47,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
 
         // /api/token/reissue 요청은 필터를 건너뛰도록 예외 처리
-        if (requestURI.equals(TOKEN_REISSUE_URL)) {
+        if (requestURI.equals(TOKEN_REISSUE_URL) || requestURI.startsWith("/uploads")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -55,10 +55,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authorizationHeader = request.getHeader(jwtConfig.getHeaderAuthorization());
         String accessToken = getAccessToken(authorizationHeader);
 
+        log.info("유효한 Access Token 인지 확인");
         boolean isAccessTokenValid =
             accessToken != null && jwtTokenService.isValidAccessToken(accessToken);
 
         if (isAccessTokenValid) {
+            log.info("유효한 Access Token 입니다");
             CustomUserDetails userDetails = jwtTokenService.getUserDetailsFromToken(accessToken);
             Authentication authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
                 userDetails.getAuthorities());
@@ -66,6 +68,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+        log.info("유효하지 않은 Access Token 입니다");
+        log.info("유효한 Refresh Token 인지 확인");
 
         String refreshToken = CookieUtil.getCookieByName(request.getCookies(),
             jwtConfig.getRefreshTokenCookieName());
@@ -74,12 +78,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // AccessToken이 만료되었지만 RefreshToken이 유효한 경우 프론트에 재발급 요청 신호 보내기
         if (isRefreshTokenValid) {
+            log.info("유효한 Refresh Token 입니다");
+
             log.info("토큰 재발급 요청 쿠키 전송");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setHeader("x-reissue-token", "true");  // 프론트에서 감지해서 자동으로 재발급 요청
             return;
         }
-        
+        log.info("유효하지 않은 Refresh Token 입니다");
+
         filterChain.doFilter(request, response);
     }
 
