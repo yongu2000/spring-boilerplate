@@ -3,7 +3,7 @@ package com.boilerplate.boilerplate.domain.auth.jwt.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.then;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -110,9 +110,9 @@ class JwtTokenReissueControllerTest {
 //                )
 //            ));
 
-        verify(jwtTokenService).setAccessToken(any(HttpServletResponse.class),
+        then(jwtTokenService).should().setAccessToken(any(HttpServletResponse.class),
             eq(NEW_ACCESS_TOKEN));
-        verify(jwtTokenService).setRefreshToken(any(HttpServletResponse.class),
+        then(jwtTokenService).should().setRefreshToken(any(HttpServletResponse.class),
             eq(NEW_REFRESH_TOKEN));
 
     }

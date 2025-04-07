@@ -84,13 +84,8 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         jwtTokenService.setAccessToken(response, accessToken);
         jwtTokenService.setRefreshToken(response, refreshToken);
-//        response.addHeader(jwtConfig.getHeaderAuthorization(),
-//            jwtConfig.getAccessTokenPrefix() + accessToken);
-//
-//        CookieUtil.addCookie(response, jwtConfig.getRefreshTokenCookieName(), refreshToken,
-//            (int) expiration.toSeconds());
-        log.info("토큰 발급 완료");
 
+        log.info("토큰 발급 완료");
     }
 
     //로그인 실패시 실행하는 메소드
