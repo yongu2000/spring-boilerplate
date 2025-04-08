@@ -45,7 +45,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private User getUser(String username, OAuth2UserInfo oAuth2UserInfo, String provider) {
-        return userRepository.findByUsername(username)
+        return userRepository.findByEmail(oAuth2UserInfo.getEmail())
             .orElseGet(() -> {
                 Image image = imageService.saveExternalImage(
                     oAuth2UserInfo.getProfileImageUrl());
