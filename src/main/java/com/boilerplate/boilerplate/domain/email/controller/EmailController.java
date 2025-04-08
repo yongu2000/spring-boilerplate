@@ -1,6 +1,6 @@
 package com.boilerplate.boilerplate.domain.email.controller;
 
-import com.boilerplate.boilerplate.domain.email.dto.SendVerificationEmailRequest;
+import com.boilerplate.boilerplate.domain.email.dto.SendEmailRequest;
 import com.boilerplate.boilerplate.domain.email.dto.VerifyCodeRequest;
 import com.boilerplate.boilerplate.domain.email.dto.VerifyCodeResponse;
 import com.boilerplate.boilerplate.domain.email.service.EmailService;
@@ -21,8 +21,15 @@ public class EmailController {
 
     @PostMapping("/send/code")
     public ResponseEntity<?> sendVerificationEmail(
-        @Valid @RequestBody SendVerificationEmailRequest request) {
+        @Valid @RequestBody SendEmailRequest request) {
         emailService.sendVerificationEmail(request.getEmail());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/send/password/reset")
+    public ResponseEntity<?> sendPasswordResetEmail(
+        @Valid @RequestBody SendEmailRequest request) {
+        emailService.sendPasswordResetEmail(request.getEmail());
         return ResponseEntity.ok().build();
     }
 

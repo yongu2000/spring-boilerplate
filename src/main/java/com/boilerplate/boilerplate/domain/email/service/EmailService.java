@@ -1,11 +1,14 @@
 package com.boilerplate.boilerplate.domain.email.service;
 
 import com.boilerplate.boilerplate.domain.email.dto.VerifyCodeResponse;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import java.time.Duration;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,17 +24,75 @@ public class EmailService {
     public void sendVerificationEmail(String email) {
         String code = createVerificationCode();
         saveVerificationCode(email, code);
-        sendEmail(email, code);
+        sendVerificationHtmlEmail(email, code);
+    }
+
+    public void sendPasswordResetEmail(String email) {
+        String token = UUID.randomUUID().toString();
+        savePasswordResetToken(email, token);
+        sendPasswordResetHtmlEmail(email, token);
+    }
+
+    private void sendVerificationHtmlEmail(String to, String code) {
+        String htmlContent =
+            "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>"
+                + "<div style='background-color: #f8f9fa; border-radius: 8px; padding: 20px; text-align: center;'>"
+                + "<h2 style='color: #333; margin-bottom: 20px;'>이메일 인증</h2>"
+                + "<div style='background-color: #e9ecef; padding: 15px; border-radius: 6px; margin: 20px 0;'>"
+                + "<p style='font-size: 24px; font-weight: bold; color: #495057; margin: 0;'>"
+                + code + "</p>"
+                + "</div>"
+                + "<p style='color: #666; margin: 10px 0;'>위 인증 코드를 입력해주세요.</p>"
+                + "<p style='color: #dc3545; font-size: 14px;'>유효 시간: 5분</p>"
+                + "</div>"
+                + "<div style='text-align: center; margin-top: 20px;'>"
+                + "<p style='color: #999; font-size: 12px;'>본 메일은 발신 전용입니다.</p>"
+                + "</div>"
+                + "</div>";
+
+        sendHtmlEmail(to, "이메일 인증 코드", htmlContent);
+    }
+
+    private void sendPasswordResetHtmlEmail(String to, String token) {
+        String resetLink = "http://localhost:3000/reset-password?token=" + token;
+        String htmlContent =
+            "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>"
+                + "<div style='background-color: #f8f9fa; border-radius: 8px; padding: 20px; text-align: center;'>"
+                + "<h2 style='color: #333;'>비밀번호 재설정</h2>"
+                + "<p style='margin: 20px 0;'>아래 버튼을 클릭하여 비밀번호를 재설정하세요.</p>"
+                + "<a href='" + resetLink
+                + "' style='display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff;"
+                + " text-decoration: none; border-radius: 4px;'>비밀번호 재설정</a>"
+                + "<p style='margin-top: 20px; font-size: 14px; color: #dc3545;'>유효 시간: 1시간</p>"
+                + "</div>"
+                + "<div style='text-align: center; margin-top: 20px;'>"
+                + "<p style='color: #999; font-size: 12px;'>본 메일은 발신 전용입니다.</p>"
+                + "</div>"
+                + "</div>";
+
+        sendHtmlEmail(to, "비밀번호 재설정 링크", htmlContent);
     }
 
     @Async
-    private void sendEmail(String to, String code) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("이메일 인증 코드");
-        message.setText("인증 코드: " + code + "\n유효 시간: 5분");
+    private void sendHtmlEmail(String to, String subject, String htmlContent) {
+        MimeMessage message = mailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true); // HTML 형식
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new IllegalStateException("이메일 전송에 실패했습니다.", e);
+        }
+    }
 
-        mailSender.send(message);
+    private void savePasswordResetToken(String email, String token) {
+        redisTemplate.opsForValue().set(
+            "EMAIL:PASSWORD:RESET:" + email,
+            String.valueOf(token),
+            Duration.ofHours(1)
+        );
     }
 
     private String createVerificationCode() {
@@ -41,18 +102,18 @@ public class EmailService {
 
     private void saveVerificationCode(String email, String code) {
         redisTemplate.opsForValue().set(
-            "EMAIL:" + email,
+            "EMAIL:VERIFICATION:" + email,
             String.valueOf(code),
             Duration.ofMinutes(5)
         );
     }
 
     public VerifyCodeResponse verifyCode(String email, String code) {
-        String storedCode = redisTemplate.opsForValue().get("EMAIL:" + email);
+        String storedCode = redisTemplate.opsForValue().get("EMAIL:VERIFICATION:" + email);
         boolean verified = code.equals(storedCode);
         if (verified) {
             redisTemplate.opsForValue().set(
-                "VERIFIED:" + email,
+                "EMAIL:VERIFIED:" + email,
                 String.valueOf(true),
                 Duration.ofMinutes(10)
             );
