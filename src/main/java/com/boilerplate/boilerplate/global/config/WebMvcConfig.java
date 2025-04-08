@@ -35,6 +35,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
             .addPathPatterns("/api/**"); // API 경로에만 적용
     }
 
+    // 정적 리소스 등록
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/uploads/**") // 클라이언트가 접근할 경로

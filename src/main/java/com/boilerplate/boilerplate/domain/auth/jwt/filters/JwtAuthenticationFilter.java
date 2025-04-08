@@ -47,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
 
         // /api/token/reissue 요청은 필터를 건너뛰도록 예외 처리
-        if (requestURI.equals(TOKEN_REISSUE_URL) || requestURI.startsWith("/uploads")) {
+        if (requestURI.equals(TOKEN_REISSUE_URL)) {
             filterChain.doFilter(request, response);
             return;
         }

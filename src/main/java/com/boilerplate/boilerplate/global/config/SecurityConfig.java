@@ -19,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -44,6 +45,13 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
         throws Exception {
         return configuration.getAuthenticationManager();
+    }
+
+    // 이미지 경로 전체 허용
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+            .requestMatchers("/uploads/**");  // 정적 리소스 완전 제외
     }
 
     @Bean
@@ -100,6 +108,8 @@ public class SecurityConfig {
                 .requestMatchers("/", "/api/login", "/api/join", "/api/token/**", "/uploads/**",
                     "/api/email/**")
                 .permitAll() // 기본 공개 API
+                .requestMatchers(HttpMethod.GET, "/api/user/my").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/user/*").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
