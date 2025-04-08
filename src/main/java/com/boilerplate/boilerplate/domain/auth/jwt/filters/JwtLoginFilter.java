@@ -7,6 +7,8 @@ import com.boilerplate.boilerplate.domain.auth.jwt.exception.InvalidJsonRequestE
 import com.boilerplate.boilerplate.domain.auth.jwt.service.JwtTokenService;
 import com.boilerplate.boilerplate.global.dto.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
@@ -67,7 +69,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
             String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
             return objectMapper.readValue(messageBody, LoginRequest.class);
         } catch (IOException e) {
-            throw new InvalidJsonRequestException("잘못된 JSON 형식입니다: " + e.getMessage());
+            throw new InvalidJsonRequestException();
         }
     }
 
@@ -98,11 +100,14 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
             errorResponse = ErrorResponse.of(jsonException);
         } else {
             errorResponse = ErrorResponse.of(AuthenticationError.LOGIN_FAILED);
-            errorResponse.addDetail("error", failed.getMessage());
+            errorResponse.addDetail("message", failed.getMessage());
         }
         response.setStatus(errorResponse.getStatus());
         response.setContentType("application/json;charset=UTF-8");
-        new ObjectMapper().writeValue(response.getWriter(), errorResponse);
+        new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .writeValue(response.getWriter(), errorResponse);
     }
 
 }

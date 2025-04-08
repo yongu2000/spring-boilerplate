@@ -7,9 +7,5 @@ public class InvalidJsonRequestException extends BusinessException {
     public InvalidJsonRequestException() {
         super(AuthenticationError.INVALID_JSON_REQUEST);
     }
-
-    public InvalidJsonRequestException(String message) {
-        super(AuthenticationError.INVALID_JSON_REQUEST, message);
-    }
 }
 
