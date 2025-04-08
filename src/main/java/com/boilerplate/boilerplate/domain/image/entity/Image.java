@@ -1,38 +1,35 @@
 package com.boilerplate.boilerplate.domain.image.entity;
 
+import com.boilerplate.boilerplate.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
-@EntityListeners(AuditingEntityListener.class)
-@Entity
+@SQLDelete(sql = "UPDATE image SET deleted_at = CURRENT_TIMESTAMP WHERE image_id = ?")
+@SQLRestriction("deleted_at is null")
+@Builder
 @AllArgsConstructor
 @Getter
-@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Image {
+@Entity
+public class Image extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "image_id", updatable = false)
     private Long id;
     private String url;
     private String originalFileName;
     private String contentType;
-
-    @CreatedDate
-    @Column(name = "uploaded_at")
-    private LocalDateTime uploadedAt;
 
     @Builder
     public Image(String url, String originalFileName, String contentType) {

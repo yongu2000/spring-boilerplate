@@ -57,6 +57,7 @@ public class PostService {
         if (!postRepository.existsById(postId)) {
             throw new PostNotFoundException();
         }
+        likedPostRepository.softDeleteByPostId(postId); // 이부분 많아지면 PostCascadeDeleteService 만들기
         postRepository.deleteById(postId);
 
     }
@@ -70,10 +71,12 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public CursorResponse<PostSummaryResponse> getAllPostsWithSearchOptionsToCursor(Long cursor, int size,
+    public CursorResponse<PostSummaryResponse> getAllPostsWithSearchOptionsToCursor(Long cursor,
+        int size,
         PostSearchOptions searchOptions) {
         // 커서 기반 조회
-        List<Post> posts = postRepository.findPostsBySearchOptionsToCursor(cursor, size + 1, searchOptions);
+        List<Post> posts = postRepository.findPostsBySearchOptionsToCursor(cursor, size + 1,
+            searchOptions);
 
         // hasNext 확인을 위해 size + 1개를 조회했으므로, 실제 응답에는 size개만 포함
         boolean hasNext = posts.size() > size;
@@ -83,23 +86,28 @@ public class PostService {
 
         // 다음 커서는 마지막 게시글의 ID
         Long nextCursor = hasNext && !posts.isEmpty() ? posts.getLast().getId() : null;
-        return new CursorResponse<>(posts.stream().map(PostSummaryResponse::from).toList(), nextCursor, hasNext);
+        return new CursorResponse<>(posts.stream().map(PostSummaryResponse::from).toList(),
+            nextCursor, hasNext);
     }
 
     @Transactional(readOnly = true)
-    public Page<PostSummaryResponse> getUserPostsByUsernameWithSearchOptionsToPage(Pageable pageable, String username,
+    public Page<PostSummaryResponse> getUserPostsByUsernameWithSearchOptionsToPage(
+        Pageable pageable, String username,
         PostSearchOptions searchOptions) {
-        return postRepository.findUserPostsByUsernameAndSearchOptionsToPage(pageable, username, searchOptions)
+        return postRepository.findUserPostsByUsernameAndSearchOptionsToPage(pageable, username,
+                searchOptions)
             .map(PostSummaryResponse::from);
     }
 
     @Transactional(readOnly = true)
-    public CursorResponse<PostSummaryResponse> getUserLikedPostByUsernameWithSearchOptionsToCursor(Long cursor,
+    public CursorResponse<PostSummaryResponse> getUserLikedPostByUsernameWithSearchOptionsToCursor(
+        Long cursor,
         int size,
         String username,
         PostSearchOptions searchOptions) {
         // 커서 기반 조회
-        List<Post> posts = postRepository.findUserLikedPostsByUsernameAndSearchOptionsToCursor(cursor, size + 1,
+        List<Post> posts = postRepository.findUserLikedPostsByUsernameAndSearchOptionsToCursor(
+            cursor, size + 1,
             username,
             searchOptions);
 
@@ -111,7 +119,8 @@ public class PostService {
 
         // 다음 커서는 마지막 게시글의 ID
         Long nextCursor = hasNext && !posts.isEmpty() ? posts.getLast().getId() : null;
-        return new CursorResponse<>(posts.stream().map(PostSummaryResponse::from).toList(), nextCursor, hasNext);
+        return new CursorResponse<>(posts.stream().map(PostSummaryResponse::from).toList(),
+            nextCursor, hasNext);
     }
 
     @Transactional(readOnly = true)

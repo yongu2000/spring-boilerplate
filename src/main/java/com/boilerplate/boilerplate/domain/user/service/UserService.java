@@ -1,7 +1,6 @@
 package com.boilerplate.boilerplate.domain.user.service;
 
 import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
-import com.boilerplate.boilerplate.domain.image.service.ImageService;
 import com.boilerplate.boilerplate.domain.user.dto.EmailDuplicateCheckResponse;
 import com.boilerplate.boilerplate.domain.user.dto.PublicUserResponse;
 import com.boilerplate.boilerplate.domain.user.dto.UpdateUserProfileRequest;
@@ -25,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final ImageService imageService;
+    private final UserCascadeDeleteService userCascadeDeleteService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public UserResponse getUserProfile() {
@@ -102,6 +101,13 @@ public class UserService {
         );
 
         return UserResponse.of(userRepository.save(user));
+    }
+
+    // 권한 확인 로직 필요 (admin, 본인)
+    public void deleteByUsername(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        userCascadeDeleteService.deleteByUser(user);
+        userRepository.delete(user);
     }
 
 //    public void uploadProfileImage(String username, MultipartFile file) {

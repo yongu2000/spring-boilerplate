@@ -3,6 +3,7 @@ package com.boilerplate.boilerplate.domain.post.repository;
 import com.boilerplate.boilerplate.domain.post.entity.Comment;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -19,5 +20,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
         "LEFT JOIN FETCH c.post " +
         "WHERE c.id = :commentId")
     Optional<Comment> findByIdWithPost(@Param("commentId") Long commentId);
+
+    @Modifying
+    @Query("UPDATE Comment c SET c.deletedAt = CURRENT_TIMESTAMP WHERE c.user.id = :userId")
+    void softDeleteByUserId(Long userId);
 
 }

@@ -1,6 +1,8 @@
 package com.boilerplate.boilerplate.domain.post.entity;
 
 import com.boilerplate.boilerplate.domain.user.entity.User;
+import com.boilerplate.boilerplate.global.entity.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -13,16 +15,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
-@Getter
+@SQLDelete(sql = "UPDATE liked_post SET deleted_at = CURRENT_TIMESTAMP WHERE liked_post_id = ?")
+@SQLRestriction("deleted_at is null")
 @Builder
 @AllArgsConstructor
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class LikedPost {
+public class LikedPost extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "liked_post_id", updatable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
