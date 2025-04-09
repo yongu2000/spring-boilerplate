@@ -13,10 +13,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Transactional
 public class DummyDataBatchInsert implements CommandLineRunner {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(
@@ -48,26 +50,38 @@ public class DummyDataBatchInsert implements CommandLineRunner {
     }
 
     public void insertDummyData() {
-        int userCount = 50;
-        int postCount = 10000;
-        int commentsPerPost = 5;
+        int userCount = 500;
+        int postCount = 1_000_000;
+        int commentsPerPost = 2;
         int repliesPerComment = 2;
 
-        log.info("👉 유저 생성 시작");
-        insertUsers(userCount);
-        log.info("✅ 유저 생성 완료");
+        logExecutionTime("유저 데이터 생성", () -> insertUsers(userCount));
+        logExecutionTime("게시글 생성",
+            () -> insertPosts(postCount, userCount,
+                commentsPerPost + commentsPerPost * repliesPerComment));
+//        logExecutionTime("댓글 생성",
+//            () -> insertComments(postCount, userCount, commentsPerPost));
+//        logExecutionTime("대댓글 생성",
+//            () -> insertReplies(postCount, commentsPerPost, repliesPerComment, userCount));
 
-        log.info("👉 게시글 생성 시작");
-        insertPosts(postCount, userCount);
-        log.info("✅ 게시글 생성 완료");
+        int totalUsers = countTableRows("user");
+        int totalPosts = countTableRows("post");
+        int totalComments = countTableRows("comment");
 
-        log.info("👉 댓글 생성 시작");
-        insertComments(postCount, userCount, commentsPerPost);
-        log.info("✅ 댓글 생성 완료");
+        log.info("📊 데이터 삽입 결과");
+        log.info("👤 Users: {}", totalUsers);
+        log.info("📝 Posts: {}", totalPosts);
+        log.info("💬 Comments (대댓글 포함): {}", totalComments);
+    }
 
-        log.info("👉 대댓글 생성 시작");
-        insertReplies(postCount, commentsPerPost, repliesPerComment, userCount);
-        log.info("✅ 대댓글 생성 완료");
+    private void logExecutionTime(String title, Runnable task) {
+        log.info("[{}] 👉 {} 시작", LocalDateTime.now().format(formatter), title);
+        long start = System.currentTimeMillis();
+
+        task.run();
+
+        long end = System.currentTimeMillis();
+        log.info("[{}] ✅ {} 완료 ({}ms)", LocalDateTime.now().format(formatter), title, end - start);
     }
 
     private void insertUsers(int count) {
@@ -90,21 +104,35 @@ public class DummyDataBatchInsert implements CommandLineRunner {
         jdbcTemplate.batchUpdate(sql, batchArgs);
     }
 
-    private void insertPosts(int count, int userCount) {
-        String sql = "INSERT INTO post (title, content, likes, comment_counts, view_counts, user_id, created_at, modified_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private void insertPosts(int totalCount, int userCount, int commentPerPostCount) {
+        int chunkSize = 100_000;
+        for (int offset = 0; offset < totalCount; offset += chunkSize) {
+            int currentBatchSize = Math.min(chunkSize, totalCount - offset);
+            insertPostChunk(offset, currentBatchSize, userCount, commentPerPostCount);
+            log.info("✅ 게시글 {} ~ {} 삽입 완료", offset + 1, offset + currentBatchSize);
+        }
+    }
+
+    private void insertPostChunk(int offset, int count, int userCount, int commentPerPostCount) {
+        String sql =
+            "INSERT INTO post (title, content, likes, comment_counts, view_counts, user_id, created_at, modified_at) "
+                +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
-                ps.setString(1, "게시글 제목 " + (i + 1));
-                ps.setString(2, "이것은 " + (i + 1) + "번째 게시글의 내용입니다.");
+                int index = offset + i;
+                ps.setString(1, "게시글 제목 " + (index + 1));
+                ps.setString(2, "이것은 " + (index + 1) + "번째 게시글의 내용입니다.");
                 ps.setLong(3, 0L);
-                ps.setLong(4, 5L); // 댓글 수 고정
+                ps.setLong(4, commentPerPostCount);
                 ps.setLong(5, 0L);
-                ps.setLong(6, (i % userCount) + 1); // user_id 1 ~ userCount
-                ps.setTimestamp(7, new java.sql.Timestamp(System.currentTimeMillis() - i * 1000L));
-                ps.setTimestamp(8, new java.sql.Timestamp(System.currentTimeMillis() - i * 1000L));
-
+                ps.setLong(6, (index % userCount) + 1);
+                ps.setTimestamp(7,
+                    new java.sql.Timestamp(System.currentTimeMillis() - index * 1000L));
+                ps.setTimestamp(8,
+                    new java.sql.Timestamp(System.currentTimeMillis() - index * 1000L));
             }
 
             @Override
@@ -115,11 +143,27 @@ public class DummyDataBatchInsert implements CommandLineRunner {
     }
 
     private void insertComments(int postCount, int userCount, int commentsPerPost) {
-        String sql = "INSERT INTO comment (content, post_id, user_id, parent_comment_id, created_at, modified_at) VALUES (?, ?, ?, ?, ?, ?)";
+        int totalCount = postCount * commentsPerPost;
+        int chunkSize = 1_000_000;
+
+        for (int offset = 0; offset < totalCount; offset += chunkSize) {
+            int currentBatchSize = Math.min(chunkSize, totalCount - offset);
+            insertCommentChunk(offset, currentBatchSize, userCount, commentsPerPost);
+            log.info("✅ 댓글 {} ~ {} 삽입 완료", offset + 1, offset + currentBatchSize);
+        }
+    }
+
+    private void insertCommentChunk(int offset, int count, int userCount,
+        int commentsPerPost) {
+        String sql =
+            "INSERT INTO comment (content, post_id, user_id, parent_comment_id, created_at, modified_at) "
+                +
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
-            public void setValues(PreparedStatement ps, int index) throws SQLException {
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                int index = offset + i;
                 int postId = (index / commentsPerPost) + 1;
                 int commentIndex = index % commentsPerPost + 1;
 
@@ -131,32 +175,49 @@ public class DummyDataBatchInsert implements CommandLineRunner {
                     new java.sql.Timestamp(System.currentTimeMillis() - index * 1000L));
                 ps.setTimestamp(6,
                     new java.sql.Timestamp(System.currentTimeMillis() - index * 1000L));
-                ; // parent_comment_id 없음 = 최상위 댓글
             }
 
             @Override
             public int getBatchSize() {
-                return postCount * commentsPerPost;
+                return count;
             }
         });
     }
 
     private void insertReplies(int postCount, int commentsPerPost, int repliesPerComment,
         int userCount) {
-        String sql = "INSERT INTO comment (content, post_id, user_id, parent_comment_id, created_at, modified_at) VALUES (?, ?, ?, ?, ?, ?)";
+        int totalComments = postCount * commentsPerPost;
+        int totalReplies = totalComments * repliesPerComment;
+        int chunkSize = 1_000_000;
+
+        for (int offset = 0; offset < totalReplies; offset += chunkSize) {
+            int currentBatchSize = Math.min(chunkSize, totalReplies - offset);
+            insertReplyChunk(offset, currentBatchSize, commentsPerPost, repliesPerComment,
+                userCount);
+            log.info("✅ 대댓글 {} ~ {} 삽입 완료", offset + 1, offset + currentBatchSize);
+        }
+    }
+
+    private void insertReplyChunk(int offset, int count, int commentsPerPost, int repliesPerComment,
+        int userCount) {
+        String sql =
+            "INSERT INTO comment (content, post_id, user_id, parent_comment_id, created_at, modified_at) "
+                +
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
-            public void setValues(PreparedStatement ps, int index) throws SQLException {
-                int commentIndex = index / repliesPerComment + 1; // 부모 댓글 id (1부터 시작)
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                int index = offset + i;
+
+                int parentCommentId = (index / repliesPerComment) + 1; // 1부터 시작
                 int replyNumber = (index % repliesPerComment) + 1;
+                int postId = ((parentCommentId - 1) / commentsPerPost) + 1;
 
-                int postId = ((commentIndex - 1) / commentsPerPost) + 1;
-
-                ps.setString(1, "댓글 " + commentIndex + "에 대한 대댓글 " + replyNumber + "입니다.");
+                ps.setString(1, "댓글 " + parentCommentId + "에 대한 대댓글 " + replyNumber + "입니다.");
                 ps.setInt(2, postId);
                 ps.setInt(3, (index % userCount) + 1);
-                ps.setLong(4, commentIndex);
+                ps.setLong(4, parentCommentId);
                 ps.setTimestamp(5,
                     new java.sql.Timestamp(System.currentTimeMillis() - index * 1000L));
                 ps.setTimestamp(6,
@@ -165,8 +226,14 @@ public class DummyDataBatchInsert implements CommandLineRunner {
 
             @Override
             public int getBatchSize() {
-                return postCount * commentsPerPost * repliesPerComment;
+                return count;
             }
         });
+    }
+
+    private int countTableRows(String tableName) {
+        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM " + tableName,
+            Integer.class);
+        return count != null ? count : 0;
     }
 }
