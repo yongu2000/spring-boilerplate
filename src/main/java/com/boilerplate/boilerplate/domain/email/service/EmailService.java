@@ -1,6 +1,7 @@
 package com.boilerplate.boilerplate.domain.email.service;
 
 import com.boilerplate.boilerplate.domain.email.dto.VerifyCodeResponse;
+import com.boilerplate.boilerplate.domain.email.exception.EmailSendFailException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.time.Duration;
@@ -20,6 +21,11 @@ public class EmailService {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final JavaMailSender mailSender;
+
+    private static final String EMAIL_VERIFICATION_KEY = "EMAIL:VERIFICATION:";
+    private static final String EMAIL_VERIFIED_KEY = "EMAIL:VERIFIED:";
+    private static final String PASSWORD_RESET_TOKEN_KEY = "PASSWORD:RESET:TOKEN:";
+    private static final String FRONTEND_RESET_LINK = "http://localhost:3000/reset-password?token=";
 
     public void sendVerificationEmail(String email) {
         String code = createVerificationCode();
@@ -54,7 +60,7 @@ public class EmailService {
     }
 
     private void sendPasswordResetHtmlEmail(String to, String token) {
-        String resetLink = "http://localhost:3000/reset-password?token=" + token;
+        String resetLink = FRONTEND_RESET_LINK + token;
         String htmlContent =
             "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>"
                 + "<div style='background-color: #f8f9fa; border-radius: 8px; padding: 20px; text-align: center;'>"
@@ -83,14 +89,14 @@ public class EmailService {
             helper.setText(htmlContent, true); // HTML 형식
             mailSender.send(message);
         } catch (MessagingException e) {
-            throw new IllegalStateException("이메일 전송에 실패했습니다.", e);
+            throw new EmailSendFailException();
         }
     }
 
     private void savePasswordResetToken(String email, String token) {
         redisTemplate.opsForValue().set(
-            "EMAIL:PASSWORD:RESET:" + email,
-            String.valueOf(token),
+            PASSWORD_RESET_TOKEN_KEY + token,
+            email,
             Duration.ofHours(1)
         );
     }
@@ -102,18 +108,18 @@ public class EmailService {
 
     private void saveVerificationCode(String email, String code) {
         redisTemplate.opsForValue().set(
-            "EMAIL:VERIFICATION:" + email,
+            EMAIL_VERIFICATION_KEY + email,
             String.valueOf(code),
             Duration.ofMinutes(5)
         );
     }
 
     public VerifyCodeResponse verifyCode(String email, String code) {
-        String storedCode = redisTemplate.opsForValue().get("EMAIL:VERIFICATION:" + email);
+        String storedCode = redisTemplate.opsForValue().get(EMAIL_VERIFICATION_KEY + email);
         boolean verified = code.equals(storedCode);
         if (verified) {
             redisTemplate.opsForValue().set(
-                "EMAIL:VERIFIED:" + email,
+                EMAIL_VERIFIED_KEY + email,
                 String.valueOf(true),
                 Duration.ofMinutes(10)
             );

@@ -106,7 +106,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/", "/api/login", "/api/join", "/api/token/**", "/uploads/**",
-                    "/api/email/**")
+                    "/api/email/**", "/api/user/password/reset")
                 .permitAll() // 기본 공개 API
                 .requestMatchers(HttpMethod.GET, "/api/user/my").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/user/*").permitAll()

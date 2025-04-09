@@ -1,6 +1,7 @@
 package com.boilerplate.boilerplate.domain.user.controller;
 
 import com.boilerplate.boilerplate.domain.user.dto.EmailDuplicateCheckResponse;
+import com.boilerplate.boilerplate.domain.user.dto.PasswordResetRequest;
 import com.boilerplate.boilerplate.domain.user.dto.PublicUserResponse;
 import com.boilerplate.boilerplate.domain.user.dto.UpdateUserProfileRequest;
 import com.boilerplate.boilerplate.domain.user.dto.UserResponse;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,6 +63,12 @@ public class UserController {
     @DeleteMapping("/{username}")
     public ResponseEntity<Void> deleteUser(@PathVariable String username) {
         userService.deleteByUsername(username);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/password/reset")
+    public ResponseEntity<Void> resetUserPassword(@RequestBody PasswordResetRequest request) {
+        userService.resetUserPassword(request);
         return ResponseEntity.ok().build();
     }
 

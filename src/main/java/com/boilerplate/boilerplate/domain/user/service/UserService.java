@@ -2,16 +2,19 @@ package com.boilerplate.boilerplate.domain.user.service;
 
 import com.boilerplate.boilerplate.domain.auth.CustomUserDetails;
 import com.boilerplate.boilerplate.domain.user.dto.EmailDuplicateCheckResponse;
+import com.boilerplate.boilerplate.domain.user.dto.PasswordResetRequest;
 import com.boilerplate.boilerplate.domain.user.dto.PublicUserResponse;
 import com.boilerplate.boilerplate.domain.user.dto.UpdateUserProfileRequest;
 import com.boilerplate.boilerplate.domain.user.dto.UserResponse;
 import com.boilerplate.boilerplate.domain.user.dto.UsernameDuplicateCheckResponse;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.exception.InvalidPasswordException;
+import com.boilerplate.boilerplate.domain.user.exception.PasswordResetTokenNotMatchException;
 import com.boilerplate.boilerplate.domain.user.exception.UserDetailNotFoundException;
 import com.boilerplate.boilerplate.domain.user.exception.UserNotFoundException;
 import com.boilerplate.boilerplate.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserService {
 
+    private final RedisTemplate<String, String> redisTemplate;
     private final UserRepository userRepository;
     private final UserCascadeDeleteService userCascadeDeleteService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -108,6 +112,18 @@ public class UserService {
         User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
         userCascadeDeleteService.deleteByUser(user);
         userRepository.delete(user);
+    }
+
+    public void resetUserPassword(PasswordResetRequest request) {
+        String email = redisTemplate.opsForValue()
+            .get("PASSWORD:RESET:TOKEN:" + request.getToken());
+        if (email == null) {
+            throw new PasswordResetTokenNotMatchException();
+        }
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(UserNotFoundException::new);
+        user.updatePassword(bCryptPasswordEncoder.encode(request.getNewPassword()));
+        redisTemplate.delete("PASSWORD:RESET:TOKEN:" + request.getToken());
     }
 
 //    public void uploadProfileImage(String username, MultipartFile file) {

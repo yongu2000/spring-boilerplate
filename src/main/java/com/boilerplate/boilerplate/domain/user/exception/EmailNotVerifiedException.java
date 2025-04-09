@@ -5,6 +5,6 @@ import com.boilerplate.boilerplate.global.exception.BusinessException;
 public class EmailNotVerifiedException extends BusinessException {
 
     public EmailNotVerifiedException() {
-        super(UserError.INVALID_PASSWORD);
+        super(UserError.EMAIL_NOT_VERIFIED);
     }
 }

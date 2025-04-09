@@ -44,7 +44,7 @@ public class JoinService {
     }
 
     private void validateEmailVerification(String email) {
-        String value = redisTemplate.opsForValue().get("VERIFIED:" + email);
+        String value = redisTemplate.opsForValue().get("EMAIL:VERIFIED:" + email);
         if (!Boolean.parseBoolean(value)) {
             throw new EmailNotVerifiedException();
         }
