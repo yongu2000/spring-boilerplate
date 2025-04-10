@@ -7,6 +7,7 @@ import jakarta.mail.internet.MimeMessage;
 import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -25,7 +26,8 @@ public class EmailService {
     private static final String EMAIL_VERIFICATION_KEY = "EMAIL:VERIFICATION:";
     private static final String EMAIL_VERIFIED_KEY = "EMAIL:VERIFIED:";
     private static final String PASSWORD_RESET_TOKEN_KEY = "PASSWORD:RESET:TOKEN:";
-    private static final String FRONTEND_RESET_LINK = "http://localhost:3000/reset-password?token=";
+    @Value("${app.frontend.reset-password-uri}")
+    private String FRONTEND_RESET_LINK;
 
     public void sendVerificationEmail(String email) {
         String code = createVerificationCode();

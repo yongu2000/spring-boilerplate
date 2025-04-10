@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -41,6 +42,9 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
+    @Value("${app.frontend.url}")
+    private String FRONTEND_URL;
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
         throws Exception {
@@ -68,7 +72,7 @@ public class SecurityConfig {
 
                         // 프론트 서버 주소
                         configuration.setAllowedOrigins(
-                            Collections.singletonList("http://localhost:3000"));
+                            Collections.singletonList(FRONTEND_URL));
                         // GET, POST, 등 요청
                         configuration.setAllowedMethods(Collections.singletonList("*"));
                         // 쿠키, Authorization 인증 헤더, TLS client certificates(증명서)를 내포하는 자격 인증 정보
