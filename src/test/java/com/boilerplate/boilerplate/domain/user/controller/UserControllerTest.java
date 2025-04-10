@@ -1,6 +1,5 @@
 package com.boilerplate.boilerplate.domain.user.controller;
 
-import static com.boilerplate.boilerplate.utils.TestReflectionUtil.setCreatedAt;
 import static com.boilerplate.boilerplate.utils.TestReflectionUtil.setId;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
@@ -78,8 +77,6 @@ class UserControllerTest {
 
         testUser.updateProfile(null, "Test Bio", null, null, null);
         setId(testUser, 1L);
-        setCreatedAt(testUser, LocalDateTime.now());
-
         testUserResponse = UserResponse.builder()
             .id(testUser.getId())
             .email(testUser.getEmail())
@@ -87,7 +84,7 @@ class UserControllerTest {
             .name(testUser.getName())
             .bio(testUser.getBio())
             .profileImageUrl(testUser.getProfileImageUrl())
-            .createdAt(testUser.getCreatedAt())
+            .createdAt(LocalDateTime.now())
             .build();
 
         testPublicUserResponse = PublicUserResponse.builder()
@@ -95,7 +92,7 @@ class UserControllerTest {
             .name(testUser.getName())
             .bio(testUser.getBio())
             .profileImageUrl(testUser.getProfileImageUrl())
-            .createdAt(testUser.getCreatedAt())
+            .createdAt(LocalDateTime.now())
             .build();
 
         testUpdateRequest = new UpdateUserProfileRequest(

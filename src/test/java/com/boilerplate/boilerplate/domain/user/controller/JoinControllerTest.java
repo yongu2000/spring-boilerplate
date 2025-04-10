@@ -120,7 +120,8 @@ class JoinControllerTest {
                         fieldWithPath("status").description("HTTP 상태 코드"),
                         fieldWithPath("code").description("에러 코드"),
                         fieldWithPath("timestamp").description("에러 발생 시각"),
-                        fieldWithPath("details").description("추가 에러 정보")
+                        fieldWithPath("details").description("추가 에러 정보"),
+                        fieldWithPath("details.message").description("추가 에러 메세지")
                     )
                     .requestSchema(schema("JoinRequest"))
                     .responseSchema(schema("ErrorResponse"))

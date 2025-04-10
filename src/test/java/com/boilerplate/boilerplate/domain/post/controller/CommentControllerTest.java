@@ -7,9 +7,11 @@ import static com.epages.restdocs.apispec.Schema.schema;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -268,7 +270,8 @@ class CommentControllerTest {
                         fieldWithPath("status").description("HTTP 상태 코드"),
                         fieldWithPath("code").description("에러 코드"),
                         fieldWithPath("timestamp").description("에러 발생 시각"),
-                        fieldWithPath("details").description("추가 에러 정보")
+                        fieldWithPath("details").description("추가 에러 정보"),
+                        fieldWithPath("details.message").description("추가 에러 메세지")
                     )
                     .requestSchema(schema("CommentRequest"))
                     .responseSchema(schema("ErrorResponse"))
@@ -324,7 +327,8 @@ class CommentControllerTest {
                         fieldWithPath("status").description("HTTP 상태 코드"),
                         fieldWithPath("code").description("에러 코드"),
                         fieldWithPath("timestamp").description("에러 발생 시각"),
-                        fieldWithPath("details").description("추가 에러 정보")
+                        fieldWithPath("details").description("추가 에러 정보"),
+                        fieldWithPath("details.message").description("추가 에러 메세지")
                     )
                     .responseSchema(schema("ErrorResponse"))
                     .build()

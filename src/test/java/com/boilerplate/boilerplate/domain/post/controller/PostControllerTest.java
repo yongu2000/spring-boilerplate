@@ -402,7 +402,8 @@ class PostControllerTest {
                         fieldWithPath("status").description("HTTP 상태 코드"),
                         fieldWithPath("code").description("에러 코드"),
                         fieldWithPath("timestamp").description("에러 발생 시각"),
-                        fieldWithPath("details").description("추가 에러 정보")
+                        fieldWithPath("details").description("추가 에러 정보"),
+                        fieldWithPath("details.message").description("추가 에러 메세지")
                     )
                     .requestSchema(schema("UpdatePostRequest"))
                     .responseSchema(schema("ErrorResponse"))
@@ -437,7 +438,8 @@ class PostControllerTest {
                         fieldWithPath("status").description("HTTP 상태 코드"),
                         fieldWithPath("code").description("에러 코드"),
                         fieldWithPath("timestamp").description("에러 발생 시각"),
-                        fieldWithPath("details").description("추가 에러 정보")
+                        fieldWithPath("details").description("추가 에러 정보"),
+                        fieldWithPath("details.message").description("추가 에러 메세지")
                     )
                     .responseSchema(schema("ErrorResponse"))
                     .build()
@@ -471,7 +473,8 @@ class PostControllerTest {
                         fieldWithPath("status").description("HTTP 상태 코드"),
                         fieldWithPath("code").description("에러 코드"),
                         fieldWithPath("timestamp").description("에러 발생 시각"),
-                        fieldWithPath("details").description("추가 에러 정보")
+                        fieldWithPath("details").description("추가 에러 정보"),
+                        fieldWithPath("details.message").description("추가 에러 메세지")
                     )
                     .responseSchema(schema("ErrorResponse"))
                     .build()
@@ -648,7 +651,8 @@ class PostControllerTest {
                         fieldWithPath("status").description("HTTP 상태 코드"),
                         fieldWithPath("code").description("에러 코드"),
                         fieldWithPath("timestamp").description("에러 발생 시각"),
-                        fieldWithPath("details").description("추가 에러 정보")
+                        fieldWithPath("details").description("추가 에러 정보"),
+                        fieldWithPath("details.message").description("추가 에러 메세지")
                     )
                     .responseSchema(schema("ErrorResponse"))
                     .build()
@@ -724,7 +728,8 @@ class PostControllerTest {
     void 사용자_좋아요_게시글_목록_조회_성공() throws Exception {
         // given
         CursorResponse<PostSummaryResponse> response = new CursorResponse<>(List.of(testPostSummaryResponse), 2L, true);
-        given(postService.getUserLikedPostByUsernameWithSearchOptionsToCursor(anyLong(), anyInt(), any(), any())).willReturn(response);
+        given(postService.getUserLikedPostByUsernameWithSearchOptionsToCursor(anyLong(), anyInt(), any(),
+            any())).willReturn(response);
 
         // when & then
         mockMvc.perform(get("/api/posts/{username}/like/grid", "test")
@@ -779,8 +784,10 @@ class PostControllerTest {
     @Test
     void 사용자_좋아요_게시글_목록_조회_마지막_페이지() throws Exception {
         // given
-        CursorResponse<PostSummaryResponse> response = new CursorResponse<>(List.of(testPostSummaryResponse), null, false);
-        given(postService.getUserLikedPostByUsernameWithSearchOptionsToCursor(anyLong(), anyInt(), any(), any())).willReturn(response);
+        CursorResponse<PostSummaryResponse> response = new CursorResponse<>(List.of(testPostSummaryResponse), null,
+            false);
+        given(postService.getUserLikedPostByUsernameWithSearchOptionsToCursor(anyLong(), anyInt(), any(),
+            any())).willReturn(response);
 
         // when & then
         mockMvc.perform(get("/api/posts/{username}/like/grid", "test")
