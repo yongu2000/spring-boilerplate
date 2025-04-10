@@ -41,6 +41,11 @@ dependencies {
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     compileOnly 'org.projectlombok:lombok'
+    // AWS
+    implementation platform("software.amazon.awssdk:bom:2.31.18")
+    implementation "software.amazon.awssdk:s3"
+    implementation "software.amazon.awssdk:auth"
+    implementation "software.amazon.awssdk:regions"
     // DB
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'com.mysql:mysql-connector-j'
