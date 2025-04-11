@@ -53,7 +53,7 @@ public class DummyDataBatchInsert implements CommandLineRunner {
 
     public void insertDummyData() {
         int userCount = 500;
-        int postCount = 1_000_000;
+        int postCount = 1000;
         int commentsPerPost = 2;
         int repliesPerComment = 2;
 
