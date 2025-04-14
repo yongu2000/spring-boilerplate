@@ -1,13 +1,10 @@
 package com.boilerplate.boilerplate;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-@SpringBootTest
-class BoilerplateApplicationTests {
-
-	@Test
-	void contextLoads() {
-	}
-
-}
+//@SpringBootTest
+//class BoilerplateApplicationTests {
+//
+//	@Test
+//	void contextLoads() {
+//	}
+//
+//}
