@@ -83,7 +83,7 @@ public class S3StorageService implements StorageService {
     private void uploadToS3(byte[] fileBytes, String fileName, String contentType) {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
             .bucket(bucketName)
-            .acl("public-read")
+//            .acl("public-read")
             .key(fileName)
             .contentType(contentType)
             .build();
