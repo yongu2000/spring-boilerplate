@@ -19,7 +19,8 @@ public class LoggingInterceptor implements HandlerInterceptor {
         request.setAttribute("startTime", System.currentTimeMillis());
 
         // 요청 정보 로깅
-        log.info("[{}] {} {} started",
+        log.info("[{}] [{}] {} {} started",
+            request.getRemoteAddr(),
             LocalDateTime.now().format(formatter),
             request.getMethod(),
             request.getRequestURI()
