@@ -6,6 +6,7 @@ import com.boilerplate.boilerplate.global.utils.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/token")
 @RequiredArgsConstructor
+@Slf4j
 public class JwtTokenReissueController {
 
     private final JwtTokenService jwtTokenService;
@@ -37,13 +39,20 @@ public class JwtTokenReissueController {
 
         String refreshToken = CookieUtil.getCookieByName(request.getCookies(),
             jwtConfig.getRefreshTokenCookieName());
-
+        log.info("client refresh token = {}", refreshToken);
         String newAccessToken = jwtTokenService.reissueAccessToken(refreshToken);
+
+        log.info("new access token = {}", newAccessToken);
+
         String newRefreshToken = jwtTokenService.reissueRefreshToken(refreshToken);
+
+        log.info("new refresh token = {}", newRefreshToken);
 
         jwtTokenService.setAccessToken(response, newAccessToken);
         jwtTokenService.setRefreshToken(response, newRefreshToken);
-        
+
+        log.info("Token Set");
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

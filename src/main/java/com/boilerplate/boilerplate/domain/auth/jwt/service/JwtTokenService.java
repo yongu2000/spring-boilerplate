@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 @Transactional
+@Slf4j
 public class JwtTokenService {
 
     private final RedisTemplate<String, String> redisTemplate;
@@ -96,7 +98,6 @@ public class JwtTokenService {
         if (!isValidRefreshToken(refreshToken)) {
             throw new InvalidRefreshTokenException();
         }
-        deleteRefreshToken(refreshToken);
         CustomUserDetails userDetails = getUserDetailsFromToken(refreshToken);
         Date expiration = JwtUtil.getExpiration(refreshToken, jwtConfig.getSecretKey());
 
@@ -134,8 +135,12 @@ public class JwtTokenService {
 
     public boolean isValidRefreshToken(String refreshToken) {
         try {
+            log.info("🔍 검사할 리프레시 토큰: {}", refreshToken);
+            String key = "RT:" + refreshToken;
+            boolean exists = Boolean.TRUE.equals(redisTemplate.hasKey(key));
+            log.info("🔎 Redis에서 키 [{}] 존재 여부: {}", key, exists);
             return JwtUtil.getTokenType(refreshToken, jwtConfig.getSecretKey()) == TokenType.REFRESH
-                && redisTemplate.hasKey("RT:" + refreshToken);
+                && exists;
         } catch (Exception e) {
             return false;
         }
@@ -155,6 +160,9 @@ public class JwtTokenService {
             String.valueOf(userId),
             Duration.ofMillis(ttlInMillis)
         );
+
+        boolean check = Boolean.TRUE.equals(redisTemplate.hasKey("RT:" + refreshToken));
+        log.info("✅ Redis에 저장 확인: {}", check);  // true 나와야 정상
     }
 
     public void deleteRefreshToken(String refreshToken) {
