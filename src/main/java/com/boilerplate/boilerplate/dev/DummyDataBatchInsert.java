@@ -37,7 +37,7 @@ public class DummyDataBatchInsert implements CommandLineRunner {
 
         long start = System.currentTimeMillis();
 
-        insertDummyData();
+//        insertDummyData();
 
         long end = System.currentTimeMillis();
         log.info("[{}] Jdbc Data Insertion Finished in {}ms", LocalDateTime.now().format(formatter),
