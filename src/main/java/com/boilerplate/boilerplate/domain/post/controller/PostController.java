@@ -11,7 +11,6 @@ import com.boilerplate.boilerplate.global.dto.CursorResponse;
 import com.boilerplate.boilerplate.global.utils.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
-@Slf4j
 public class PostController {
 
     private final PostService postService;
@@ -91,18 +89,19 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostResponse> getPost(@PathVariable Long postId) {
-        log.info("getPost");
         return ResponseEntity.ok(
             postService.getPostById(postId)
         );
     }
 
     @GetMapping("/{username}/list")
-    public ResponseEntity<Page<PostSummaryResponse>> getAllUserPostsWithSearchOptionsByPage(Pageable pageable,
+    public ResponseEntity<Page<PostSummaryResponse>> getAllUserPostsWithSearchOptionsByPage(
+        Pageable pageable,
         @PathVariable String username,
         @ModelAttribute PostSearchOptions postSearchOptions) {
         return ResponseEntity.ok(
-            postService.getUserPostsByUsernameWithSearchOptionsToPage(pageable, username, postSearchOptions));
+            postService.getUserPostsByUsernameWithSearchOptionsToPage(pageable, username,
+                postSearchOptions));
     }
 
     @GetMapping("/{username}/like/grid")
@@ -113,7 +112,8 @@ public class PostController {
         @ModelAttribute PostSearchOptions postSearchOptions
     ) {
         return ResponseEntity.ok(
-            postService.getUserLikedPostByUsernameWithSearchOptionsToCursor(cursor, size, username, postSearchOptions)
+            postService.getUserLikedPostByUsernameWithSearchOptionsToCursor(cursor, size, username,
+                postSearchOptions)
         );
     }
 
@@ -131,6 +131,7 @@ public class PostController {
 
     @GetMapping("/{postId}/like/status")
     public ResponseEntity<PostLikeStatusResponse> getLikeStatus(@PathVariable Long postId) {
-        return ResponseEntity.ok(postService.getLikeStatus(SecurityUtil.getCurrentUserId(), postId));
+        return ResponseEntity.ok(
+            postService.getLikeStatus(SecurityUtil.getCurrentUserId(), postId));
     }
 }

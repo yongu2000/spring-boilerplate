@@ -9,24 +9,22 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class CommentResponse {
+public class CommentRepliesResponse {
 
     private Long id;
     private String content;
     private PostAndCommentUserResponse user;
     private Long parentCommentId;
-    private Long repliesCount;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public static CommentResponse from(Comment comment) {
-        return CommentResponse.builder()
+    public static CommentRepliesResponse from(Comment comment) {
+        return CommentRepliesResponse.builder()
             .id(comment.getId())
             .content(comment.getContent())
             .user(PostAndCommentUserResponse.from(comment.getUser()))
             .parentCommentId(
                 comment.getParentComment() != null ? comment.getParentComment().getId() : null)
-            .repliesCount((long) comment.getReplies().size())
             .createdAt(comment.getCreatedAt())
             .modifiedAt(comment.getModifiedAt())
             .build();

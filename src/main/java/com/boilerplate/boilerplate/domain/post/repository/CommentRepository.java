@@ -1,6 +1,7 @@
 package com.boilerplate.boilerplate.domain.post.repository;
 
 import com.boilerplate.boilerplate.domain.post.entity.Comment;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -25,4 +26,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("UPDATE Comment c SET c.deletedAt = CURRENT_TIMESTAMP WHERE c.user.id = :userId")
     void softDeleteByUserId(Long userId);
 
+    @Query("SELECT r FROM Comment r " +
+        "JOIN FETCH r.user " +
+        "WHERE r.parentComment.id = :commentId")
+    List<Comment> findRepliesById(Long commentId);
 }

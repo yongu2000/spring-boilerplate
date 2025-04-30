@@ -116,7 +116,8 @@ public class SecurityConfig {
                 .permitAll() // 기본 공개 API
                 .requestMatchers("/actuator/**").permitAll() // 프로메테우스
                 .requestMatchers(HttpMethod.GET, "/api/user/my").authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/user/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/user/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());

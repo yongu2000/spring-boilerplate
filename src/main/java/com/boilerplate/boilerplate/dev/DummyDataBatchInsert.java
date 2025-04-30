@@ -53,18 +53,18 @@ public class DummyDataBatchInsert implements CommandLineRunner {
 
     public void insertDummyData() {
         int userCount = 500;
-        int postCount = 1000;
-        int commentsPerPost = 2;
+        int postCount = 1_000_000;
+        int commentsPerPost = 5;
         int repliesPerComment = 2;
 
         logExecutionTime("유저 데이터 생성", () -> insertUsers(userCount));
         logExecutionTime("게시글 생성",
             () -> insertPosts(postCount, userCount,
                 commentsPerPost + commentsPerPost * repliesPerComment));
-//        logExecutionTime("댓글 생성",
-//            () -> insertComments(postCount, userCount, commentsPerPost));
-//        logExecutionTime("대댓글 생성",
-//            () -> insertReplies(postCount, commentsPerPost, repliesPerComment, userCount));
+        logExecutionTime("댓글 생성",
+            () -> insertComments(postCount, userCount, commentsPerPost));
+        logExecutionTime("대댓글 생성",
+            () -> insertReplies(postCount, commentsPerPost, repliesPerComment, userCount));
 
         int totalUsers = countTableRows("user");
         int totalPosts = countTableRows("post");
@@ -146,7 +146,7 @@ public class DummyDataBatchInsert implements CommandLineRunner {
 
     private void insertComments(int postCount, int userCount, int commentsPerPost) {
         int totalCount = postCount * commentsPerPost;
-        int chunkSize = 1_000_000;
+        int chunkSize = 100_000;
 
         for (int offset = 0; offset < totalCount; offset += chunkSize) {
             int currentBatchSize = Math.min(chunkSize, totalCount - offset);
@@ -190,7 +190,7 @@ public class DummyDataBatchInsert implements CommandLineRunner {
         int userCount) {
         int totalComments = postCount * commentsPerPost;
         int totalReplies = totalComments * repliesPerComment;
-        int chunkSize = 1_000_000;
+        int chunkSize = 100_000;
 
         for (int offset = 0; offset < totalReplies; offset += chunkSize) {
             int currentBatchSize = Math.min(chunkSize, totalReplies - offset);

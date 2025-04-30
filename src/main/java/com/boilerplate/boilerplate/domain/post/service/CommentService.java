@@ -1,5 +1,6 @@
 package com.boilerplate.boilerplate.domain.post.service;
 
+import com.boilerplate.boilerplate.domain.post.dto.CommentRepliesResponse;
 import com.boilerplate.boilerplate.domain.post.dto.CommentResponse;
 import com.boilerplate.boilerplate.domain.post.entity.Comment;
 import com.boilerplate.boilerplate.domain.post.entity.Post;
@@ -8,6 +9,7 @@ import com.boilerplate.boilerplate.domain.post.repository.CommentRepository;
 import com.boilerplate.boilerplate.domain.post.repository.PostRepository;
 import com.boilerplate.boilerplate.domain.user.entity.User;
 import com.boilerplate.boilerplate.domain.user.service.UserService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -54,5 +56,11 @@ public class CommentService {
         Post post = comment.getPost();
         post.decreaseCommentCounts();
         commentRepository.deleteById(commentId);
+    }
+
+    public List<CommentRepliesResponse> getReplies(Long commentId) {
+        return commentRepository.findRepliesById(commentId).stream()
+            .map(CommentRepliesResponse::from)
+            .toList();
     }
 }
