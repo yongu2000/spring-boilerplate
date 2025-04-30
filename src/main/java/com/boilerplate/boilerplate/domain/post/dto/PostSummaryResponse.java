@@ -27,6 +27,7 @@ public class PostSummaryResponse {
             .title(post.getTitle())
             .content(post.getContent())
             .likes(post.getLikes())
+//            .commentCounts((long) post.getComments().size())
             .commentCounts(post.getCommentCounts())
             .viewCounts(post.getViewCounts())
             .user(PostAndCommentUserResponse.from(post.getUser()))

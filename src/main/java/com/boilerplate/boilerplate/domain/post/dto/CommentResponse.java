@@ -24,8 +24,10 @@ public class CommentResponse {
             .id(comment.getId())
             .content(comment.getContent())
             .user(PostAndCommentUserResponse.from(comment.getUser()))
+//            .parentCommentId(null)
             .parentCommentId(
                 comment.getParentComment() != null ? comment.getParentComment().getId() : null)
+//            .repliesCount((long) comment.getReplies().size())
             .repliesCount((long) comment.getReplies().size())
             .createdAt(comment.getCreatedAt())
             .modifiedAt(comment.getModifiedAt())

@@ -58,6 +58,12 @@ public class CommentService {
         commentRepository.deleteById(commentId);
     }
 
+    public List<CommentResponse> getComments(Long postId) {
+        return commentRepository.findByPostId(postId).stream()
+            .map(CommentResponse::from)
+            .toList();
+    }
+
     public List<CommentRepliesResponse> getReplies(Long commentId) {
         return commentRepository.findRepliesById(commentId).stream()
             .map(CommentRepliesResponse::from)
