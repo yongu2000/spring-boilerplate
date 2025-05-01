@@ -30,12 +30,14 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Post> findPostsBySearchOptionsToPage(Pageable pageable, PostSearchOptions searchOptions) {
+    public Page<Post> findPostsBySearchOptionsToPage(Pageable pageable,
+        PostSearchOptions searchOptions) {
         List<Post> content = queryFactory
             .selectFrom(post)
             .leftJoin(post.user, user).fetchJoin()
             .where(
-                searchKeywordContains(searchOptions.getSearchType(), searchOptions.getSearchKeyword()),
+                searchKeywordContains(searchOptions.getSearchType(),
+                    searchOptions.getSearchKeyword()),
                 createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
                 viewCountsGoe(searchOptions.getMinViewCounts()),
                 commentCountsGoe(searchOptions.getMinCommentCounts()),
@@ -49,9 +51,9 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
         Long count = queryFactory
             .select(post.count())
             .from(post)
-            .leftJoin(post.user, user)
             .where(
-                searchKeywordContains(searchOptions.getSearchType(), searchOptions.getSearchKeyword()),
+                searchKeywordContains(searchOptions.getSearchType(),
+                    searchOptions.getSearchKeyword()),
                 createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
                 viewCountsGoe(searchOptions.getMinViewCounts()),
                 commentCountsGoe(searchOptions.getMinCommentCounts()),
@@ -63,14 +65,16 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
     }
 
     @Override
-    public Page<Post> findUserPostsByUsernameAndSearchOptionsToPage(Pageable pageable, String username,
+    public Page<Post> findUserPostsByUsernameAndSearchOptionsToPage(Pageable pageable,
+        String username,
         PostSearchOptions searchOptions) {
         List<Post> content = queryFactory
             .selectFrom(post)
             .leftJoin(post.user, user).fetchJoin()
             .where(
                 post.user.username.eq(username),
-                searchKeywordContains(searchOptions.getSearchType(), searchOptions.getSearchKeyword()),
+                searchKeywordContains(searchOptions.getSearchType(),
+                    searchOptions.getSearchKeyword()),
                 createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
                 viewCountsGoe(searchOptions.getMinViewCounts()),
                 commentCountsGoe(searchOptions.getMinCommentCounts()),
@@ -87,7 +91,8 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
             .leftJoin(post.user, user)
             .where(
                 post.user.username.eq(username),
-                searchKeywordContains(searchOptions.getSearchType(), searchOptions.getSearchKeyword()),
+                searchKeywordContains(searchOptions.getSearchType(),
+                    searchOptions.getSearchKeyword()),
                 createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
                 viewCountsGoe(searchOptions.getMinViewCounts()),
                 commentCountsGoe(searchOptions.getMinCommentCounts()),
@@ -99,14 +104,16 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
     }
 
     @Override
-    public List<Post> findPostsBySearchOptionsToCursor(Long cursor, int size, PostSearchOptions searchOptions) {
+    public List<Post> findPostsBySearchOptionsToCursor(Long cursor, int size,
+        PostSearchOptions searchOptions) {
 
         return queryFactory
             .selectFrom(post)
             .leftJoin(post.user, user).fetchJoin()
             .where(
                 cursorDirection(cursor, searchOptions.getSortDirection()),
-                searchKeywordContains(searchOptions.getSearchType(), searchOptions.getSearchKeyword()),
+                searchKeywordContains(searchOptions.getSearchType(),
+                    searchOptions.getSearchKeyword()),
                 createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
                 viewCountsGoe(searchOptions.getMinViewCounts()),
                 commentCountsGoe(searchOptions.getMinCommentCounts()),
@@ -118,7 +125,8 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
     }
 
     @Override
-    public List<Post> findUserLikedPostsByUsernameAndSearchOptionsToCursor(Long cursor, int size, String username,
+    public List<Post> findUserLikedPostsByUsernameAndSearchOptionsToCursor(Long cursor, int size,
+        String username,
         PostSearchOptions searchOptions) {
         QUser user2 = new QUser("user2");
         return queryFactory
@@ -129,7 +137,8 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
             .where(
                 user2.username.eq(username),
                 cursorDirection(cursor, searchOptions.getSortDirection()),
-                searchKeywordContains(searchOptions.getSearchType(), searchOptions.getSearchKeyword()),
+                searchKeywordContains(searchOptions.getSearchType(),
+                    searchOptions.getSearchKeyword()),
                 createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
                 viewCountsGoe(searchOptions.getMinViewCounts()),
                 commentCountsGoe(searchOptions.getMinCommentCounts()),
@@ -149,10 +158,12 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
             : post.id.lt(cursor);
     }
 
-    private OrderSpecifier<?>[] getOrderSpecifier(PostSortBy sortBy, PostSortDirection sortDirection) {
+    private OrderSpecifier<?>[] getOrderSpecifier(PostSortBy sortBy,
+        PostSortDirection sortDirection) {
         OrderSpecifier<?> primaryOrder = switch (sortBy) {
             case VIEWS -> sortDirection == ASC ? post.viewCounts.asc() : post.viewCounts.desc();
-            case COMMENTS -> sortDirection == ASC ? post.commentCounts.asc() : post.commentCounts.desc();
+            case COMMENTS ->
+                sortDirection == ASC ? post.commentCounts.asc() : post.commentCounts.desc();
             case LIKES -> sortDirection == ASC ? post.likes.asc() : post.likes.desc();
             default -> sortDirection == ASC ? post.createdAt.asc() : post.createdAt.desc();
         };
@@ -195,7 +206,8 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
         return post.createdAt.lt(endDate.plusDays(1).atStartOfDay());
     }
 
-    private BooleanExpression searchKeywordContains(PostSearchType searchType, String searchKeyword) {
+    private BooleanExpression searchKeywordContains(PostSearchType searchType,
+        String searchKeyword) {
         if (!hasText(searchKeyword)) {
             return null;
         }
