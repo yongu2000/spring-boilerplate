@@ -37,7 +37,7 @@ public class CommentService {
         }
 
         Comment comment = new Comment(content, post, user, parentComment);
-        post.increaseCommentCounts();
+        postRepository.increaseCommentCounts(post.getId());
         return CommentResponse.from(commentRepository.save(comment));
     }
 
@@ -54,7 +54,7 @@ public class CommentService {
         Comment comment = commentRepository.findByIdWithPost(commentId)
             .orElseThrow(CommentNotFoundException::new);
         Post post = comment.getPost();
-        post.decreaseCommentCounts();
+        postRepository.decreaseCommentCounts(post.getId());
         commentRepository.deleteById(commentId);
     }
 

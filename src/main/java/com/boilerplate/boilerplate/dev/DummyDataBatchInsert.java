@@ -3,6 +3,7 @@ package com.boilerplate.boilerplate.dev;
 import com.boilerplate.boilerplate.domain.user.entity.Role;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -125,16 +126,15 @@ public class DummyDataBatchInsert implements CommandLineRunner {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 int index = offset + i;
+                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                 ps.setString(1, "게시글 제목 " + (index + 1));
                 ps.setString(2, "이것은 " + (index + 1) + "번째 게시글의 내용입니다.");
                 ps.setLong(3, 0L);
                 ps.setLong(4, commentPerPostCount);
                 ps.setLong(5, 0L);
                 ps.setLong(6, (index % userCount) + 1);
-                ps.setTimestamp(7,
-                    new java.sql.Timestamp(System.currentTimeMillis() - index * 1000L));
-                ps.setTimestamp(8,
-                    new java.sql.Timestamp(System.currentTimeMillis() - index * 1000L));
+                ps.setTimestamp(7, timestamp);
+                ps.setTimestamp(8, timestamp);
             }
 
             @Override
@@ -168,15 +168,14 @@ public class DummyDataBatchInsert implements CommandLineRunner {
                 int index = offset + i;
                 int postId = (index / commentsPerPost) + 1;
                 int commentIndex = index % commentsPerPost + 1;
+                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
                 ps.setString(1, "Post " + postId + "에 대한 " + commentIndex + "번째 댓글입니다.");
                 ps.setInt(2, postId);
                 ps.setInt(3, (index % userCount) + 1);
                 ps.setObject(4, null);
-                ps.setTimestamp(5,
-                    new java.sql.Timestamp(System.currentTimeMillis() - index * 1000L));
-                ps.setTimestamp(6,
-                    new java.sql.Timestamp(System.currentTimeMillis() - index * 1000L));
+                ps.setTimestamp(5, timestamp);
+                ps.setTimestamp(6, timestamp);
             }
 
             @Override
@@ -211,6 +210,7 @@ public class DummyDataBatchInsert implements CommandLineRunner {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 int index = offset + i;
+                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
                 int parentCommentId = (index / repliesPerComment) + 1; // 1부터 시작
                 int replyNumber = (index % repliesPerComment) + 1;
@@ -220,10 +220,8 @@ public class DummyDataBatchInsert implements CommandLineRunner {
                 ps.setInt(2, postId);
                 ps.setInt(3, (index % userCount) + 1);
                 ps.setLong(4, parentCommentId);
-                ps.setTimestamp(5,
-                    new java.sql.Timestamp(System.currentTimeMillis() - index * 1000L));
-                ps.setTimestamp(6,
-                    new java.sql.Timestamp(System.currentTimeMillis() - index * 1000L));
+                ps.setTimestamp(5, timestamp);
+                ps.setTimestamp(6, timestamp);
             }
 
             @Override

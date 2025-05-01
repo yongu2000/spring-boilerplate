@@ -134,7 +134,7 @@ public class PostService {
     public PostResponse getPostById(Long postId) {
         Post post = postRepository.findPostByPostId(postId)
             .orElseThrow(PostNotFoundException::new);
-        post.increaseViewCounts();
+        postRepository.increaseViewCounts(post.getId());
         return PostResponse.from(post);
     }
 
@@ -146,7 +146,7 @@ public class PostService {
         User user = userService.findById(userId);
         Post post = postRepository.findById(postId)
             .orElseThrow(PostNotFoundException::new);
-        post.increaseLikes();
+        postRepository.increaseLikes(post.getId());
         likedPostRepository.save(LikedPost.builder()
             .user(user)
             .post(post)
@@ -159,7 +159,7 @@ public class PostService {
             .orElseThrow(PostNotFoundException::new);
         Post post = postRepository.findById(postId)
             .orElseThrow(PostNotFoundException::new);
-        post.decreaseLikes();
+        postRepository.decreaseLikes(post.getId());
         likedPostRepository.delete(likedPost);
     }
 

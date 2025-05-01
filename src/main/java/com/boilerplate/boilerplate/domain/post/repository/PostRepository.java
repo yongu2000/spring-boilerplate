@@ -25,6 +25,26 @@ public interface PostRepository extends JpaRepository<Post, Long>, SearchPostRep
     List<Post> findPostsByUserId(@Param("userId") Long userId);
 
     @Modifying
+    @Query("UPDATE Post p SET p.viewCounts = p.viewCounts + 1 where p.id = :postId")
+    void increaseViewCounts(@Param("postId") Long postId);
+
+    @Modifying
+    @Query("UPDATE Post p SET p.likes = p.likes + 1 where p.id = :postId")
+    void increaseLikes(@Param("postId") Long postId);
+
+    @Modifying
+    @Query("UPDATE Post p SET p.likes = p.likes - 1 where p.id = :postId")
+    void decreaseLikes(@Param("postId") Long postId);
+
+    @Modifying
+    @Query("UPDATE Post p SET p.commentCounts = p.commentCounts + 1 where p.id = :postId")
+    void increaseCommentCounts(@Param("postId") Long postId);
+
+    @Modifying
+    @Query("UPDATE Post p SET p.commentCounts = p.commentCounts - 1 where p.id = :postId")
+    void decreaseCommentCounts(@Param("postId") Long postId);
+
+    @Modifying
     @Query("UPDATE Post p SET p.deletedAt = CURRENT_TIMESTAMP WHERE p.user.id = :userId")
     void softDeleteByUserId(Long userId);
 

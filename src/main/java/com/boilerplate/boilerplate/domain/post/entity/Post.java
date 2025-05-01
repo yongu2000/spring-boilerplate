@@ -77,28 +77,4 @@ public class Post extends BaseEntity {
         this.content = content;
     }
 
-    public void increaseCommentCounts() {
-        commentCounts++;
-    }
-
-    public void decreaseCommentCounts() {
-        if (commentCounts > 0) {
-            commentCounts--;
-        }
-    }
-
-    public void increaseViewCounts() {
-        viewCounts++;
-    }
-
-    public void increaseLikes() {
-        likes++;
-
-    }
-
-    public void decreaseLikes() {
-        if (likes > 0) {
-            likes--;
-        }
-    }
 }
