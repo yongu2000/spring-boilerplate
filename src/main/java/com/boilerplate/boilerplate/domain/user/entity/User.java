@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-@SQLDelete(sql = "UPDATE image SET deleted_at = CURRENT_TIMESTAMP WHERE image_id = ?")
+@SQLDelete(sql = "UPDATE user SET deleted_at = CURRENT_TIMESTAMP WHERE user_id = ?")
 @SQLRestriction("deleted_at is null")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
